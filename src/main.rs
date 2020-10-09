@@ -7,7 +7,6 @@ use std::f32::consts::PI;
 use glium::{
     Display,
     Surface,
-    Vertex,
     glutin
 };
 use glium::glutin::{
@@ -23,7 +22,6 @@ fn main() {
     let context = ContextBuilder::new().with_srgb(false);
     let display = Display::new(window, context, &event_loop).unwrap();
 
-    let mut time = 0;
     let draw_parameters: glium::DrawParameters = Default::default();
     let uniforms = uniform!{};
 
@@ -59,10 +57,14 @@ fn main() {
         Vertex { position: [ 0.5, -0.5, 0.0] },
     ]).unwrap();
 
+    let null_time = std::time::Instant::now();
     event_loop.run(move |event, _, control_flow: &mut ControlFlow| {
+        let time = std::time::Instant::now() - null_time;
+        let time = time.as_secs_f32();
+
         let mut target = display.draw();
-        let blue = (1. + f32::sin(time as f32 / 100. + PI)) / 2.;
-        let red  = (1. + f32::sin(time as f32 / 100.     )) / 2.;
+        let blue = (1. + f32::sin(time + PI)) / 2.;
+        let red  = (1. + f32::sin(time     )) / 2.;
         target.clear_color(red, 0.0, blue, 1.0);
 
         target.draw(
@@ -74,8 +76,6 @@ fn main() {
         ).unwrap();
 
         target.finish().unwrap();
-
-        time += 1;
 
         let next_frame_time = std::time::Instant::now() +
             std::time::Duration::from_nanos(16_666_667);
