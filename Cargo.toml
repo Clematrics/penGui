@@ -1,5 +1,5 @@
 [package]
-name = "penGui"
+name = "pengui"
 version = "0.1.0"
 authors = ["Clematrics <clematrics.studio@gmail.com>"]
 edition = "2018"
