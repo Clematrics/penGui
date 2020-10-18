@@ -11,7 +11,7 @@ pub enum DrawMode {
 	// ... TODO : to complete
 }
 
-pub struct DrawCommand<Texture> {
+pub struct DrawCommand<Texture = u32> {
 	pub vertex_buffer: Vec<Vertex>,
 	pub index_buffer: Vec<u32>, // Wrapper
 	pub draw_mode: DrawMode,    //
@@ -20,6 +20,6 @@ pub struct DrawCommand<Texture> {
 	pub texture: Option<Texture>,
 }
 
-pub trait Backend<T> {
+pub trait Backend<T = u32> {
 	fn draw_command(&self, t: T, d: &DrawCommand<T>);
 }
