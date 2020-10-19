@@ -50,7 +50,10 @@ impl GliumBackend {
 
         Self {
             display: facade,
-            draw_parameters: glium::DrawParameters { backface_culling: glium::BackfaceCullingMode::CullingDisabled, .. Default::default() },
+            draw_parameters: glium::DrawParameters {
+                backface_culling: glium::BackfaceCullingMode::CullingDisabled,
+                ..Default::default()
+            },
             uniforms: glium::uniform! {},
             program: program,
         }
