@@ -7,4 +7,7 @@ edition = "2018"
 [dependencies]
 glium = "*"
 
+[dev-dependencies]
+nalgebra = "*"
+
 [lib]

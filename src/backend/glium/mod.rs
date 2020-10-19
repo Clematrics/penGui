@@ -11,8 +11,12 @@ in vec4 color;
 
 out vec4 pipe_color;
 
+uniform mat4 perspective;
+uniform mat4 view;
+uniform mat4 model;
+
 void main() {
-	gl_Position = vec4(position, 1.0);
+	gl_Position = perspective * view * model * vec4(position, 1.0);
 	pipe_color = color;
 }
 "#;
@@ -46,7 +50,7 @@ impl GliumBackend {
 
         Self {
             display: facade,
-            draw_parameters: Default::default(),
+            draw_parameters: glium::DrawParameters { backface_culling: glium::BackfaceCullingMode::CullingDisabled, .. Default::default() },
             uniforms: glium::uniform! {},
             program: program,
         }
@@ -68,11 +72,16 @@ impl core::Backend for GliumBackend {
         )
         .unwrap();
 
+        let core::Uniform::Mat4(perspective) = command.uniforms[0];
+        let core::Uniform::Mat4(view) = command.uniforms[1];
+        let core::Uniform::Mat4(model) = command.uniforms[2];
+        let uniforms = glium::uniform! { perspective: perspective, view: view, model: model };
+
         frame.draw(
             &vertex_buffer,
             &index_buffer,
             &self.program,
-            &self.uniforms,
+            &uniforms,
             &self.draw_parameters,
         )
     }
