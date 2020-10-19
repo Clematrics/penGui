@@ -3,7 +3,6 @@ use super::user_state::*;
 use super::widget::*;
 use std::collections;
 use std::mem;
-use std::cell::RefCell;
 
 pub struct Context {
     old_widgets: collections::HashMap<u32, Box<dyn Widget>>,
@@ -19,9 +18,8 @@ impl Context {
             user_state: user_state,
         }
     }
-    pub fn register_widget<W:Widget + Copy>(&mut self, mut widget: W) -> W {
+    pub fn register_widget<W: Widget + Copy>(&mut self, mut widget: W) -> W {
         let id = widget.id();
-        
         match self.old_widgets.get(&id) {
             None => {}
             Some(widget2) => {

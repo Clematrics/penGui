@@ -3,8 +3,6 @@ use crate::core::draw_commands::*;
 use crate::core::user_state::*;
 use crate::core::widget::*;
 use dynamic::*;
-use std::rc::Rc;
-use std::cell::RefCell;
 
 #[derive(Copy, Clone)]
 pub struct Button {
@@ -45,7 +43,7 @@ impl Widget for Button {
             texture: None,
         }
     }
-    fn send_predecessor(&mut self, old: &dyn  Widget) {
+    fn send_predecessor(&mut self, old: &dyn Widget) {
         match old.data().downcast_ref::<Option<u32>>().unwrap() {
             Some(i) => *self.data().downcast_mut().unwrap() = Some(i - 1),
             None => (),
@@ -62,7 +60,7 @@ impl Widget for Button {
     }
 }
 
-fn button<Texture_>(context: &mut Context, id: u32) -> bool {
+pub fn button<Texture_>(context: &mut Context, id: u32) -> bool {
     let button = Button {
         id: id,
         data: None,
