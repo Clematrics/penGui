@@ -50,7 +50,7 @@ impl Widget for Button {
     }
 }
 
-fn button<Texture_>(context: &mut Context<Button>, button: Button, id: u32) -> bool {
+fn button<Texture_>(context: &mut Context<Button>, id: u32) -> bool {
     let button = Button {
         id: id,
         activated_timer: None,

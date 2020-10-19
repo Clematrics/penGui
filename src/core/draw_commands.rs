@@ -1,6 +1,6 @@
 pub struct Vertex {
-	position: [f32; 3],
-	color: [f32; 4],
+	pub position: [f32; 3],
+	pub color: [f32; 4],
 }
 
 pub struct Uniform {} // TODO : adapt definition to real uniforms

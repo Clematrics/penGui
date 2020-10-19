@@ -32,7 +32,7 @@ impl<W: Widget> Context<W> {
 
     pub fn draw(&mut self) -> Vec<DrawCommand> {
         let mut r = Vec::new();
-        for (id, widget) in self.widgets.iter_mut() {
+        for (_, widget) in self.widgets.iter_mut() {
             r.push(widget.draw_command());
         }
         mem::swap(&mut self.old_widgets, &mut self.widgets);
