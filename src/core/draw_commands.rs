@@ -4,7 +4,9 @@ pub struct Vertex {
     pub color: [f32; 4],
 }
 
-pub struct Uniform {} // TODO : adapt definition to real uniforms
+pub enum Uniform {
+    Mat4([[f32; 4]; 4]),
+}
 
 pub enum DrawMode {
     TriangleFan,
