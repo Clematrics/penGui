@@ -20,7 +20,7 @@ pub struct DrawCommand {
     pub draw_mode: DrawMode,    //
     pub clipping: [[f32; 2]; 2],
     pub uniforms: Vec<Uniform>, // Option
-    pub texture: TextureId,
+    pub texture: Option<TextureId>,
 }
 
 pub trait Backend {

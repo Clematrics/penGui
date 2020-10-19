@@ -53,7 +53,7 @@ fn main() {
                     index_buffer: vec![0, 1, 2, 1, 3, 2],
                     clipping: [[-1., 1.], [1., 1.]],
                     draw_mode: pengui::core::DrawMode::TriangleFan,
-                    texture: 0,
+                    texture: None,
                     uniforms: vec![],
                 },
             )
