@@ -130,8 +130,8 @@ fn main() {
 			},
 			Event::DeviceEvent { event, .. } => match event {
 				DeviceEvent::MouseMotion { delta: (dx, dy) } => {
-					view_angle_y -= dx as f32 / 800.;
-					view_angle_x += dy as f32 / 800.;
+					view_angle_y += dx as f32 / 800.;
+					view_angle_x -= dy as f32 / 800.;
 				},
 				_ => ()
 			},
