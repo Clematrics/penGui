@@ -1,25 +1,36 @@
-struct Vertex {
-	position : [f32; 3],
-	color : [f32; 4]
+#[derive(Copy, Clone)]
+pub struct Vertex {
+    pub position: [f32; 3],
+    pub color: [f32; 4],
 }
 
-struct Uniform {} // TODO : adapt definition to real uniforms
+pub struct Uniform {} // TODO : adapt definition to real uniforms
 
-enum DrawMode {
-	TriangleFan,
-	LineFan,
-	// ... TODO : to complete
+pub enum DrawMode {
+    TriangleFan,
+    LineFan,
+    // ... TODO : to complete
 }
 
-struct DrawCommand<Texture> {
-	vertex_buffer : Vec<Vertex>,
-	index_buffer  : Vec<u32>, // Wrapper
-	draw_mode     : DrawMode, //
-	clipping      : [[f32;2];2],
-	uniforms      : Vec<Uniform> // Option
-	texture       : Texture
+pub type TextureId = u32;
+
+pub struct DrawCommand {
+    pub vertex_buffer: Vec<Vertex>,
+    pub index_buffer: Vec<u32>, // Wrapper
+    pub draw_mode: DrawMode,    //
+    pub clipping: [[f32; 2]; 2],
+    pub uniforms: Vec<Uniform>, // Option
+    pub texture: TextureId,
 }
 
-trait Backend<T> {
-	fn draw_command(&self, T, &DrawCommand);
+pub trait Backend {
+    type DrawResult;
+    type Frame;
+
+    fn draw_command(
+        &self,
+        target: &mut Self::Frame,
+        draw_command: &DrawCommand,
+    ) -> Self::DrawResult;
+    fn new_frame(&self) -> Self::Frame;
 }
