@@ -6,7 +6,17 @@ use crate::core::widget::*;
 pub struct Button {
     id: u32,
     activated_timer: Option<u32>,
-    activated: bool,
+    pub activated: bool,
+}
+
+impl Button {
+    pub fn new(id: u32, activated: bool) -> Button {
+        Button {
+            id,
+            activated_timer: None,
+            activated,
+        }
+    }
 }
 
 impl Widget for Button {
@@ -49,6 +59,40 @@ impl Widget for Button {
         (0., 0.)
     }
 }
+
+#[macro_export]
+macro_rules! button_m {
+    ($name:ident, $enum:ident) => {
+        pub fn $name(context: &mut context::Context<$enum>, id: u32) -> bool {
+            let button = Button::new(id, false);
+            context.register_widget($enum::Button(button));
+            match context.get(&id) {
+                Some($enum::Button(b)) => b.activated,
+                _ => false,
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! button_m_m {
+    ($name:ident, $enum:ident) => {
+        #[macro_export]
+        macro_rules! $name {
+            ($name_:ident, $enum_:ident) => {
+                pub fn $name_(context: &mut context::Context<$enum_>, id: u32) -> bool {
+                    let button = Button::new(id, false);
+                    context.register_widget($enum_::$enum::Button(button));
+                    match context.get(&id) {
+                        Some($enum_::$enum::Button(b)) => b.activated,
+                        _ => false,
+                    }
+                }
+            };
+        }
+    };
+}
+
 
 pub fn button(context: &mut Context<Button>, id: u32) -> bool {
     let button = Button {

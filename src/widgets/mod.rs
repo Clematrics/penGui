@@ -1,9 +1,8 @@
 use crate::core::*;
 
-
+#[macro_use]
 pub mod button;
 pub mod checkbox;
-
 use button::*;
 use checkbox::*;
 
@@ -16,7 +15,7 @@ impl widget::Widget for Widget {
     fn id(&self) -> u32 {
         match self {
             Widget::Button(b) => b.id(),
-            Widget::Checkbox(c) => c.id()
+            Widget::Checkbox(c) => c.id(),
         }
     }
     fn receive_event(&mut self, user_state: &user_state::UserState) {
@@ -58,18 +57,17 @@ impl widget::Widget for Widget {
         match (self, old) {
             (Widget::Button(b_self), Widget::Button(b_old)) => b_self.send_predecessor(b_old),
             (Widget::Checkbox(c_self), Widget::Checkbox(c_old)) => c_self.send_predecessor(c_old),
-            _ => assert!(false)
+            _ => assert!(false),
         }
     }
 }
 
 #[macro_export]
-macro_rules! expend {
-    ( $name:ident, $( $x:ident ),* ) => {
-        
-            enum $name {
+macro_rules! combine {
+    ( $name:ident, $( ($type:ident, $macro:ident) ),* ) => {
+            pub enum $name {
                 $(
-                    $x($x),
+                    $type($type),
                 )*
             }
 
@@ -77,63 +75,69 @@ macro_rules! expend {
                 fn id(&self) -> u32 {
                     match self {
                         $(
-                        $name::$x(e) => e.id(),
-                        )*                    
+                        $name::$type(e) => e.id(),
+                        )*
                     }
                 }
                 fn receive_event(&mut self, user_state: &user_state::UserState) {
                     match self {
-                        $($name::$x(e) => e.receive_event(user_state),)*
+                        $($name::$type(e) => e.receive_event(user_state),)*
                     }
                 }
 
                 fn draw_command(&self) -> draw_commands::DrawCommand {
                     match self {
-                        $($name::$x(e) => e.draw_command(),)*
+                        $($name::$type(e) => e.draw_command(),)*
                     }
                 }
 
                 fn min_size(&self) -> (f32, f32) {
                     match self {
-                        $($name::$x(e) => e.min_size(),)*
+                        $($name::$type(e) => e.min_size(),)*
                     }
                 }
 
                 fn max_size(&self) -> (f32, f32) {
                     match self {
-                        $($name::$x(e) => e.max_size(),)*
+                        $($name::$type(e) => e.max_size(),)*
                     }
                 }
 
                 fn preferred_size(&self) -> (f32, f32) {
                     match self {
-                        $($name::$x(e) => e.preferred_size(),)*
+                        $($name::$type(e) => e.preferred_size(),)*
                     }
                 }
 
                 fn send_predecessor(&mut self, old: &Self) {
                     match (self, old) {
-                        $(($name::$x(e_self), $name::$x(e_old)) => e_self.send_predecessor(e_old),)*
+                        $(($name::$type(e_self), $name::$type(e_old)) => e_self.send_predecessor(e_old),)*
                         _ => assert!(false)
                     }
                 }
             }
-            
-        
+            #[macro_export]
+            macro_rules!  {
+                () => {
+                };
+            }
+            #[macro_export]
+            macro_rules! $name {
+                ($name:ident, $enum:ident) => {
+            $(
+                $macro!
+                pub fn $name(context: &mut context::Context<$enum>, id: u32) -> bool {
+                    let button = Button::new(id, false);
+                    context.register_widget($enum::Button(button));
+                    match context.get(&id) {
+                        Some($enum::Button(b)) => b.activated,
+                        _ => false,
+                    }
+                }
+            )*
+                    };
+                }
     };
 }
 
- expend![Hey, Checkbox, Widget];
-
- pub fn button(context: &mut context::Context<Widget>, id: u32) -> bool {
-    let button = Button {
-        id: id,
-        activated_timer: None,
-        activated: false,
-    };
-    context.register_widget(button);
-    match context.get(&id) {
-        None => false,
-        Some(b) => b.activated,
-    }
-}
+combine![Hey, (Checkbox, button_m_m), (Button, button_m_m)];
