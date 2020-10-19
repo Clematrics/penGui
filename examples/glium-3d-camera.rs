@@ -1,5 +1,5 @@
 use glium::glutin::{
-    event::{Event, DeviceEvent, WindowEvent},
+    event::{DeviceEvent, Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
     ContextBuilder,
@@ -31,10 +31,10 @@ fn main() {
 
     let null_time = std::time::Instant::now();
 
-	let mut view_angle_y = PI;
-	let mut view_angle_x = 0.;
+    let mut view_angle_y = PI;
+    let mut view_angle_x = 0.;
 
-	let model = nalgebra::Matrix4::identity();
+    let model = nalgebra::Matrix4::identity();
 
     event_loop.run(move |event, _, control_flow: &mut ControlFlow| {
         let time = std::time::Instant::now() - null_time;
@@ -54,23 +54,30 @@ fn main() {
             let near = 1.;
 
             nalgebra::Matrix4::new_perspective(aspect_ratio, fov, near, far)
-		};
+        };
 
-		let view = {
-			let x: nalgebra::Vector3<f32> = nalgebra::Vector3::x();
-			let z: nalgebra::Vector3<f32> = nalgebra::Vector3::z();
+        let view = {
+            let x: nalgebra::Vector3<f32> = nalgebra::Vector3::x();
+            let z: nalgebra::Vector3<f32> = nalgebra::Vector3::z();
 
-			let rot_y = nalgebra::UnitQuaternion::from_axis_angle(&nalgebra::Vector3::y_axis(), view_angle_y);
-			let x = rot_y.transform_vector(&x);
-			let z = rot_y.transform_vector(&z);
+            let rot_y = nalgebra::UnitQuaternion::from_axis_angle(
+                &nalgebra::Vector3::y_axis(),
+                view_angle_y,
+            );
+            let x = rot_y.transform_vector(&x);
+            let z = rot_y.transform_vector(&z);
 
-			let rot_x = nalgebra::UnitQuaternion::from_axis_angle(&nalgebra::Unit::new_normalize(x), view_angle_x);
-			let z = rot_x.transform_vector(&z);
+            let rot_x = nalgebra::UnitQuaternion::from_axis_angle(
+                &nalgebra::Unit::new_normalize(x),
+                view_angle_x,
+            );
+            let z = rot_x.transform_vector(&z);
 
-			let eye = nalgebra::Point3::new(0., 0., 1.);
-			let target = eye + z;
-			nalgebra::Isometry3::look_at_rh(&eye, &target, &nalgebra::Vector3::y_axis()).to_homogeneous()
-		};
+            let eye = nalgebra::Point3::new(0., 0., 1.);
+            let target = eye + z;
+            nalgebra::Isometry3::look_at_rh(&eye, &target, &nalgebra::Vector3::y_axis())
+                .to_homogeneous()
+        };
 
         backend
             .draw_command(
@@ -125,16 +132,16 @@ fn main() {
                             *control_flow = ControlFlow::Exit;
                         }
                     }
-				}
+                }
                 _ => (),
-			},
-			Event::DeviceEvent { event, .. } => match event {
-				DeviceEvent::MouseMotion { delta: (dx, dy) } => {
-					view_angle_y += dx as f32 / 800.;
-					view_angle_x -= dy as f32 / 800.;
-				},
-				_ => ()
-			},
+            },
+            Event::DeviceEvent { event, .. } => match event {
+                DeviceEvent::MouseMotion { delta: (dx, dy) } => {
+                    view_angle_y += dx as f32 / 800.;
+                    view_angle_x -= dy as f32 / 800.;
+                }
+                _ => (),
+            },
             _ => (),
         }
     });

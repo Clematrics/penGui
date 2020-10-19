@@ -11,10 +11,10 @@ use pengui::backend::glium::GliumBackend;
 use pengui::core::{Backend, DrawCommand, Uniform, Vertex};
 
 static IDENTITY: [[f32; 4]; 4] = [
-	[1., 0., 0., 0.],
-	[0., 1., 0., 0.],
-	[0., 0., 1., 0.],
-	[0., 0., 0., 1.],
+    [1., 0., 0., 0.],
+    [0., 1., 0., 0.],
+    [0., 0., 1., 0.],
+    [0., 0., 0., 1.],
 ];
 
 fn main() {
@@ -61,7 +61,11 @@ fn main() {
                     clipping: [[-1., 1.], [1., 1.]],
                     draw_mode: pengui::core::DrawMode::TriangleFan,
                     texture: None,
-                    uniforms: vec![Uniform::Mat4(IDENTITY), Uniform::Mat4(IDENTITY), Uniform::Mat4(IDENTITY)],
+                    uniforms: vec![
+                        Uniform::Mat4(IDENTITY),
+                        Uniform::Mat4(IDENTITY),
+                        Uniform::Mat4(IDENTITY),
+                    ],
                 },
             )
             .unwrap();
