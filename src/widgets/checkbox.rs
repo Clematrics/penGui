@@ -3,24 +3,22 @@ use crate::core::draw_commands::*;
 use crate::core::user_state::*;
 use crate::core::widget::*;
 
-pub struct Button {
+pub struct Checkbox {
     id: u32,
-    activated_timer: Option<u32>,
-    activated: bool,
+    checked: Box<bool>
 }
 
-impl Widget for Button {
+impl Widget for Checkbox {
     fn id(&self) -> u32 {
         self.id
     }
     fn receive_event(&mut self, user_state: &UserState) {
-        self.activated = false;
+        
         if user_state.mouse_state.left_click
             && user_state.mouse_state.position.0 < 0.1
             && user_state.mouse_state.position.1 < 0.1
         {
-            self.activated = true;
-            self.activated_timer = Some(5)
+            *self.checked = !*self.checked;
         }
     }
     fn draw_command(&self) -> DrawCommand {
@@ -34,11 +32,8 @@ impl Widget for Button {
         }
     }
     fn send_predecessor(&mut self, old: &Self) {
-        match old.activated_timer {
-            Some(i) => self.activated_timer = Some(i - 1),
-            None => (),
-        }
     }
+
     fn min_size(&self) -> (f32, f32) {
         (0., 0.)
     }
@@ -50,15 +45,16 @@ impl Widget for Button {
     }
 }
 
-pub fn button(context: &mut Context<Button>, id: u32) -> bool {
-    let button = Button {
-        id: id,
-        activated_timer: None,
-        activated: false,
+pub fn checkbox(context: &mut Context<Checkbox>, id: u32, checked: Box<bool>) -> bool {
+    let checkbox = Checkbox {
+        id,
+        checked,
     };
-    context.register_widget(button);
+    context.register_widget(checkbox);
     match context.get(&id) {
         None => false,
-        Some(b) => b.activated,
+        Some(b) => *b.checked,
     }
 }
+
+

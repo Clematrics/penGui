@@ -10,3 +10,4 @@ pub trait Widget {
     fn max_size(&self) -> (f32, f32);
     fn preferred_size(&self) -> (f32, f32);
 }
+
