@@ -4,7 +4,9 @@ use crate::core::user_state::*;
 use crate::core::widget::*;
 use dynamic::*;
 use std::rc::Rc;
+use std::cell::RefCell;
 
+#[derive(Copy, Clone)]
 pub struct Button {
     id: u32,
     data: Option<u32>,
@@ -61,12 +63,11 @@ impl Widget for Button {
 }
 
 fn button<Texture_>(context: &mut Context, id: u32) -> bool {
-    let button = Rc::new(Button {
+    let button = Button {
         id: id,
         data: None,
         activated: false,
-    });
-    
-    context.register_widget(button);
-    button.as_ref().activated
+    };
+
+    context.register_widget(button).activated
 }

@@ -1,7 +1,8 @@
 use super::draw_commands::*;
 use super::user_state::*;
 use dynamic::Dynamic;
-pub trait Widget {
+use std::any::Any;
+pub trait Widget: Any + 'static {
     fn id(&self) -> u32;
     fn data_mut(&mut self) -> Box<Dynamic>;
     fn data(&self) -> Box<Dynamic>;
