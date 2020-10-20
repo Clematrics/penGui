@@ -1,5 +1,5 @@
 use glium::glutin::{
-    event::{Event, DeviceEvent, WindowEvent},
+    event::{DeviceEvent, Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
     ContextBuilder,
@@ -1729,9 +1729,9 @@ fn main() {
 							println!("control: {}", control_y);
                         }
                     }
-				}
+                }
                 _ => (),
-			},
+            },
 			Event::DeviceEvent { event, .. } => match event {
 				DeviceEvent::MouseMotion { delta: (dx, dy) } => {
 					yaw -= dx as f32 / 800.;
