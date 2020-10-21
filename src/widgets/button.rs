@@ -1,37 +1,36 @@
-use crate::core::context::*;
 use crate::core::draw_commands::*;
 use crate::core::user_state::*;
 use crate::core::widget::*;
-use dynamic::*;
+use std::any::Any;
 
 #[derive(Copy, Clone)]
 pub struct Button {
-    id: u32,
+    id: Id,
     data: Option<u32>,
     activated: bool,
 }
 
 impl Widget for Button {
-    fn id(&self) -> u32 {
+    fn id(&self) -> Id {
         self.id
     }
 
-    fn data(&self) -> Box<Dynamic> {
-        Dynamic::new(Described::new(self.data))
-    }
-    fn data_mut(&mut self) -> Box<Dynamic> {
-        Dynamic::new(Described::new(self.data))
+    fn set_meta_id(&mut self, id: u32) {
+        self.id.meta_id = Some(id);
     }
 
-    fn receive_event(&mut self, user_state: &UserState) {
+    fn data(&self) -> Box<dyn Any> {
+        Box::new(self.data)
+    }
+    fn data_mut(&mut self) -> Box<dyn Any> {
+        Box::new(self.data)
+
+    }
+
+    fn receive_event(&mut self, user_state: &UserEvent) {
         self.activated = false;
-        if user_state.mouse_state.left_click
-            && user_state.mouse_state.position.0 < 0.1
-            && user_state.mouse_state.position.1 < 0.1
-        {
-            self.activated = true;
-            *self.data().downcast_mut().unwrap() = Some(5)
-        }
+        self.activated = true;
+        *self.data().downcast_mut().unwrap() = Some(5)
     }
     fn draw_command(&self) -> DrawCommand {
         DrawCommand {
@@ -60,12 +59,12 @@ impl Widget for Button {
     }
 }
 
-pub fn button<Texture_>(context: &mut Context, id: u32) -> bool {
-    let button = Button {
-        id: id,
-        data: None,
-        activated: false,
-    };
+impl UsableWidget<bool> for Button {
+    fn as_dyn_widget(&mut self) -> Box<dyn Widget> {
+        Box::new(*self)
+    }
 
-    context.register_widget(button).activated
+    fn result(&self) -> bool {
+        self.activated
+    }
 }

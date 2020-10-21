@@ -1,12 +1,15 @@
-pub struct MouseState {
-    pub position: (f64, f64),
-    pub left_click: bool,
-    pub right_click: bool,
+pub enum UserEvent {
+    MouseEvent(MouseEvent),
+    KeyPress(Key)
 }
 
-pub struct KeyBoardState {}
+pub enum MouseEvent {
+    LeftClick(f32, f32),
+    RightClick(f32, f32),
+    MiddleClick(f32, f32),
+}
 
-pub struct UserState {
-    pub mouse_state: MouseState,
-    pub keyboard_state: KeyBoardState,
+pub enum Key {
+    A,
+    B,
 }
