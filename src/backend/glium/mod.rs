@@ -36,7 +36,6 @@ void main() {
 pub struct GliumBackend {
     display: glium::Display,
     draw_parameters: glium::DrawParameters<'static>,
-    uniforms: glium::uniform! {},
     program: glium::Program,
 }
 
@@ -51,10 +50,13 @@ impl GliumBackend {
         Self {
             display: facade,
             draw_parameters: glium::DrawParameters {
-                backface_culling: glium::BackfaceCullingMode::CullingDisabled,
-                ..Default::default()
-            },
-            uniforms: glium::uniform! {},
+				depth: glium::Depth {
+					test: glium::draw_parameters::DepthTest::IfLess,
+					write: true,
+					.. Default::default()
+				},
+				.. Default::default()
+			},
             program: program,
         }
     }
