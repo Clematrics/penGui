@@ -25,6 +25,7 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         profile: default
+        toolchain: stable
     - name: Format
       run: cargo fmt -- --check
     - name: Build
