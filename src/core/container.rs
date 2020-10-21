@@ -2,7 +2,6 @@ use super::draw_commands::*;
 use super::user_state::*;
 use super::widget::*;
 use std::collections;
-use std::mem;
 
 pub enum WidgetOrContainer {
     Widget(Box<dyn Widget>),

@@ -24,10 +24,10 @@ impl Widget for Button {
     }
     fn data_mut(&mut self) -> Box<dyn Any> {
         Box::new(self.data)
-
     }
 
     fn receive_event(&mut self, user_state: &UserEvent) {
+        //TODO condition
         self.activated = false;
         self.activated = true;
         *self.data().downcast_mut().unwrap() = Some(5)
