@@ -30,6 +30,9 @@ fn main() {
     let backend = GliumBackend::new(display);
 
     let null_time = std::time::Instant::now();
+    let mut last_frame_time = null_time;
+
+    const MAX_FRAME_DELAY_NS: u64 = 16_666_667;
 
 	let mut control_x: f32 = 0.;
 	let mut control_y: f32 = 0.;
@@ -40,6 +43,57 @@ fn main() {
 	let mut pitch: f32 = 0.;
 
     event_loop.run(move |event, _, control_flow: &mut ControlFlow| {
+        match event {
+            Event::WindowEvent { event, .. } => match event {
+                WindowEvent::CloseRequested => {
+                    *control_flow = ControlFlow::Exit;
+                }
+                WindowEvent::KeyboardInput { input, .. } => {
+					let released = glutin::event::ElementState::Released == input.state;
+                    if let Some(key) = input.virtual_keycode {
+                        if key == glutin::event::VirtualKeyCode::Q {
+                            *control_flow = ControlFlow::Exit;
+						}
+						if key == glutin::event::VirtualKeyCode::Right && released {
+							control_x += INCR;
+							println!("control: {}", control_x);
+                        }
+						if key == glutin::event::VirtualKeyCode::Left && released {
+							control_x -= INCR;
+							println!("control: {}", control_x);
+                        }
+						if key == glutin::event::VirtualKeyCode::Up && released {
+							control_y += INCR;
+							println!("control: {}", control_y);
+                        }
+						if key == glutin::event::VirtualKeyCode::Down && released {
+							control_y -= INCR;
+							println!("control: {}", control_y);
+                        }
+                    }
+                }
+                _ => (),
+            },
+			Event::DeviceEvent { event, .. } => match event {
+				DeviceEvent::MouseMotion { delta: (dx, dy) } => {
+					yaw -= dx as f32 / 800.;
+					pitch -= dy as f32 / 800.;
+					if pitch < - (PI / 2.) + 0.1 { pitch = - (PI / 2.) + 0.1; }
+					if pitch > (PI / 2.) - 0.1 { pitch = (PI / 2.) - 0.1; }
+				},
+				_ => ()
+			},
+            _ => (),
+        }
+
+        let delta_t = std::time::Instant::now() - last_frame_time;
+        let delta_t = delta_t.as_nanos() as u64;
+        if delta_t < MAX_FRAME_DELAY_NS {
+            return;
+        }
+
+        last_frame_time = std::time::Instant::now();
+
         let time = std::time::Instant::now() - null_time;
         let time = time.as_secs_f32();
 
@@ -1697,51 +1751,8 @@ fn main() {
         target.finish().unwrap();
 
         let next_frame_time =
-            std::time::Instant::now() + std::time::Duration::from_nanos(16_666_667);
+            std::time::Instant::now() + std::time::Duration::from_nanos(MAX_FRAME_DELAY_NS);
 
         *control_flow = ControlFlow::WaitUntil(next_frame_time);
-
-        match event {
-            Event::WindowEvent { event, .. } => match event {
-                WindowEvent::CloseRequested => {
-                    *control_flow = ControlFlow::Exit;
-                }
-                WindowEvent::KeyboardInput { input, .. } => {
-					let released = glutin::event::ElementState::Released == input.state;
-                    if let Some(key) = input.virtual_keycode {
-                        if key == glutin::event::VirtualKeyCode::Q {
-                            *control_flow = ControlFlow::Exit;
-						}
-						if key == glutin::event::VirtualKeyCode::Right && released {
-							control_x += INCR;
-							println!("control: {}", control_x);
-                        }
-						if key == glutin::event::VirtualKeyCode::Left && released {
-							control_x -= INCR;
-							println!("control: {}", control_x);
-                        }
-						if key == glutin::event::VirtualKeyCode::Up && released {
-							control_y += INCR;
-							println!("control: {}", control_y);
-                        }
-						if key == glutin::event::VirtualKeyCode::Down && released {
-							control_y -= INCR;
-							println!("control: {}", control_y);
-                        }
-                    }
-                }
-                _ => (),
-            },
-			Event::DeviceEvent { event, .. } => match event {
-				DeviceEvent::MouseMotion { delta: (dx, dy) } => {
-					yaw -= dx as f32 / 800.;
-					pitch -= dy as f32 / 800.;
-					if pitch < - (PI / 2.) + 0.1 { pitch = - (PI / 2.) + 0.1; }
-					if pitch > (PI / 2.) - 0.1 { pitch = (PI / 2.) - 0.1; }
-				},
-				_ => ()
-			},
-            _ => (),
-        }
     });
 }
