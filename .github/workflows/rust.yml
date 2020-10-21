@@ -28,8 +28,8 @@ jobs:
         toolchain: stable
     - name: Check
       uses: actions-rs/cargo@v1
-        with:
-          command: check
+      with:
+        command: check
 
   test:
     strategy:
@@ -63,11 +63,11 @@ jobs:
         components: rustfmt, clippy
     - name: Auto format
       uses: mbrobbel/rustfmt-check@master
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
     - name: Clippy checks
       uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-targets --all-features
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        args: --all-targets --all-features
 
