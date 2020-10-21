@@ -26,6 +26,7 @@ jobs:
       with:
         profile: default
         toolchain: stable
+        components: rustfmt
     - name: Format
       run: cargo fmt -- --check
     - name: Build
