@@ -1,6 +1,6 @@
 pub enum UserEvent {
     MouseEvent(MouseEvent),
-    KeyPress(Key)
+    KeyPress(Key),
 }
 
 pub enum MouseEvent {

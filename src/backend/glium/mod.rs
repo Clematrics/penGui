@@ -50,13 +50,13 @@ impl GliumBackend {
         Self {
             display: facade,
             draw_parameters: glium::DrawParameters {
-				depth: glium::Depth {
-					test: glium::draw_parameters::DepthTest::IfLess,
-					write: true,
-					.. Default::default()
-				},
-				.. Default::default()
-			},
+                depth: glium::Depth {
+                    test: glium::draw_parameters::DepthTest::IfLess,
+                    write: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
             program: program,
         }
     }
