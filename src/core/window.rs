@@ -2,12 +2,12 @@ use super::container::*;
 use super::draw_commands::*;
 use super::user_state::*;
 use super::widget::*;
+use std::any::Any;
 use std::collections;
 use std::mem;
-use std::any::Any;
 
 pub struct Window {
-    id : Id,
+    id: Id,
     widgets: collections::HashMap<Id, WidgetOrContainer>,
 }
 
@@ -25,9 +25,7 @@ impl Widget for Window {
         self.id
     }
 
-    fn set_meta_id(&mut self, id: u32) {
-
-    }
+    fn set_meta_id(&mut self, id: u32) {}
 
     fn data_mut(&mut self) -> &mut dyn Any {
         &mut self.widgets
@@ -73,11 +71,9 @@ impl Widget for Window {
             None => (),
         }
     }
-
 }
 
 impl Container for Window {
-    
     fn widgets(&mut self) -> &mut collections::HashMap<Id, WidgetOrContainer> {
         &mut self.widgets
     }
