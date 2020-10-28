@@ -102,7 +102,7 @@ impl UsableWidget for Button {
             },
             data: None,
             activated: false,
-            color
+            color,
         }
     }
 
