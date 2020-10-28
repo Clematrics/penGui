@@ -50,8 +50,12 @@ impl Widget for WidgetOrContainer {
         uniforms: &Vec<Uniform>,
     ) -> Vec<DrawCommand> {
         match self {
-            WidgetOrContainer::Widget(w) => w.draw_commands(unit_x, unit_y, position, size, uniforms),
-            WidgetOrContainer::Container(c) => c.draw_commands(unit_x, unit_y, position, size, uniforms),
+            WidgetOrContainer::Widget(w) => {
+                w.draw_commands(unit_x, unit_y, position, size, uniforms)
+            }
+            WidgetOrContainer::Container(c) => {
+                c.draw_commands(unit_x, unit_y, position, size, uniforms)
+            }
         }
     }
     fn send_predecessor(&mut self, old: &mut dyn Widget) {
@@ -96,5 +100,5 @@ pub trait Container: Widget {
 }
 
 pub trait UsableContainer: Container {
-    fn add_widget<W: UsableWidget>(&mut self, w: &mut W) -> W::Result ;
+    fn add_widget<W: UsableWidget>(&mut self, w: &mut W) -> W::Result;
 }

@@ -1,8 +1,8 @@
 use crate::core::draw_commands::*;
 use crate::core::user_state::*;
 use crate::core::widget::*;
-use std::any::Any;
 use nalgebra::*;
+use std::any::Any;
 
 #[derive(Copy, Clone)]
 pub struct Button {
@@ -35,8 +35,8 @@ impl Widget for Button {
     }
     fn draw_commands(
         &mut self,
-        unit_x : Vector3<f32>,
-        unit_y : Vector3<f32>,
+        unit_x: Vector3<f32>,
+        unit_y: Vector3<f32>,
         position: Point3<f32>,
         size: (f32, f32),
         uniforms: &Vec<Uniform>,

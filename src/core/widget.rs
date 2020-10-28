@@ -1,9 +1,9 @@
 use super::container::*;
 use super::draw_commands::*;
 use super::user_state::*;
+use nalgebra::*;
 use std::any::Any;
 use std::hash::Hash;
-use nalgebra::*;
 #[derive(PartialEq, Eq, Hash, Copy, Clone)]
 pub struct Id {
     pub name: Option<u32>,
@@ -18,8 +18,8 @@ pub trait Widget: Any + 'static {
     fn receive_event(&mut self, event: &UserEvent);
     fn draw_commands(
         &mut self,
-        unit_x : Vector3<f32>,
-        unit_y : Vector3<f32>,
+        unit_x: Vector3<f32>,
+        unit_y: Vector3<f32>,
         position: Point3<f32>,
         size: (f32, f32),
         uniforms: &Vec<Uniform>,

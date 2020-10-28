@@ -69,8 +69,11 @@ impl Widget for Window {
     ) -> Vec<DrawCommand> {
         let mut r = Vec::new();
         for id in self.widgets_order.iter_mut() {
-            let mut commands =
-                self.widgets.get_mut(id).unwrap().draw_commands(unit_x, unit_y, position, size, uniforms);
+            let mut commands = self
+                .widgets
+                .get_mut(id)
+                .unwrap()
+                .draw_commands(unit_x, unit_y, position, size, uniforms);
             r.append(&mut commands);
         }
         //mem::swap(&mut self.old_widgets, &mut self.widgets);

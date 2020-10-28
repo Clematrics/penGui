@@ -2478,22 +2478,22 @@ fn main() {
         let model = { na::Translation3::new(0., 0., 0.).to_homogeneous() };
 
         backend
-        .draw_command(
-            &mut target,
-            &DrawCommand {
-                vertex_buffer: vertices,
-                index_buffer: indices,
-                clipping: [[-1., 1.], [1., 1.]],
-                draw_mode: pengui::core::DrawMode::TriangleFan,
-                texture: None,
-                uniforms: vec![
-                    Uniform::Mat4(to_array(&perspective)),
-                    Uniform::Mat4(to_array(&view)),
-                    Uniform::Mat4(to_array(&model)),
-                ],
-            },
-        )
-        .unwrap();
+            .draw_command(
+                &mut target,
+                &DrawCommand {
+                    vertex_buffer: vertices,
+                    index_buffer: indices,
+                    clipping: [[-1., 1.], [1., 1.]],
+                    draw_mode: pengui::core::DrawMode::TriangleFan,
+                    texture: None,
+                    uniforms: vec![
+                        Uniform::Mat4(to_array(&perspective)),
+                        Uniform::Mat4(to_array(&view)),
+                        Uniform::Mat4(to_array(&model)),
+                    ],
+                },
+            )
+            .unwrap();
 
         let mut w = core::window::Window::new(core::widget::Id {
             name: None,
