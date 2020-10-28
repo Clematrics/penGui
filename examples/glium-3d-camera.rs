@@ -2499,8 +2499,10 @@ fn main() {
             name: None,
             meta_id: Some(0),
         });
-        let mut b = widgets::button::Button::new(0);
-        b.build(&mut w);
+        let mut b1 = widgets::button::Button::new((0, [1., 0., 0., 0.5]));
+        b1.build(&mut w);
+        let mut b2 = widgets::button::Button::new((0, [0., 1., 0., 0.5]));
+        b2.build(&mut w);
         let id = na::Matrix4::<f32>::identity();
         let uniforms = vec![
             Uniform::Mat4(to_array(&id)),
@@ -2510,7 +2512,7 @@ fn main() {
         for d in w.draw_commands(
             na::Vector3::new(1., 0., 0.),
             na::Vector3::new(0., 1., 0.),
-            na::Point3::new(0., 0., -0.9),
+            na::Point3::new(0., 0., -1.),
             (1., 1.),
             &uniforms,
         ) {

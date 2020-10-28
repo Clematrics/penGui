@@ -9,6 +9,7 @@ pub struct Button {
     id: Id,
     data: Option<u32>,
     activated: bool,
+    color: [f32; 4],
 }
 
 impl Widget for Button {
@@ -50,19 +51,19 @@ impl Widget for Button {
             vertex_buffer: vec![
                 Vertex {
                     position: [pos0.x, pos0.y, pos0.z],
-                    color: [0.5, 0.5, 0.5, 0.5],
+                    color: self.color,
                 },
                 Vertex {
                     position: [pos1.x, pos1.y, pos1.z],
-                    color: [0.5, 0.5, 0.5, 0.5],
+                    color: self.color,
                 },
                 Vertex {
                     position: [pos2.x, pos2.y, pos2.z],
-                    color: [0.5, 0.5, 0.5, 0.5],
+                    color: self.color,
                 },
                 Vertex {
                     position: [pos3.x, pos3.y, pos3.z],
-                    color: [0.5, 0.5, 0.5, 0.5],
+                    color: self.color,
                 },
             ],
             index_buffer: vec![0, 1, 2, 1, 2, 3],
@@ -91,9 +92,9 @@ impl Widget for Button {
 
 impl UsableWidget for Button {
     type Result = bool;
-    type Input = u32;
+    type Input = (u32, [f32; 4]);
 
-    fn new(id: u32) -> Self {
+    fn new((id, color): (u32, [f32; 4])) -> Self {
         Button {
             id: Id {
                 name: None,
@@ -101,6 +102,7 @@ impl UsableWidget for Button {
             },
             data: None,
             activated: false,
+            color
         }
     }
 

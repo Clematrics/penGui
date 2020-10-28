@@ -68,13 +68,24 @@ impl Widget for Window {
         uniforms: &Vec<Uniform>,
     ) -> Vec<DrawCommand> {
         let mut r = Vec::new();
+
+        let widget_size = (size.0, size.1 / (self.widgets_order.len()) as f32);
+
+        let mut current_pos = {
+            let top_side = position - unit_y * size.1 / 2.;
+            top_side + unit_y * widget_size.1 / 2.
+        };
+
         for id in self.widgets_order.iter_mut() {
-            let mut commands = self
-                .widgets
-                .get_mut(id)
-                .unwrap()
-                .draw_commands(unit_x, unit_y, position, size, uniforms);
+            let mut commands = self.widgets.get_mut(id).unwrap().draw_commands(
+                unit_x,
+                unit_y,
+                current_pos,
+                widget_size,
+                uniforms,
+            );
             r.append(&mut commands);
+            current_pos += unit_y * widget_size.1;
         }
         //mem::swap(&mut self.old_widgets, &mut self.widgets);
         self.widgets = collections::HashMap::new();
