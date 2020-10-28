@@ -72,8 +72,8 @@ impl Widget for Window {
         let widget_size = (size.0, size.1 / (self.widgets_order.len()) as f32);
 
         let mut current_pos = {
-            let top_side = position - unit_y * size.1 / 2.;
-            top_side + unit_y * widget_size.1 / 2.
+            let top_side = position + unit_y * size.1 / 2.;
+            top_side - unit_y * widget_size.1 / 2.
         };
 
         for id in self.widgets_order.iter_mut() {
@@ -85,7 +85,7 @@ impl Widget for Window {
                 uniforms,
             );
             r.append(&mut commands);
-            current_pos += unit_y * widget_size.1;
+            current_pos -= unit_y * widget_size.1;
         }
         //mem::swap(&mut self.old_widgets, &mut self.widgets);
         self.widgets = collections::HashMap::new();

@@ -2501,7 +2501,7 @@ fn main() {
         });
         let mut b1 = widgets::button::Button::new((0, [1., 0., 0., 0.5]));
         b1.build(&mut w);
-        let mut b2 = widgets::button::Button::new((0, [0., 1., 0., 0.5]));
+        let mut b2 = widgets::button::Button::new((1, [0., 1., 0., 0.5]));
         b2.build(&mut w);
         let id = na::Matrix4::<f32>::identity();
         let uniforms = vec![
