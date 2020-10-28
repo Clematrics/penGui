@@ -7,11 +7,12 @@ use glium::glutin::{
 use glium::{glutin, Display, Surface};
 use std::f32::consts::PI;
 
-use pengui::backend::glium::GliumBackend;
-use pengui::core::{Backend, DrawCommand, Uniform, Vertex};
-
 use nalgebra as na;
-
+use pengui::backend::glium::GliumBackend;
+use pengui::core;
+use pengui::core::widget::*;
+use pengui::core::{Backend, DrawCommand, Uniform, Vertex};
+use pengui::widgets;
 fn to_array(mat: &na::Matrix4<f32>) -> [[f32; 4]; 4] {
     [
         [mat[(0, 0)], mat[(1, 0)], mat[(2, 0)], mat[(3, 0)]],
@@ -2477,25 +2478,45 @@ fn main() {
         let model = { na::Translation3::new(0., 0., 0.).to_homogeneous() };
 
         backend
-            .draw_command(
-                &mut target,
-                &DrawCommand {
-                    vertex_buffer: vertices,
-                    index_buffer: indices,
-                    clipping: [[-1., 1.], [1., 1.]],
-                    draw_mode: pengui::core::DrawMode::TriangleFan,
-                    texture: None,
-                    uniforms: vec![
-                        Uniform::Mat4(to_array(&perspective)),
-                        Uniform::Mat4(to_array(&view)),
-                        Uniform::Mat4(to_array(&model)),
-                    ],
-                },
-            )
-            .unwrap();
+        .draw_command(
+            &mut target,
+            &DrawCommand {
+                vertex_buffer: vertices,
+                index_buffer: indices,
+                clipping: [[-1., 1.], [1., 1.]],
+                draw_mode: pengui::core::DrawMode::TriangleFan,
+                texture: None,
+                uniforms: vec![
+                    Uniform::Mat4(to_array(&perspective)),
+                    Uniform::Mat4(to_array(&view)),
+                    Uniform::Mat4(to_array(&model)),
+                ],
+            },
+        )
+        .unwrap();
 
+        let mut w = core::window::Window::new(core::widget::Id {
+            name: None,
+            meta_id: Some(0),
+        });
+        let mut b = widgets::button::Button::new(0);
+        b.build(&mut w);
+        let id = na::Matrix4::<f32>::identity();
+        let uniforms = vec![
+            Uniform::Mat4(to_array(&id)),
+            Uniform::Mat4(to_array(&id)),
+            Uniform::Mat4(to_array(&id)),
+        ];
+        for d in w.draw_commands(
+            na::Vector3::new(1., 0., 0.),
+            na::Vector3::new(0., 1., 0.),
+            na::Point3::new(0., 0., -0.9),
+            (1., 1.),
+            &uniforms,
+        ) {
+            backend.draw_command(&mut target, &d).unwrap()
+        }
         target.finish().unwrap();
-
         let next_frame_time =
             std::time::Instant::now() + std::time::Duration::from_nanos(MAX_FRAME_DELAY_NS);
 

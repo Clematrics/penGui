@@ -4,6 +4,7 @@ pub struct Vertex {
     pub color: [f32; 4],
 }
 
+#[derive(Copy, Clone)]
 pub enum Uniform {
     Mat4([[f32; 4]; 4]),
 }
