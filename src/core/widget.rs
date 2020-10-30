@@ -22,7 +22,7 @@ pub trait Widget: Any + 'static {
         unit_y: Vector3<f32>,
         position: Point3<f32>,
         size: (f32, f32),
-        uniforms: &Vec<Uniform>,
+        uniforms: &Uniforms,
     ) -> Vec<DrawCommand>;
     fn send_predecessor(&mut self, old: &mut dyn Widget);
     fn min_size(&self) -> (f32, f32);

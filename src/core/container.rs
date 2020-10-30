@@ -47,7 +47,7 @@ impl Widget for WidgetOrContainer {
         unit_y: Vector3<f32>,
         position: Point3<f32>,
         size: (f32, f32),
-        uniforms: &Vec<Uniform>,
+        uniforms: &Uniforms,
     ) -> Vec<DrawCommand> {
         match self {
             WidgetOrContainer::Widget(w) => {

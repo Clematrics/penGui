@@ -8,7 +8,7 @@ use glium::{glutin, Display, Surface};
 use std::f32::consts::PI;
 
 use pengui::backend::glium::GliumBackend;
-use pengui::core::{Backend, DrawCommand, Uniform, Vertex};
+use pengui::core::{Backend, DrawCommand, Uniforms, Vertex};
 
 static IDENTITY: [[f32; 4]; 4] = [
     [1., 0., 0., 0.],
@@ -42,30 +42,34 @@ fn main() {
                     vertex_buffer: vec![
                         Vertex {
                             position: [-0.5, 0.5, 0.0],
-                            color: [1., 0., 0., 0.],
+							color: [1., 0., 0., 0.],
+							tex_uv: [0., 0.],
                         },
                         Vertex {
-                            position: [0.5, 0.5, 0.0],
+							position: [0.5, 0.5, 0.0],
                             color: [0., 0., 1., 0.],
+							tex_uv: [0., 0.],
                         },
                         Vertex {
-                            position: [-0.5, -0.5, 0.0],
+							position: [-0.5, -0.5, 0.0],
                             color: [0., 1., 0., 0.],
+							tex_uv: [0., 0.],
                         },
                         Vertex {
-                            position: [0.5, -0.5, 0.0],
+							position: [0.5, -0.5, 0.0],
                             color: [0., 0., 0., 0.],
+							tex_uv: [0., 0.],
                         },
                     ],
                     index_buffer: vec![0, 1, 2, 1, 3, 2],
                     clipping: [[-1., 1.], [1., 1.]],
                     draw_mode: pengui::core::DrawMode::TriangleFan,
-                    texture: None,
-                    uniforms: vec![
-                        Uniform::Mat4(IDENTITY),
-                        Uniform::Mat4(IDENTITY),
-                        Uniform::Mat4(IDENTITY),
-                    ],
+                    uniforms: Uniforms {
+                        perspective: IDENTITY,
+                        view: IDENTITY,
+						model: IDENTITY,
+						texture_0: None
+					},
                 },
             )
             .unwrap();

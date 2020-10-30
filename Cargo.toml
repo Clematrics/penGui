@@ -10,5 +10,6 @@ nalgebra = "*"
 
 [dev-dependencies]
 nalgebra = "*"
+image = "*"
 
 [lib]

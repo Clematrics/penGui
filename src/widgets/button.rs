@@ -9,7 +9,8 @@ pub struct Button {
     id: Id,
     data: Option<u32>,
     activated: bool,
-    color: [f32; 4],
+	color: [f32; 4],
+	texture: Option<TextureId>,
 }
 
 impl Widget for Button {
@@ -40,37 +41,45 @@ impl Widget for Button {
         unit_y: Vector3<f32>,
         position: Point3<f32>,
         size: (f32, f32),
-        uniforms: &Vec<Uniform>,
+		uniforms: &Uniforms
     ) -> Vec<DrawCommand> {
         let pos0 = position - (unit_x * size.0 / 2.) - (unit_y * size.1 / 2.);
         let pos1 = position + (unit_x * size.0 / 2.) - (unit_y * size.1 / 2.);
         let pos2 = position - (unit_x * size.0 / 2.) + (unit_y * size.1 / 2.);
-        let pos3 = position + (unit_x * size.0 / 2.) + (unit_y * size.1 / 2.);
+		let pos3 = position + (unit_x * size.0 / 2.) + (unit_y * size.1 / 2.);
+
+		let uniforms = Uniforms {
+			texture_0: self.texture,
+			.. uniforms.clone()
+		};
 
         vec![DrawCommand {
             vertex_buffer: vec![
                 Vertex {
                     position: [pos0.x, pos0.y, pos0.z],
-                    color: self.color,
+					color: self.color,
+					tex_uv: [0., 0.],
                 },
                 Vertex {
                     position: [pos1.x, pos1.y, pos1.z],
-                    color: self.color,
+					color: self.color,
+					tex_uv: [1., 0.],
                 },
                 Vertex {
-                    position: [pos2.x, pos2.y, pos2.z],
+					position: [pos2.x, pos2.y, pos2.z],
                     color: self.color,
+					tex_uv: [0., 1.],
                 },
                 Vertex {
-                    position: [pos3.x, pos3.y, pos3.z],
+					position: [pos3.x, pos3.y, pos3.z],
                     color: self.color,
+					tex_uv: [1., 1.],
                 },
             ],
             index_buffer: vec![0, 1, 2, 1, 2, 3],
             draw_mode: DrawMode::TriangleFan,
             clipping: [[0., 0.], [0., 0.]],
-            uniforms: uniforms.clone(),
-            texture: None,
+            uniforms: uniforms
         }]
     }
     fn send_predecessor(&mut self, old: &mut dyn Widget) {
@@ -92,9 +101,9 @@ impl Widget for Button {
 
 impl UsableWidget for Button {
     type Result = bool;
-    type Input = (u32, [f32; 4]);
+    type Input = (u32, [f32; 4], Option<TextureId>);
 
-    fn new((id, color): (u32, [f32; 4])) -> Self {
+    fn new((id, color, texture): Self::Input) -> Self {
         Button {
             id: Id {
                 name: None,
@@ -102,7 +111,8 @@ impl UsableWidget for Button {
             },
             data: None,
             activated: false,
-            color,
+			color,
+			texture
         }
     }
 

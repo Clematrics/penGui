@@ -65,7 +65,7 @@ impl Widget for Window {
         unit_y: nalgebra::Vector3<f32>,
         position: nalgebra::Point3<f32>,
         size: (f32, f32),
-        uniforms: &Vec<Uniform>,
+        uniforms: &Uniforms,
     ) -> Vec<DrawCommand> {
         let mut r = Vec::new();
 
