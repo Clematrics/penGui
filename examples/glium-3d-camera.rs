@@ -42,15 +42,20 @@ fn main() {
 
     // Looking toward the -z axis
     let mut yaw: f32 = 0.;
-	let mut pitch: f32 = 0.;
+    let mut pitch: f32 = 0.;
 
-	use std::io::Cursor;
-	let image = image::load(Cursor::new(&include_bytes!("resources/logo_ensps.png")[..]),
-							image::ImageFormat::Png).unwrap().to_rgba();
-	let image_dimensions = image.dimensions();
-	let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
+    use std::io::Cursor;
+    let image = image::load(
+        Cursor::new(&include_bytes!("resources/logo_ensps.png")[..]),
+        image::ImageFormat::Png,
+    )
+    .unwrap()
+    .to_rgba();
+    let image_dimensions = image.dimensions();
+    let image =
+        glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
 
-	let enpsps_tex = backend.register_texture(image);
+    let enpsps_tex = backend.register_texture(image);
 
     event_loop.run(move |event, _, control_flow: &mut ControlFlow| {
         match event {
@@ -120,7 +125,7 @@ fn main() {
             // Front face
             Vertex {
                 position: [-0.5, 0.5, -0.5],
-				color: [1., 0., 0., 0.],
+                color: [1., 0., 0., 0.],
                 tex_uv: [0., 0.],
             },
             Vertex {
@@ -134,31 +139,31 @@ fn main() {
                 tex_uv: [0., 0.],
             },
             Vertex {
-				position: [0.5, -0.5, -0.5],
+                position: [0.5, -0.5, -0.5],
                 color: [0., 0., 0., 0.],
-				tex_uv: [0., 0.],
+                tex_uv: [0., 0.],
             },
             // Right face
             Vertex {
-				position: [0.5, -0.5, 0.5],
+                position: [0.5, -0.5, 0.5],
                 color: [1., 1., 0., 0.],
                 tex_uv: [0., 0.],
             },
             Vertex {
-				position: [0.5, 0.5, 0.5],
+                position: [0.5, 0.5, 0.5],
                 color: [1., 0., 1., 0.],
-				tex_uv: [0., 0.],
+                tex_uv: [0., 0.],
             },
             // Left face
             Vertex {
-				position: [-0.5, -0.5, 0.5],
+                position: [-0.5, -0.5, 0.5],
                 color: [0., 1., 1., 0.],
                 tex_uv: [0., 0.],
             },
             Vertex {
-				position: [-0.5, 0.5, 0.5],
+                position: [-0.5, 0.5, 0.5],
                 color: [1., 1., 1., 0.],
-				tex_uv: [0., 0.],
+                tex_uv: [0., 0.],
             },
         ];
 
@@ -2818,9 +2823,9 @@ fn main() {
                 tex_uv: [0., 0.],
             },
             Vertex {
-				position: [34.9202, 28.3457, -15.6121],
+                position: [34.9202, 28.3457, -15.6121],
                 color: [0., 1., 0., 0.],
-				tex_uv: [0., 0.],
+                tex_uv: [0., 0.],
             },
         ];
 
@@ -3033,12 +3038,12 @@ fn main() {
                     index_buffer: indices,
                     clipping: [[-1., 1.], [1., 1.]],
                     draw_mode: pengui::core::DrawMode::TriangleFan,
-                    uniforms:  Uniforms {
-						perspective: to_array(&perspective),
-						view: to_array(&view),
-						model: to_array(&model),
-						texture_0: None
-					},
+                    uniforms: Uniforms {
+                        perspective: to_array(&perspective),
+                        view: to_array(&view),
+                        model: to_array(&model),
+                        texture_0: None,
+                    },
                 },
             )
             .unwrap();
@@ -3055,9 +3060,9 @@ fn main() {
         let uniforms = Uniforms {
             perspective: to_array(&id),
             view: to_array(&id),
-			model: to_array(&id),
-			texture_0: None
-		};
+            model: to_array(&id),
+            texture_0: None,
+        };
         for d in w.draw_commands(
             na::Vector3::new(1., 0., 0.),
             na::Vector3::new(0., 1., 0.),

@@ -73,18 +73,22 @@ void main() {
 pub struct GliumBackend {
     display: glium::Display,
     draw_parameters: glium::DrawParameters<'static>,
-	program_wo_texture: glium::Program,
-	program_w_texture: glium::Program,
-	textures: Vec<glium::Texture2d>
+    program_wo_texture: glium::Program,
+    program_w_texture: glium::Program,
+    textures: Vec<glium::Texture2d>,
 }
 
 glium::implement_vertex!(Vertex, position, color, tex_uv);
 
 impl GliumBackend {
     pub fn new(facade: glium::Display) -> Self {
-        let program_wo_texture =
-            glium::Program::from_source(&facade, &VERTEX_SHADER_NO_TEXTURE_SRC, &FRAGMENT_SHADER_NO_TEXTURE_SRC, None)
-				.unwrap();
+        let program_wo_texture = glium::Program::from_source(
+            &facade,
+            &VERTEX_SHADER_NO_TEXTURE_SRC,
+            &FRAGMENT_SHADER_NO_TEXTURE_SRC,
+            None,
+        )
+        .unwrap();
 
         let program_w_texture =
             glium::Program::from_source(&facade, &VERTEX_SHADER_SRC, &FRAGMENT_SHADER_SRC, None)
@@ -97,21 +101,21 @@ impl GliumBackend {
                     test: glium::draw_parameters::DepthTest::IfLess,
                     write: true,
                     ..Default::default()
-				},
-				blend: glium::Blend::alpha_blending(),
+                },
+                blend: glium::Blend::alpha_blending(),
                 ..Default::default()
             },
             program_wo_texture: program_wo_texture,
-			program_w_texture: program_w_texture,
-			textures: vec![]
+            program_w_texture: program_w_texture,
+            textures: vec![],
         }
     }
 }
 
 impl core::Backend for GliumBackend {
     type DrawResult = Result<(), glium::DrawError>;
-	type Frame = glium::Frame;
-	type Texture = glium::texture::RawImage2d<'static, u8>;
+    type Frame = glium::Frame;
+    type Texture = glium::texture::RawImage2d<'static, u8>;
 
     fn draw_command(&self, frame: &mut Self::Frame, command: &DrawCommand) -> Self::DrawResult {
         let vertex_buffer =
@@ -124,41 +128,40 @@ impl core::Backend for GliumBackend {
         )
         .unwrap();
 
-		match command.uniforms.texture_0 {
-			Some(texture_id) => {
-				let uniforms = glium::uniform! { perspective: command.uniforms.perspective, view: command.uniforms.view, model: command.uniforms.model, texture_0: &self.textures[texture_id] };
+        match command.uniforms.texture_0 {
+            Some(texture_id) => {
+                let uniforms = glium::uniform! { perspective: command.uniforms.perspective, view: command.uniforms.view, model: command.uniforms.model, texture_0: &self.textures[texture_id] };
 
-				frame.draw(
-					&vertex_buffer,
-					&index_buffer,
-					&self.program_w_texture,
-					&uniforms,
-					&self.draw_parameters,
-				)
-			}
-			None => {
-				let uniforms = glium::uniform! { perspective: command.uniforms.perspective, view: command.uniforms.view, model: command.uniforms.model };
+                frame.draw(
+                    &vertex_buffer,
+                    &index_buffer,
+                    &self.program_w_texture,
+                    &uniforms,
+                    &self.draw_parameters,
+                )
+            }
+            None => {
+                let uniforms = glium::uniform! { perspective: command.uniforms.perspective, view: command.uniforms.view, model: command.uniforms.model };
 
-				frame.draw(
-					&vertex_buffer,
-					&index_buffer,
-					&self.program_wo_texture,
-					&uniforms,
-					&self.draw_parameters,
-				)
-			}
-		}
-
+                frame.draw(
+                    &vertex_buffer,
+                    &index_buffer,
+                    &self.program_wo_texture,
+                    &uniforms,
+                    &self.draw_parameters,
+                )
+            }
+        }
     }
 
     fn new_frame(&self) -> Self::Frame {
         self.display.draw()
-	}
+    }
 
-	fn register_texture(&mut self, image: Self::Texture) -> TextureId {
-		let texture = glium::texture::Texture2d::new(&self.display, image).unwrap();
-		let id = self.textures.len();
-		self.textures.push(texture);
-		id
-	}
+    fn register_texture(&mut self, image: Self::Texture) -> TextureId {
+        let texture = glium::texture::Texture2d::new(&self.display, image).unwrap();
+        let id = self.textures.len();
+        self.textures.push(texture);
+        id
+    }
 }

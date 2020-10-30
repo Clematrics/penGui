@@ -1,18 +1,18 @@
 #[derive(Copy, Clone)]
 pub struct Vertex {
     pub position: [f32; 3],
-	pub color: [f32; 4],
-	pub tex_uv: [f32; 2],
+    pub color: [f32; 4],
+    pub tex_uv: [f32; 2],
 }
 
 pub type Mat4 = [[f32; 4]; 4];
 
 #[derive(Copy, Clone)]
 pub struct Uniforms {
-	pub perspective: Mat4,
-	pub view: Mat4,
-	pub model: Mat4,
-	pub texture_0: Option<TextureId>
+    pub perspective: Mat4,
+    pub view: Mat4,
+    pub model: Mat4,
+    pub texture_0: Option<TextureId>,
 }
 
 // #[derive(Copy, Clone)]
@@ -39,15 +39,15 @@ pub struct DrawCommand {
 
 pub trait Backend {
     type DrawResult;
-	type Frame;
-	type Texture;
+    type Frame;
+    type Texture;
 
     fn draw_command(
         &self,
         target: &mut Self::Frame,
         draw_command: &DrawCommand,
     ) -> Self::DrawResult;
-	fn new_frame(&self) -> Self::Frame;
+    fn new_frame(&self) -> Self::Frame;
 
-	fn register_texture(&mut self, image: Self::Texture) -> TextureId;
+    fn register_texture(&mut self, image: Self::Texture) -> TextureId;
 }

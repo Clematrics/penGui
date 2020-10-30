@@ -42,23 +42,23 @@ fn main() {
                     vertex_buffer: vec![
                         Vertex {
                             position: [-0.5, 0.5, 0.0],
-							color: [1., 0., 0., 0.],
-							tex_uv: [0., 0.],
+                            color: [1., 0., 0., 0.],
+                            tex_uv: [0., 0.],
                         },
                         Vertex {
-							position: [0.5, 0.5, 0.0],
+                            position: [0.5, 0.5, 0.0],
                             color: [0., 0., 1., 0.],
-							tex_uv: [0., 0.],
+                            tex_uv: [0., 0.],
                         },
                         Vertex {
-							position: [-0.5, -0.5, 0.0],
+                            position: [-0.5, -0.5, 0.0],
                             color: [0., 1., 0., 0.],
-							tex_uv: [0., 0.],
+                            tex_uv: [0., 0.],
                         },
                         Vertex {
-							position: [0.5, -0.5, 0.0],
+                            position: [0.5, -0.5, 0.0],
                             color: [0., 0., 0., 0.],
-							tex_uv: [0., 0.],
+                            tex_uv: [0., 0.],
                         },
                     ],
                     index_buffer: vec![0, 1, 2, 1, 3, 2],
@@ -67,9 +67,9 @@ fn main() {
                     uniforms: Uniforms {
                         perspective: IDENTITY,
                         view: IDENTITY,
-						model: IDENTITY,
-						texture_0: None
-					},
+                        model: IDENTITY,
+                        texture_0: None,
+                    },
                 },
             )
             .unwrap();
