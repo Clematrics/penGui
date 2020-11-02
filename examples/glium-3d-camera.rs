@@ -32,7 +32,7 @@ fn main() {
     let null_time = std::time::Instant::now();
     let mut last_frame_time = null_time;
 
-        const MAX_FRAME_DELAY_NS: u64 = 16_666_667;
+    const MAX_FRAME_DELAY_NS: u64 = 16_666_667;
 
     let mut control_x: f32 = 0.;
     let mut control_y: f32 = 0.;
