@@ -1,63 +1,106 @@
-// Structure for old layout and current layout
-// Current event and input states
+use std::collections::HashSet;
+use crate::core::{Backend, Mat4x4, UNIT_TRANSFORM, Widget, WidgetAny};
 
-// An interface can:
-// - end the drawing state and compute the layout (from UserInterface to LockedInterface)
-//   - compute a suitable layout
-//   - apply the layout
-// - export the 3D data and draw the frame (only on LockedInterface)
-// - receive an event and store it (only on LockedInterface)
-// - start a new frame (from LockedInterface to UserInterface)
+pub type ComponentId = u128;
 
-use super::{ContainerDraft, Structure, WidgetDraft};
+/// Encapsulate all metadata about the contained widget
+/// For instance, whether it is valid or not in the current frame,
+/// the local styling options, layout solutions, event capture ...
+pub struct InterfaceNode {
+	pub invalid: bool,
+	pub id: ComponentId,
 
-pub struct UserInterface {
-	structure: Structure,
+	pub widget: Box<dyn WidgetAny>
+}
+
+impl InterfaceNode {
+	pub fn new(id: ComponentId, widget: Box<dyn WidgetAny>) -> Self {
+		InterfaceNode {
+			invalid: false,
+			id,
+			widget
+		}
+	}
+
+	pub fn update_widget<T>(&self, id: ComponentId, widget: T)
+	where
+		T: Widget<Item = InterfaceNode> + 'static
+	{
+		let new_widget = Box::new(widget);
+		let old_widget = self.widget.find_map(|sub_w| {
+			if sub_w.id == id {
+				sub_w.widget.as_mut_any().downcast_mut::<T>()
+			}
+			else {
+				None
+			}
+		});
+		match old_widget {
+			Some(old_widget) => {
+				old_widget.update_from(new_widget)
+			}
+			None => {
+				self.widget.add(InterfaceNode::new(id, Box::new(widget)));
+			}
+		}
+	}
+}
+
+pub struct GlobalProperties<T, U> {
 	// no events, but input state, stats, ...
+	backend: Box<dyn Backend<DrawResult=T, Frame=U>>,
+	global_transformation: Mat4x4,
 }
 
-pub struct LockedInterface {
-	structure: Structure,
-
-	// events, input state, stats, ...
+/// Default user interface
+pub struct UserInterface<T, U> {
+	properties: GlobalProperties<T, U>,
+	windows: HashSet<InterfaceNode>
 }
 
-impl UserInterface {
-	pub fn new() -> LockedInterface {
+pub struct LockedInterface<T, U> {
+	properties: GlobalProperties<T, U>,
+	windows: HashSet<InterfaceNode>
+}
+
+impl<T, U> UserInterface<T, U> {
+	pub fn new(backend: Box<dyn Backend<DrawResult=T, Frame=U>>) -> LockedInterface<T, U> {
 		LockedInterface {
-			structure: Structure::new()
+			properties: GlobalProperties {
+				backend,
+				global_transformation: UNIT_TRANSFORM,
+			},
+			windows: HashSet::new()
 		}
 	}
 
-	pub fn build_widget<W: WidgetDraft>(&self, widget: &W) -> W::BuildFeedback {
-		widget.feedback()
+	pub fn global_transformation(&self, transform: Mat4x4) {
+		self.properties.global_transformation = transform;
 	}
 
-	pub fn build_container<C: ContainerDraft>(&self, container: &C) -> C::BuildFeedback {
-		// cursor down
-		let feedback = container.feedback();
-		// cursor up
-		feedback
-	}
-
-	pub fn end_frame(self) -> LockedInterface {
-		// The cursor of the structure is supposed to be on the root
-		self.structure.cursor().validate_content();
-
-		// TODO: compute layout etc
-
+	pub fn end_frame(self) -> LockedInterface<T, U> {
 		LockedInterface {
-			structure: self.structure
+			properties: self.properties,
+			windows: self.windows
 		}
 	}
 }
 
-impl LockedInterface {
-	pub fn new_frame(self) -> UserInterface {
-		self.structure.cursor().invalidate_content();
+impl<T, U> LockedInterface<T, U> {
+	pub fn new_frame(self) -> UserInterface<T, U> {
+		// Invalidate all windows
+		for ui in self.windows {
+			ui.invalid = true;
+		}
+
 		UserInterface {
-			structure: self.structure
+			properties: self.properties,
+			windows: self.windows,
 		}
+	}
+
+	pub fn generate_layout(&self) {
+		// TODO: implement
 	}
 
 	pub fn draw(&self) {

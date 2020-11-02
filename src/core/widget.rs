@@ -5,47 +5,35 @@
 // A widget must be able to give interaction surfaces and associated functions to react to events (doing nothing eventually)
 // It must give visual informations through the form of draw commands after applying the global transformation to its local one
 
-use super::{DrawCommand, UserInterface};
+use std::any::Any;
+use crate::core::{DrawCommand, InterfaceNode};
 
 pub trait WidgetDraft {
 	type BuildFeedback;
+	type AchievedType: Widget;
 
-	// Should consume or not ? If not, a widget must be copyable, but could cause problems with pointers
-	// fn build(self, ui: &UserInterface) -> Self::BuildFeedback;
-
-	fn feedback(&self) -> Self::BuildFeedback;
+	fn build(self, ui: &InterfaceNode) -> Self::BuildFeedback;
 }
 
+pub trait Widget : Iterator<Item = InterfaceNode> {
+	fn update_from(&mut self, other: Box<dyn WidgetAny>);
 
-pub trait Widget {
-	fn mark_valid(&self) -> ();
-	fn mark_invalid(&self) -> ();
-	fn is_valid(&self) -> bool;
+	fn add(&self, node: InterfaceNode) -> () {}
 
-	// Impl iter trait
-	// Retrieve subwidget by id
-
-	// Layout & transformations
-
-	// Interaction
-	// Retrieve event from the past
+	// fn generate_surfaces(&self);
 
 	fn draw_commands(&self) -> DrawCommand;
 }
 
-pub trait ContainerDraft {
-	type BuildFeedback;
-
-	// Should consume or not ? If not, a widget must be copyable, but could cause problems with pointers
-	// fn build(self, ui: &UserInterface) -> Self::BuildFeedback;
-
-	fn feedback(&self) -> Self::BuildFeedback;
+pub trait WidgetAny: Widget + Any {
+	fn as_any(&self) -> &dyn Any;
+	fn as_mut_any(&mut self) -> &mut dyn Any;
 }
 
-pub trait Container : Widget {
-	fn validate_content(&mut self) -> ();
-
-	fn invalidate_content(&self) -> ();
-
-	fn add(&self, widget: &dyn Widget) -> ();
+impl<T> WidgetAny for T
+where
+	T: Widget + Any + Sized
+{
+	fn as_any(&self) -> &dyn Any { self }
+	fn as_mut_any(&mut self) -> &mut dyn Any { self }
 }
