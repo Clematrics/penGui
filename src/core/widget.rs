@@ -5,59 +5,63 @@
 // A widget must be able to give interaction surfaces and associated functions to react to events (doing nothing eventually)
 // It must give visual informations through the form of draw commands after applying the global transformation to its local one
 
+use crate::core::{DrawCommand, InterfaceNode, NullDrawCommand, NullIterator};
 use std::any::Any;
-use crate::core::{DrawCommand, NullDrawCommand, NullIterator, InterfaceNode};
 
 pub trait WidgetDraft {
-	type BuildFeedback;
-	type AchievedType: Widget;
+    type BuildFeedback;
+    type AchievedType: Widget;
 
-	fn build(self, ui: &InterfaceNode) -> Self::BuildFeedback;
+    fn build(self, ui: &InterfaceNode) -> Self::BuildFeedback;
 }
 
 pub trait IntoIterator {
-	fn into_iter(self) -> Box<dyn Iterator<Item = &'static InterfaceNode>>;
+    fn into_iter(self) -> Box<dyn Iterator<Item = &'static InterfaceNode>>;
 }
 
-pub trait WidgetBase : IntoIterator {
-	fn update_from(&mut self, other: Box<dyn Widget>);
+pub trait WidgetBase: IntoIterator {
+    fn update_from(&mut self, other: Box<dyn Widget>);
 
-	fn add(&self, node: InterfaceNode) -> () {}
+    fn add(&self, node: InterfaceNode) -> () {}
 
-	// fn generate_surfaces(&self);
+    // fn generate_surfaces(&self);
 
-	fn draw_commands(&self) -> DrawCommand;
+    fn draw_commands(&self) -> DrawCommand;
 }
 
 pub trait Widget: Any + WidgetBase {
-	fn as_any(&self) -> &dyn Any;
-	fn as_mut_any(&mut self) -> &mut dyn Any;
+    fn as_any(&self) -> &dyn Any;
+    fn as_mut_any(&mut self) -> &mut dyn Any;
 }
 
 impl<T> Widget for T
 where
-	T: WidgetBase + Any
+    T: WidgetBase + Any,
 {
-		fn as_any(&self) -> &dyn Any { self }
-		fn as_mut_any(&mut self) -> &mut dyn Any { self }
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    fn as_mut_any(&mut self) -> &mut dyn Any {
+        self
+    }
 }
 
 pub struct DummyWidget;
 
 impl IntoIterator for DummyWidget {
-	fn into_iter(self) -> Box<dyn Iterator<Item = &'static InterfaceNode>> {
-		Box::new(NullIterator)
-	}
+    fn into_iter(self) -> Box<dyn Iterator<Item = &'static InterfaceNode>> {
+        Box::new(NullIterator)
+    }
 }
 
 impl WidgetBase for DummyWidget {
-	fn update_from(&mut self, other: Box<dyn Widget>) {}
+    fn update_from(&mut self, other: Box<dyn Widget>) {}
 
-	fn add(&self, node: InterfaceNode) -> () {}
+    fn add(&self, node: InterfaceNode) -> () {}
 
-	// fn generate_surfaces(&self);
+    // fn generate_surfaces(&self);
 
-	fn draw_commands(&self) -> DrawCommand {
-		NullDrawCommand
-	}
+    fn draw_commands(&self) -> DrawCommand {
+        NullDrawCommand
+    }
 }

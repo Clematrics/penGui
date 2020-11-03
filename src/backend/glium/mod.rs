@@ -54,7 +54,8 @@ impl GliumBackend {
             glium::Program::from_source(&facade, &VERTEX_SHADER_SRC, &FRAGMENT_SHADER_SRC, None)
                 .unwrap();
 
-        let blank_texture = glium::texture::RawImage2d::from_raw_rgba(vec![255, 255, 255, 255], (1, 1));
+        let blank_texture =
+            glium::texture::RawImage2d::from_raw_rgba(vec![255, 255, 255, 255], (1, 1));
         let blank_texture = glium::Texture2d::new(&facade, blank_texture).unwrap();
 
         Self {
@@ -79,7 +80,12 @@ impl core::Backend for GliumBackend {
     type DrawResult = Result<(), glium::DrawError>;
     type Frame = glium::Frame;
 
-    fn draw_command(&self, frame: &mut Self::Frame, global_transform: Mat4x4, command: &DrawCommand) -> Self::DrawResult {
+    fn draw_command(
+        &self,
+        frame: &mut Self::Frame,
+        global_transform: Mat4x4,
+        command: &DrawCommand,
+    ) -> Self::DrawResult {
         let vertex_buffer =
             glium::VertexBuffer::immutable(&self.display, &command.vertex_buffer.as_slice())
                 .unwrap();
