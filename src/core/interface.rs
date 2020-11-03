@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use crate::core::{Backend, Mat4x4, UNIT_TRANSFORM, Widget, WidgetAny};
+use crate::core::{Backend, DummyWidget, Mat4x4, UNIT_TRANSFORM, WidgetDraft, Widget, WidgetBase};
 
 pub type ComponentId = u128;
 
@@ -10,11 +10,11 @@ pub struct InterfaceNode {
 	pub invalid: bool,
 	pub id: ComponentId,
 
-	pub widget: Box<dyn WidgetAny>
+	pub widget: Box<dyn Widget>
 }
 
 impl InterfaceNode {
-	pub fn new(id: ComponentId, widget: Box<dyn WidgetAny>) -> Self {
+	pub fn new(id: ComponentId, widget: Box<dyn Widget>) -> Self {
 		InterfaceNode {
 			invalid: false,
 			id,
@@ -24,10 +24,10 @@ impl InterfaceNode {
 
 	pub fn update_widget<T>(&self, id: ComponentId, widget: T)
 	where
-		T: Widget<Item = InterfaceNode> + 'static
+		T: Widget + 'static
 	{
 		let new_widget = Box::new(widget);
-		let old_widget = self.widget.find_map(|sub_w| {
+		let old_widget = self.widget.into_iter().find_map(|sub_w| {
 			if sub_w.id == id {
 				sub_w.widget.as_mut_any().downcast_mut::<T>()
 			}
@@ -40,11 +40,17 @@ impl InterfaceNode {
 				old_widget.update_from(new_widget)
 			}
 			None => {
-				self.widget.add(InterfaceNode::new(id, Box::new(widget)));
+				self.widget.add(InterfaceNode::new(id, new_widget));
 			}
 		}
 	}
 }
+
+pub static DummyNode: InterfaceNode = InterfaceNode {
+	invalid: false,
+	id: 0,
+	widget: Box::new(DummyWidget),
+};
 
 pub struct GlobalProperties<T, U> {
 	// no events, but input state, stats, ...
@@ -109,5 +115,43 @@ impl<T, U> LockedInterface<T, U> {
 
 	pub fn register_event(&self) {
 		// TODO: implement
+	}
+}
+
+pub struct NullIterator;
+
+impl Iterator for NullIterator {
+	type Item = &'static InterfaceNode;
+
+	fn next(&mut self) -> Option<Self::Item> {
+		None
+	}
+}
+
+pub struct OneIterator {
+	seen_node: bool,
+	node: &'static InterfaceNode
+}
+
+impl OneIterator {
+	pub fn new(node: &'static InterfaceNode) -> Self {
+		Self {
+			seen_node: false,
+			node
+		}
+	}
+}
+
+impl Iterator for OneIterator {
+	type Item = &'static InterfaceNode;
+
+	fn next(&mut self) -> Option<Self::Item> {
+		if self.seen_node {
+			None
+		}
+		else {
+			self.seen_node = true;
+			Some(self.node)
+		}
 	}
 }
