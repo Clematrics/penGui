@@ -1,5 +1,5 @@
+use crate::core::{Backend, DummyWidget, Mat4x4, Widget, WidgetBase, WidgetDraft, UNIT_TRANSFORM};
 use std::collections::HashSet;
-use crate::core::{Backend, DummyWidget, Mat4x4, UNIT_TRANSFORM, WidgetDraft, Widget, WidgetBase};
 
 pub type ComponentId = u128;
 
@@ -7,43 +7,40 @@ pub type ComponentId = u128;
 /// For instance, whether it is valid or not in the current frame,
 /// the local styling options, layout solutions, event capture ...
 pub struct InterfaceNode {
-	pub invalid: bool,
-	pub id: ComponentId,
+    pub invalid: bool,
+    pub id: ComponentId,
 
-	pub widget: Box<dyn Widget>
+    pub widget: Box<dyn Widget>,
 }
 
 impl InterfaceNode {
-	pub fn new(id: ComponentId, widget: Box<dyn Widget>) -> Self {
-		InterfaceNode {
-			invalid: false,
-			id,
-			widget
-		}
-	}
+    pub fn new(id: ComponentId, widget: Box<dyn Widget>) -> Self {
+        InterfaceNode {
+            invalid: false,
+            id,
+            widget,
+        }
+    }
 
-	pub fn update_widget<T>(&self, id: ComponentId, widget: T)
-	where
-		T: Widget + 'static
-	{
-		let new_widget = Box::new(widget);
-		let old_widget = self.widget.into_iter().find_map(|sub_w| {
-			if sub_w.id == id {
-				sub_w.widget.as_mut_any().downcast_mut::<T>()
-			}
-			else {
-				None
-			}
-		});
-		match old_widget {
-			Some(old_widget) => {
-				old_widget.update_from(new_widget)
-			}
-			None => {
-				self.widget.add(InterfaceNode::new(id, new_widget));
-			}
-		}
-	}
+    pub fn update_widget<T>(&self, id: ComponentId, widget: T)
+    where
+        T: Widget + 'static,
+    {
+        let new_widget = Box::new(widget);
+        let old_widget = self.widget.into_iter().find_map(|sub_w| {
+            if sub_w.id == id {
+                sub_w.widget.as_mut_any().downcast_mut::<T>()
+            } else {
+                None
+            }
+        });
+        match old_widget {
+            Some(old_widget) => old_widget.update_from(new_widget),
+            None => {
+                self.widget.add(InterfaceNode::new(id, new_widget));
+            }
+        }
+    }
 }
 
 pub struct DummyNode;
@@ -58,9 +55,9 @@ impl DummyNode {
 }
 
 pub struct GlobalProperties<T, U> {
-	// no events, but input state, stats, ...
-	backend: Box<dyn Backend<DrawResult=T, Frame=U>>,
-	global_transformation: Mat4x4,
+    // no events, but input state, stats, ...
+    backend: Box<dyn Backend<DrawResult = T, Frame = U>>,
+    global_transformation: Mat4x4,
 }
 
 /// Default user interface
@@ -122,37 +119,36 @@ impl<T, U> LockedInterface<T, U> {
 pub struct NullIterator;
 
 impl Iterator for NullIterator {
-	type Item = &'static InterfaceNode;
+    type Item = &'static InterfaceNode;
 
-	fn next(&mut self) -> Option<Self::Item> {
-		None
-	}
+    fn next(&mut self) -> Option<Self::Item> {
+        None
+    }
 }
 
 pub struct OneIterator {
-	seen_node: bool,
-	node: &'static InterfaceNode
+    seen_node: bool,
+    node: &'static InterfaceNode,
 }
 
 impl OneIterator {
-	pub fn new(node: &'static InterfaceNode) -> Self {
-		Self {
-			seen_node: false,
-			node
-		}
-	}
+    pub fn new(node: &'static InterfaceNode) -> Self {
+        Self {
+            seen_node: false,
+            node,
+        }
+    }
 }
 
 impl Iterator for OneIterator {
-	type Item = &'static InterfaceNode;
+    type Item = &'static InterfaceNode;
 
-	fn next(&mut self) -> Option<Self::Item> {
-		if self.seen_node {
-			None
-		}
-		else {
-			self.seen_node = true;
-			Some(self.node)
-		}
-	}
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.seen_node {
+            None
+        } else {
+            self.seen_node = true;
+            Some(self.node)
+        }
+    }
 }

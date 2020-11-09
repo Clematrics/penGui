@@ -4,7 +4,7 @@ use crate::core::GlobalProperties;
 pub struct Vertex {
     pub position: [f32; 3],
     pub color: [f32; 4],
-    pub tex_uv: [f32; 2]
+    pub tex_uv: [f32; 2],
 }
 
 pub type Mat4x4 = [[f32; 4]; 4];
@@ -19,14 +19,14 @@ pub const UNIT_TRANSFORM: Mat4x4 = [
 
 pub struct Uniforms {
     pub model_matrix: Mat4x4,
-    pub texture: Option<TextureId>
+    pub texture: Option<TextureId>,
 }
 
 impl Uniforms {
     pub fn new() -> Self {
         Self {
             model_matrix: UNIT_TRANSFORM,
-            texture: None
+            texture: None,
         }
     }
 }
@@ -41,7 +41,7 @@ pub struct DrawCommand {
     pub vertex_buffer: Vec<Vertex>,
     pub index_buffer: Vec<u32>, // Wrapper
     pub draw_mode: DrawMode,    //
-    pub uniforms: Uniforms
+    pub uniforms: Uniforms,
 }
 
 pub static NullDrawCommand: DrawCommand = DrawCommand {
