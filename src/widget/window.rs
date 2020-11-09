@@ -9,15 +9,18 @@ pub struct WindowDraft {
 }
 
 impl WidgetDraft for WindowDraft {
-	type BuildFeedback = ();
-	type AchievedType = Window;
+    type BuildFeedback = ();
+    type AchievedType = Window;
 
-	fn build(self, ui: &InterfaceNode) -> Self::BuildFeedback {
-		ui.update_widget::<Self::AchievedType>(self.id, Window {
-			title: self.title,
-			content: DummyNode::new(),
-		});
-	}
+    fn build(self, ui: &InterfaceNode) -> Self::BuildFeedback {
+        ui.update_widget::<Self::AchievedType>(
+            self.id,
+            Window {
+                title: self.title,
+                content: DummyNode::new(),
+            },
+        );
+    }
 }
 
 pub struct Window {

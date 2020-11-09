@@ -45,13 +45,13 @@ impl InterfaceNode {
 
 pub struct DummyNode;
 impl DummyNode {
-	pub fn new() -> InterfaceNode {
-		InterfaceNode {
-			invalid: false,
-			id: 0,
-			widget: Box::new(DummyWidget),
-		}
-	}
+    pub fn new() -> InterfaceNode {
+        InterfaceNode {
+            invalid: false,
+            id: 0,
+            widget: Box::new(DummyWidget),
+        }
+    }
 }
 
 pub struct GlobalProperties<T, U> {
@@ -62,58 +62,58 @@ pub struct GlobalProperties<T, U> {
 
 /// Default user interface
 pub struct UserInterface<T, U> {
-	properties: GlobalProperties<T, U>,
-	windows: Vec<InterfaceNode>
+    properties: GlobalProperties<T, U>,
+    windows: Vec<InterfaceNode>,
 }
 
 pub struct LockedInterface<T, U> {
-	properties: GlobalProperties<T, U>,
-	windows: Vec<InterfaceNode>
+    properties: GlobalProperties<T, U>,
+    windows: Vec<InterfaceNode>,
 }
 
 impl<T, U> UserInterface<T, U> {
-	pub fn new(backend: Box<dyn Backend<DrawResult=T, Frame=U>>) -> LockedInterface<T, U> {
-		LockedInterface {
-			properties: GlobalProperties {
-				backend,
-				global_transformation: UNIT_TRANSFORM,
-			},
-			windows: Vec::new()
-		}
-	}
+    pub fn new(backend: Box<dyn Backend<DrawResult = T, Frame = U>>) -> LockedInterface<T, U> {
+        LockedInterface {
+            properties: GlobalProperties {
+                backend,
+                global_transformation: UNIT_TRANSFORM,
+            },
+            windows: Vec::new(),
+        }
+    }
 
-	pub fn global_transformation(&mut self, transform: Mat4x4) {
-		self.properties.global_transformation = transform;
-	}
+    pub fn global_transformation(&mut self, transform: Mat4x4) {
+        self.properties.global_transformation = transform;
+    }
 
-	pub fn end_frame(self) -> LockedInterface<T, U> {
-		LockedInterface {
-			properties: self.properties,
-			windows: self.windows
-		}
-	}
+    pub fn end_frame(self) -> LockedInterface<T, U> {
+        LockedInterface {
+            properties: self.properties,
+            windows: self.windows,
+        }
+    }
 }
 
 impl<T, U> LockedInterface<T, U> {
-	pub fn new_frame(self) -> UserInterface<T, U> {
-		// Invalidate all windows
-		UserInterface {
-			properties: self.properties,
-			windows: self.windows.into_iter().map(|ui| { ui }).collect(),
-		}
-	}
+    pub fn new_frame(self) -> UserInterface<T, U> {
+        // Invalidate all windows
+        UserInterface {
+            properties: self.properties,
+            windows: self.windows.into_iter().map(|ui| ui).collect(),
+        }
+    }
 
-	pub fn generate_layout(&self) {
-		// TODO: implement
-	}
+    pub fn generate_layout(&self) {
+        // TODO: implement
+    }
 
-	pub fn draw(&self) {
-		// TODO: implement
-	}
+    pub fn draw(&self) {
+        // TODO: implement
+    }
 
-	pub fn register_event(&self) {
-		// TODO: implement
-	}
+    pub fn register_event(&self) {
+        // TODO: implement
+    }
 }
 
 pub struct NullIterator;
