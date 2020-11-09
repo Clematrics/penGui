@@ -93,7 +93,7 @@ impl core::Backend for GliumBackend {
         let uniforms = glium::uniform! {
             perspective_view: global_transform,
             model: command.uniforms.model_matrix,
-            t: if let Some(id) = DrawCommand.uniforms.texture { id } else { self.blank_texture },
+            t: if let Some(id) = command.uniforms.texture { &self.textures[id as usize] } else { &self.blank_texture },
         };
 
         frame.draw(

@@ -46,11 +46,16 @@ impl InterfaceNode {
 	}
 }
 
-pub static DummyNode: InterfaceNode = InterfaceNode {
-	invalid: false,
-	id: 0,
-	widget: Box::new(DummyWidget),
-};
+pub struct DummyNode;
+impl DummyNode {
+	pub fn new() -> InterfaceNode {
+		InterfaceNode {
+			invalid: false,
+			id: 0,
+			widget: Box::new(DummyWidget),
+		}
+	}
+}
 
 pub struct GlobalProperties<T, U> {
 	// no events, but input state, stats, ...
@@ -61,12 +66,12 @@ pub struct GlobalProperties<T, U> {
 /// Default user interface
 pub struct UserInterface<T, U> {
 	properties: GlobalProperties<T, U>,
-	windows: HashSet<InterfaceNode>
+	windows: Vec<InterfaceNode>
 }
 
 pub struct LockedInterface<T, U> {
 	properties: GlobalProperties<T, U>,
-	windows: HashSet<InterfaceNode>
+	windows: Vec<InterfaceNode>
 }
 
 impl<T, U> UserInterface<T, U> {
@@ -76,11 +81,11 @@ impl<T, U> UserInterface<T, U> {
 				backend,
 				global_transformation: UNIT_TRANSFORM,
 			},
-			windows: HashSet::new()
+			windows: Vec::new()
 		}
 	}
 
-	pub fn global_transformation(&self, transform: Mat4x4) {
+	pub fn global_transformation(&mut self, transform: Mat4x4) {
 		self.properties.global_transformation = transform;
 	}
 
@@ -95,13 +100,9 @@ impl<T, U> UserInterface<T, U> {
 impl<T, U> LockedInterface<T, U> {
 	pub fn new_frame(self) -> UserInterface<T, U> {
 		// Invalidate all windows
-		for ui in self.windows {
-			ui.invalid = true;
-		}
-
 		UserInterface {
 			properties: self.properties,
-			windows: self.windows,
+			windows: self.windows.into_iter().map(|ui| { ui }).collect(),
 		}
 	}
 

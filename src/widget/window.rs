@@ -23,7 +23,7 @@ impl WidgetDraft for WindowDraft {
 	fn build(self, ui: &InterfaceNode) -> Self::BuildFeedback {
 		ui.update_widget::<Self::AchievedType>(self.id, Window {
 			title: self.title,
-			content: DummyNode,
+			content: DummyNode::new(),
 		});
 	}
 }
