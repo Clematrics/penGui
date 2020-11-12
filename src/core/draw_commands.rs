@@ -23,7 +23,7 @@ pub struct Uniforms {
 }
 
 impl Uniforms {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             model_matrix: UNIT_TRANSFORM,
             texture: None,

@@ -1,7 +1,9 @@
+pub use self::component_id::*;
 pub use self::draw_commands::*;
 pub use self::interface::*;
 pub use self::widget::*;
 
-pub mod draw_commands;
-pub mod interface;
-pub mod widget;
+mod component_id;
+mod draw_commands;
+mod interface;
+mod widget;
