@@ -5,9 +5,54 @@
 // A widget must be able to give interaction surfaces and associated functions to react to events (doing nothing eventually)
 // It must give visual informations through the form of draw commands after applying the global transformation to its local one
 
-use crate::core::{DrawCommand, InterfaceNode, NullDrawCommand};
-use std::any::Any;
+use std::any::Any; // Implement Any for type coercion
 
-pub trait Widget {
+use super::{CodeLocation, ComponentId, NodeMetadata, NodeReference, WidgetQueryResult};
 
+pub trait WidgetBuilder {
+    type AchievedType: Widget + 'static;
+    type BuildFeedback;
+
+    fn update(self, metadata: &NodeMetadata, old: &mut Self::AchievedType) -> ();
+    fn create(self) -> Self::AchievedType;
+
+    fn build(self, loc: CodeLocation, node: NodeReference) -> Self::BuildFeedback;
+}
+
+pub trait WidgetBase {
+    fn query(&mut self, id: ComponentId) -> WidgetQueryResult {
+        panic!("Trying to query a widget from another one which does not contains one (or has not implemented the 'query' function")
+    }
+}
+
+pub trait Widget: WidgetBase {
+    fn as_any(&self) -> &dyn Any;
+    fn as_any_mut(&mut self) -> &mut dyn Any;
+}
+
+impl<T> Widget for T
+where
+    T: WidgetBase + Any,
+{
+    fn as_any(&self) -> &dyn Any
+    where
+        Self: Sized,
+    {
+        self
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any
+    where
+        Self: Sized,
+    {
+        self
+    }
+}
+
+pub struct DummyWidget;
+
+impl WidgetBase for DummyWidget {
+    fn query(&mut self, id: ComponentId) -> WidgetQueryResult {
+        panic!("Attempting to query a child of a DummyWidget")
+    }
 }

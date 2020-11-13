@@ -3,34 +3,58 @@ use std::collections::HashMap;
 
 pub type UniqueId = u64;
 
-struct ComponentIdGenerator {
-	registry: HashMap<TypeId, UniqueId>
+#[derive(Hash)]
+pub struct CodeLocation(&'static str, u32, u32);
+
+macro_rules! build {
+    ( $expr:expr ) => {
+        build(CodeLocation(file!(), line!(), column!()), expr)
+    };
 }
 
-static component_id_generator: ComponentIdGenerator = ComponentIdGenerator {
-	registry: HashMap::new()
-};
+struct ComponentIdGenerator {
+    // NOTE: A generator could just be a structure that holds associated functions
+    registry: HashMap<TypeId, UniqueId>,
+}
 
 impl ComponentIdGenerator {
-	fn generate<T: 'static>() -> UniqueId {
-		let counter = component_id_generator.registry.entry(TypeId::of::<T>()).or_insert(0);
-		*counter += 1;
-		*counter
-	}
+    // NOTE: This might not be useful
+    fn new() -> Self {
+        Self {
+            registry: HashMap::new(),
+        }
+    }
+
+    fn generate_from_location<T: 'static>(loc: CodeLocation) -> ComponentId {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+
+        let mut hasher = DefaultHasher::new();
+        loc.hash(&mut hasher);
+        ComponentId::Generated(hasher.finish(), TypeId::of::<T>())
+    }
+
+    // NOTE: This might not be useful at all
+    fn generate<T: 'static>(&mut self) -> ComponentId {
+        let type_id = TypeId::of::<T>();
+        let counter = self.registry.entry(type_id).or_insert(0);
+        *counter += 1;
+        ComponentId::Generated(*counter, type_id)
+    }
 }
 
 #[derive(PartialEq, Eq, Hash)]
 pub enum ComponentId {
-	Generated(UniqueId, TypeId),
-	Custom(UniqueId, TypeId)
+    Generated(UniqueId, TypeId),
+    Custom(UniqueId, TypeId),
 }
 
 impl ComponentId {
-	pub fn new<T: 'static>() -> Self {
-		ComponentId::Generated(ComponentIdGenerator::generate::<T>(), TypeId::of::<T>())
-	}
+    pub fn new<T: 'static>(loc: CodeLocation) -> Self {
+        ComponentIdGenerator::generate_from_location::<T>(loc)
+    }
 
-	pub fn new_custom<T: 'static>(id: UniqueId) -> Self {
-		ComponentId::Custom(id, TypeId::of::<T>())
-	}
+    pub fn new_custom<T: 'static>(id: UniqueId) -> Self {
+        ComponentId::Custom(id, TypeId::of::<T>())
+    }
 }
