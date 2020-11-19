@@ -1,4 +1,3 @@
-use std::any::Any;
 use std::cell::RefCell;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;

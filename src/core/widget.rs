@@ -20,7 +20,7 @@ pub trait WidgetBuilder {
 }
 
 pub trait WidgetBase {
-    fn query(&mut self, id: ComponentId) -> WidgetQueryResult {
+    fn query(&mut self, _id: ComponentId) -> WidgetQueryResult {
         panic!("Trying to query a widget from another one which does not contains one (or has not implemented the 'query' function")
     }
 }
@@ -52,7 +52,7 @@ where
 pub struct DummyWidget;
 
 impl WidgetBase for DummyWidget {
-    fn query(&mut self, id: ComponentId) -> WidgetQueryResult {
+    fn query(&mut self, _id: ComponentId) -> WidgetQueryResult {
         panic!("Attempting to query a child of a DummyWidget")
     }
 }

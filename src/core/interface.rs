@@ -1,33 +1,31 @@
 use std::rc::Weak;
 
 use super::node::{Node, NodeWeakReference};
-use crate::core::{Backend, Mat4x4, UNIT_TRANSFORM};
+use crate::core::{Mat4x4, UNIT_TRANSFORM};
 
-pub struct GlobalProperties<T, U> {
+pub struct GlobalProperties {
     // no events, but input state, stats, ...
-    backend: Box<dyn Backend<DrawResult = T, Frame = U>>,
     global_transformation: Mat4x4,
-    focus: NodeWeakReference,
+    _focus: NodeWeakReference,
 }
 
 /// Default user interface
-pub struct UserInterface<T, U> {
-    properties: GlobalProperties<T, U>,
+pub struct UserInterface {
+    properties: GlobalProperties,
     windows: Vec<Node>,
 }
 
-pub struct LockedInterface<T, U> {
-    properties: GlobalProperties<T, U>,
+pub struct LockedInterface {
+    properties: GlobalProperties,
     windows: Vec<Node>,
 }
 
-impl<T, U> UserInterface<T, U> {
-    pub fn new(backend: Box<dyn Backend<DrawResult = T, Frame = U>>) -> LockedInterface<T, U> {
+impl UserInterface {
+    pub fn new() -> LockedInterface {
         LockedInterface {
             properties: GlobalProperties {
-                backend,
                 global_transformation: UNIT_TRANSFORM,
-                focus: Weak::new(),
+                _focus: Weak::new(),
             },
             windows: Vec::new(),
         }
@@ -37,7 +35,7 @@ impl<T, U> UserInterface<T, U> {
         self.properties.global_transformation = transform;
     }
 
-    pub fn end_frame(self) -> LockedInterface<T, U> {
+    pub fn end_frame(self) -> LockedInterface {
         LockedInterface {
             properties: self.properties,
             windows: self.windows,
@@ -45,8 +43,8 @@ impl<T, U> UserInterface<T, U> {
     }
 }
 
-impl<T, U> LockedInterface<T, U> {
-    pub fn new_frame(self) -> UserInterface<T, U> {
+impl LockedInterface {
+    pub fn new_frame(self) -> UserInterface {
         // Invalidate all windows
         UserInterface {
             properties: self.properties,

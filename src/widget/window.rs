@@ -5,43 +5,39 @@ use crate::core::{
     WidgetQueryResult,
 };
 
-struct WindowBuilder<F: Fn(NodeReference) -> ()> {
+struct WindowBuilder {
     title: String,
     size: (f32, f32),
-    generator: Option<F>,
+    generator: Option<Box<dyn Fn(NodeReference)>>,
 }
 
-impl<F> WindowBuilder<F>
-where
-    F: Fn(NodeReference) -> (),
-{
-    pub fn new(generator: F) -> Self {
+impl WindowBuilder {
+    pub fn _new<F: 'static + Fn(NodeReference)>(generator: F) -> Self {
         WindowBuilder {
             title: "".to_string(),
             size: (400., 400.),
-            generator: Some(generator),
+            generator: Some(Box::new(generator)),
         }
     }
 
-    pub fn title(mut self, title: String) -> Self {
+    pub fn _title(mut self, title: String) -> Self {
         self.title = title;
         self
     }
 
-    pub fn size(mut self, size: (f32, f32)) -> Self {
+    pub fn _size(mut self, size: (f32, f32)) -> Self {
         self.size = size;
         self
     }
 }
 
-impl<F> WidgetBuilder for WindowBuilder<F>
-where
-    F: Fn(NodeReference) -> (),
-{
+impl WidgetBuilder for WindowBuilder {
     type AchievedType = Window;
     type BuildFeedback = ();
 
-    fn update(self, metadata: &NodeMetadata, old: &mut Self::AchievedType) {}
+    fn update(self, _metadata: &NodeMetadata, old: &mut Self::AchievedType) {
+        old.title = self.title;
+    }
 
     fn create(self) -> Self::AchievedType {
         Window {
@@ -52,7 +48,7 @@ where
 
     fn build(mut self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
-        let generator = self.generator.take().expect("Bug detecteds");
+        let generator = self.generator.take().unwrap_or(Box::new(|_| ()));
         let node_ref = parent
             .borrow_mut()
             .query::<Self::AchievedType>(id)

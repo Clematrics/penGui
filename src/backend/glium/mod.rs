@@ -1,4 +1,3 @@
-use crate::core;
 use crate::core::{DrawCommand, Mat4x4, Vertex};
 
 use glium::Surface;
@@ -11,7 +10,7 @@ in vec4 color;
 in vec2 tex_uv;
 
 out vec4 pipe_color;
-out vec4 pipe_tex_uv;
+out vec2 pipe_tex_uv;
 
 uniform mat4 perspective_view;
 uniform mat4 model;
@@ -27,7 +26,7 @@ static FRAGMENT_SHADER_SRC: &'static str = r#"
 #version 330
 
 in vec4 pipe_color;
-in vec4 pipe_tex_uv;
+in vec2 pipe_tex_uv;
 
 out vec4 out_color;
 
@@ -46,6 +45,9 @@ pub struct GliumBackend {
     textures: Vec<glium::Texture2d>,
 }
 
+type DrawResult = Result<(), glium::DrawError>;
+type Frame = glium::Frame;
+
 glium::implement_vertex!(Vertex, position, color, tex_uv);
 
 impl GliumBackend {
@@ -54,8 +56,8 @@ impl GliumBackend {
             glium::Program::from_source(&facade, &VERTEX_SHADER_SRC, &FRAGMENT_SHADER_SRC, None)
                 .unwrap();
 
-        let blank_texture =
-            glium::texture::RawImage2d::from_raw_rgba(vec![255, 255, 255, 255], (1, 1));
+        let img: Vec<u8> = vec![255, 255, 255, 255];
+        let blank_texture = glium::texture::RawImage2d::from_raw_rgba(img, (1, 1));
         let blank_texture = glium::Texture2d::new(&facade, blank_texture).unwrap();
 
         Self {
@@ -74,18 +76,13 @@ impl GliumBackend {
             textures: vec![],
         }
     }
-}
 
-impl core::Backend for GliumBackend {
-    type DrawResult = Result<(), glium::DrawError>;
-    type Frame = glium::Frame;
-
-    fn draw_command(
+    pub fn draw_command(
         &self,
-        frame: &mut Self::Frame,
+        frame: &mut Frame,
         global_transform: Mat4x4,
         command: &DrawCommand,
-    ) -> Self::DrawResult {
+    ) -> DrawResult {
         let vertex_buffer =
             glium::VertexBuffer::immutable(&self.display, &command.vertex_buffer.as_slice())
                 .unwrap();
@@ -111,7 +108,7 @@ impl core::Backend for GliumBackend {
         )
     }
 
-    fn new_frame(&self) -> Self::Frame {
+    pub fn new_frame(&self) -> Frame {
         self.display.draw()
     }
 }

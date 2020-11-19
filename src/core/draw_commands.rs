@@ -1,5 +1,3 @@
-use crate::core::GlobalProperties;
-
 #[derive(Copy, Clone)]
 pub struct Vertex {
     pub position: [f32; 3],
@@ -44,23 +42,9 @@ pub struct DrawCommand {
     pub uniforms: Uniforms,
 }
 
-pub static NullDrawCommand: DrawCommand = DrawCommand {
+pub static NULL_DRAW_COMMAND: DrawCommand = DrawCommand {
     vertex_buffer: vec![],
     index_buffer: vec![],
     draw_mode: DrawMode::TriangleFan,
     uniforms: Uniforms::new(),
 };
-
-pub trait Backend {
-    type DrawResult;
-    type Frame;
-
-    fn draw_command(
-        &self,
-        target: &mut Self::Frame,
-        global_transform: Mat4x4,
-        draw_command: &DrawCommand,
-    ) -> Self::DrawResult;
-
-    fn new_frame(&self) -> Self::Frame;
-}

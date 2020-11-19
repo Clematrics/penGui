@@ -14,14 +14,14 @@ macro_rules! build {
 
 struct ComponentIdGenerator {
     // NOTE: A generator could just be a structure that holds associated functions
-    registry: HashMap<TypeId, UniqueId>,
+    _registry: HashMap<TypeId, UniqueId>,
 }
 
 impl ComponentIdGenerator {
     // NOTE: This might not be useful
-    fn new() -> Self {
+    fn _new() -> Self {
         Self {
-            registry: HashMap::new(),
+            _registry: HashMap::new(),
         }
     }
 
@@ -35,9 +35,9 @@ impl ComponentIdGenerator {
     }
 
     // NOTE: This might not be useful at all
-    fn generate<T: 'static>(&mut self) -> ComponentId {
+    fn _generate<T: 'static>(&mut self) -> ComponentId {
         let type_id = TypeId::of::<T>();
-        let counter = self.registry.entry(type_id).or_insert(0);
+        let counter = self._registry.entry(type_id).or_insert(0);
         *counter += 1;
         ComponentId::Generated(*counter, type_id)
     }

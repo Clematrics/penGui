@@ -8,14 +8,14 @@ struct Button {
 }
 
 impl Button {
-    fn new(label: String) -> Self {
+    fn _new(label: String) -> Self {
         Self {
             label,
             color: (0., 0.4, 1., 1.),
         }
     }
 
-    fn color(mut self, color: (f32, f32, f32, f32)) -> Self {
+    fn _color(mut self, color: (f32, f32, f32, f32)) -> Self {
         self.color = color;
         self
     }
@@ -25,7 +25,7 @@ impl WidgetBuilder for Button {
     type AchievedType = Button;
     type BuildFeedback = bool;
 
-    fn update(self, metadata: &NodeMetadata, old: &mut Self::AchievedType) {
+    fn update(self, _metadata: &NodeMetadata, old: &mut Self::AchievedType) {
         old.label = self.label;
         old.color = self.color;
     }
