@@ -7,7 +7,7 @@
 
 use std::any::Any; // Implement Any for type coercion
 
-use super::{CodeLocation, ComponentId, NodeMetadata, NodeReference, WidgetQueryResult};
+use super::{CodeLocation, ComponentId, DrawList, NodeMetadata, NodeReference, WidgetQueryResult};
 
 pub trait WidgetBuilder {
     type AchievedType: Widget + 'static;
@@ -22,6 +22,10 @@ pub trait WidgetBuilder {
 pub trait WidgetBase {
     fn query(&mut self, _id: ComponentId) -> WidgetQueryResult {
         panic!("Trying to query a widget from another one which does not contains one (or has not implemented the 'query' function")
+    }
+
+    fn draw(&self) -> DrawList {
+        DrawList::new()
     }
 }
 

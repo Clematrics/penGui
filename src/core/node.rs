@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 use std::rc::{Rc, Weak};
 
 use crate::core::ComponentId;
-use crate::core::{DummyWidget, Widget, WidgetBuilder};
+use crate::core::{DrawList, DummyWidget, Widget, WidgetBuilder};
 
 pub type NodeReference = Rc<RefCell<Node>>;
 pub type NodeWeakReference = Weak<RefCell<Node>>;
@@ -23,7 +23,7 @@ pub struct NodeMetadata {
 /// - local style
 pub struct Node {
     pub metadata: NodeMetadata,
-    content: Box<dyn (Widget)>,
+    content: Box<dyn Widget>,
 }
 
 impl Node {
@@ -31,6 +31,13 @@ impl Node {
         Rc::new(RefCell::new(Node {
             metadata: NodeMetadata { id, invalid: false },
             content: Box::new(DummyWidget),
+        }))
+    }
+
+    pub fn new_reference_from(id: ComponentId, widget: Box<dyn Widget>) -> NodeReference {
+        Rc::new(RefCell::new(Node {
+            metadata: NodeMetadata { id, invalid: false },
+            content: widget,
         }))
     }
 
@@ -43,6 +50,10 @@ impl Node {
                 NodeQueryResult::<T>::OccupiedNode(node, PhantomData)
             }
         }
+    }
+
+    pub fn draw(&self) -> DrawList {
+        self.content.draw()
     }
 
     pub fn borrow_parts(&mut self) -> (&NodeMetadata, &mut Box<dyn Widget>) {

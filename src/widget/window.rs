@@ -1,18 +1,18 @@
 use std::rc::Rc;
 
 use crate::core::{
-    CodeLocation, ComponentId, Node, NodeMetadata, NodeReference, WidgetBase, WidgetBuilder,
-    WidgetQueryResult,
+    CodeLocation, ComponentId, DrawList, Node, NodeMetadata, NodeReference, WidgetBase,
+    WidgetBuilder, WidgetQueryResult,
 };
 
-struct WindowBuilder {
+pub struct WindowBuilder {
     title: String,
     size: (f32, f32),
     generator: Option<Box<dyn Fn(NodeReference)>>,
 }
 
 impl WindowBuilder {
-    pub fn _new<F: 'static + Fn(NodeReference)>(generator: F) -> Self {
+    pub fn new<F: 'static + Fn(NodeReference)>(generator: F) -> Self {
         WindowBuilder {
             title: "".to_string(),
             size: (400., 400.),
@@ -62,7 +62,7 @@ impl WidgetBuilder for WindowBuilder {
     }
 }
 
-struct Window {
+pub struct Window {
     title: String,
     content: Vec<NodeReference>,
 }
@@ -82,5 +82,13 @@ impl WidgetBase for Window {
                 WidgetQueryResult::Uninitialized(node_ref)
             }
         }
+    }
+
+    fn draw(&self) -> DrawList {
+        let mut list = DrawList::new();
+        self.content
+            .iter()
+            .for_each(|node| list.list.push(node.borrow_mut().draw()));
+        list
     }
 }

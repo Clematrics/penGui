@@ -1,4 +1,4 @@
-use crate::core::{DrawCommand, Mat4x4, Vertex};
+use crate::core::{DrawCommand, DrawList, Mat4x4, TextureId, Vertex};
 
 use glium::Surface;
 
@@ -47,6 +47,7 @@ pub struct GliumBackend {
 
 type DrawResult = Result<(), glium::DrawError>;
 type Frame = glium::Frame;
+type Texture = glium::texture::RawImage2d<'static, u8>;
 
 glium::implement_vertex!(Vertex, position, color, tex_uv);
 
@@ -108,7 +109,28 @@ impl GliumBackend {
         )
     }
 
+    pub fn draw_list(
+        &self,
+        frame: &mut Frame,
+        global_transform: Mat4x4,
+        list: &DrawList,
+    ) -> DrawResult {
+        list.commands
+            .iter()
+            .try_for_each(|command| self.draw_command(frame, global_transform, command))?;
+        list.list
+            .iter()
+            .try_for_each(|list| self.draw_list(frame, global_transform, list))
+    }
+
     pub fn new_frame(&self) -> Frame {
         self.display.draw()
+    }
+
+    pub fn register_texture(&mut self, image: Texture) -> TextureId {
+        let texture = glium::texture::Texture2d::new(&self.display, image).unwrap();
+        let id = self.textures.len();
+        self.textures.push(texture);
+        id
     }
 }

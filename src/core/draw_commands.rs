@@ -6,7 +6,7 @@ pub struct Vertex {
 }
 
 pub type Mat4x4 = [[f32; 4]; 4];
-pub type TextureId = u32;
+pub type TextureId = usize;
 
 pub const UNIT_TRANSFORM: Mat4x4 = [
     [1.0, 0.0, 0.0, 0.0],
@@ -40,6 +40,20 @@ pub struct DrawCommand {
     pub index_buffer: Vec<u32>, // Wrapper
     pub draw_mode: DrawMode,    //
     pub uniforms: Uniforms,
+}
+
+pub struct DrawList {
+    pub commands: Vec<DrawCommand>,
+    pub list: Vec<DrawList>,
+}
+
+impl DrawList {
+    pub fn new() -> DrawList {
+        DrawList {
+            commands: Vec::new(),
+            list: Vec::new(),
+        }
+    }
 }
 
 pub static NULL_DRAW_COMMAND: DrawCommand = DrawCommand {

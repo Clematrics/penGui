@@ -14,7 +14,7 @@ impl Camera {
     pub fn new() -> Self {
         // Looking toward the -z axis by default
         Self {
-            distance: 300.,
+            distance: 1.5,
             yaw: 0.,
             pitch: 0.,
             ratio: 1.,

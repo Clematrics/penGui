@@ -4,11 +4,24 @@ use std::collections::HashMap;
 pub type UniqueId = u64;
 
 #[derive(Hash)]
-pub struct CodeLocation(&'static str, u32, u32);
+pub struct CodeLocation(pub &'static str, pub u32, pub u32);
 
+pub fn new_code_location(s: &'static str, l: u32, r: u32) -> CodeLocation {
+    CodeLocation(s, l, r)
+}
+
+#[macro_export]
 macro_rules! build {
-    ( $expr:expr ) => {
-        build(CodeLocation(file!(), line!(), column!()), expr)
+    ( $root:expr, $expr:expr ) => {
+        root.build(CodeLocation(file!(), line!(), column!()), expr)
+    };
+}
+
+#[macro_export]
+macro_rules! loc {
+    () => {
+        CodeLocation(file!(), line!(), column!())
+        // CodeLocation{0: file!(), 1: line!(), 2: column!()}
     };
 }
 
