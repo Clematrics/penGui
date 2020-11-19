@@ -5,21 +5,29 @@ pub struct Vertex {
     pub tex_uv: [f32; 2],
 }
 
-pub type Mat4 = [[f32; 4]; 4];
+pub type Mat4x4 = [[f32; 4]; 4];
+pub type TextureId = usize;
 
-#[derive(Copy, Clone)]
+pub const UNIT_TRANSFORM: Mat4x4 = [
+    [1.0, 0.0, 0.0, 0.0],
+    [0.0, 1.0, 0.0, 0.0],
+    [0.0, 0.0, 1.0, 0.0],
+    [0.0, 0.0, 0.0, 1.0],
+];
+
 pub struct Uniforms {
-    pub perspective: Mat4,
-    pub view: Mat4,
-    pub model: Mat4,
-    pub texture_0: Option<TextureId>,
+    pub model_matrix: Mat4x4,
+    pub texture: Option<TextureId>,
 }
 
-// #[derive(Copy, Clone)]
-// pub enum Uniform {
-// 	Mat4([[f32; 4]; 4]),
-// 	Texture2D(TextureId)
-// }
+impl Uniforms {
+    pub const fn new() -> Self {
+        Self {
+            model_matrix: UNIT_TRANSFORM,
+            texture: None,
+        }
+    }
+}
 
 pub enum DrawMode {
     TriangleFan,
@@ -27,27 +35,30 @@ pub enum DrawMode {
     // ... TODO : to complete
 }
 
-pub type TextureId = usize;
-
 pub struct DrawCommand {
     pub vertex_buffer: Vec<Vertex>,
     pub index_buffer: Vec<u32>, // Wrapper
     pub draw_mode: DrawMode,    //
-    pub clipping: [[f32; 2]; 2],
-    pub uniforms: Uniforms, // Option
+    pub uniforms: Uniforms,
 }
 
-pub trait Backend {
-    type DrawResult;
-    type Frame;
-    type Texture;
-
-    fn draw_command(
-        &self,
-        target: &mut Self::Frame,
-        draw_command: &DrawCommand,
-    ) -> Self::DrawResult;
-    fn new_frame(&self) -> Self::Frame;
-
-    fn register_texture(&mut self, image: Self::Texture) -> TextureId;
+pub struct DrawList {
+    pub commands: Vec<DrawCommand>,
+    pub list: Vec<DrawList>,
 }
+
+impl DrawList {
+    pub fn new() -> DrawList {
+        DrawList {
+            commands: Vec::new(),
+            list: Vec::new(),
+        }
+    }
+}
+
+pub static NULL_DRAW_COMMAND: DrawCommand = DrawCommand {
+    vertex_buffer: vec![],
+    index_buffer: vec![],
+    draw_mode: DrawMode::TriangleFan,
+    uniforms: Uniforms::new(),
+};

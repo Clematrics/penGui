@@ -1,0 +1,142 @@
+use std::cell::RefCell;
+use std::f32::consts::PI;
+
+use glium::Surface;
+
+extern crate image;
+
+use pengui::{
+    backend::glium::GliumBackend,
+    build,
+    core::{CodeLocation, DrawCommand, LockedInterface, Uniforms, Vertex, WidgetBuilder},
+    loc,
+    widget::{Button, Window, WindowBuilder},
+    UserInterface,
+};
+
+mod setup;
+use setup::camera::Camera;
+use setup::main_window::MainWindow;
+
+fn main() {
+    let (mut main_window, event_loop, display) = MainWindow::new();
+    let mut backend = GliumBackend::new(display);
+
+    let mut camera = Camera::new();
+    use std::io::Cursor;
+    let image = image::load(
+        Cursor::new(&include_bytes!("resources/logo_ensps.png")[..]),
+        image::ImageFormat::Png,
+    )
+    .unwrap()
+    .to_rgba();
+    let image_dimensions = image.dimensions();
+    let image =
+        glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
+
+    let enpsps_tex = backend.register_texture(image);
+
+    let mut ui = UserInterface::new();
+
+    event_loop.run(move |event, _, control_flow| {
+        main_window.handle_events(&event, control_flow);
+        camera.handle_events(&event);
+
+        let (_, abort_frame) = main_window.get_delta_time();
+        if abort_frame {
+            return;
+        }
+        let time = main_window.new_frame_time();
+
+        let mut target = backend.new_frame();
+        let blue = (1. + f32::sin(time + PI)) / 2.;
+        let red = (1. + f32::sin(time)) / 2.;
+        target.clear_color_and_depth((red, 0.0, blue, 1.0), 1.0);
+
+        ui.new_frame();
+
+        Button::new("label not displayed".to_string()).build(loc!(), ui.root.clone());
+        Button::new("label not displayed".to_string())
+            .color((1., 0., 0., 0.5))
+            .position((0., 0.25, 0.))
+            .texture(enpsps_tex)
+            .build(loc!(), ui.root.clone());
+
+        ui.end_frame();
+        ui.generate_layout();
+        let list = ui.draw();
+        backend
+            .draw_list(&mut target, camera.perspective_view_matrix(), &list)
+            .expect("error while rendering ui");
+
+        let (width, height) = target.get_dimensions();
+        camera.set_dimensions(width, height);
+
+        let cube_vertices: Vec<Vertex> = vec![
+            // Front face
+            Vertex {
+                position: [-0.5, 0.5, -0.5],
+                color: [1., 0., 0., 0.],
+                tex_uv: [0., 0.],
+            },
+            Vertex {
+                position: [0.5, 0.5, -0.5],
+                color: [0., 0., 1., 0.],
+                tex_uv: [0., 0.],
+            },
+            Vertex {
+                position: [-0.5, -0.5, -0.5],
+                color: [0., 1., 0., 0.],
+                tex_uv: [0., 0.],
+            },
+            Vertex {
+                position: [0.5, -0.5, -0.5],
+                color: [0., 0., 0., 0.],
+                tex_uv: [0., 0.],
+            },
+            // Right face
+            Vertex {
+                position: [0.5, -0.5, 0.5],
+                color: [1., 1., 0., 0.],
+                tex_uv: [0., 0.],
+            },
+            Vertex {
+                position: [0.5, 0.5, 0.5],
+                color: [1., 0., 1., 0.],
+                tex_uv: [0., 0.],
+            },
+            // Left face
+            Vertex {
+                position: [-0.5, -0.5, 0.5],
+                color: [0., 1., 1., 0.],
+                tex_uv: [0., 0.],
+            },
+            Vertex {
+                position: [-0.5, 0.5, 0.5],
+                color: [1., 1., 1., 0.],
+                tex_uv: [0., 0.],
+            },
+        ];
+
+        let cube_indices: Vec<u32> = vec![
+            0, 1, 2, 1, 3, 2, 1, 5, 3, 5, 4, 3, 6, 7, 0, 0, 2, 6, 2, 3, 6, 3, 4, 6,
+        ];
+
+        backend
+            .draw_command(
+                &mut target,
+                camera.perspective_view_matrix(),
+                &DrawCommand {
+                    vertex_buffer: cube_vertices,
+                    index_buffer: cube_indices,
+                    draw_mode: pengui::core::DrawMode::TriangleFan,
+                    uniforms: Uniforms::new(),
+                },
+            )
+            .unwrap();
+
+        target.finish().unwrap();
+
+        main_window.end_frame(control_flow);
+    });
+}
