@@ -16,10 +16,10 @@ pub struct UserInterface {
     pub root: NodeReference,
 }
 
-pub struct LockedInterface {
-    properties: GlobalProperties,
-    root: NodeReference,
-}
+// pub struct LockedInterface {
+//     properties: GlobalProperties,
+//     root: NodeReference,
+// }
 
 // impl UserInterface {
 //     pub fn new() -> LockedInterface {

@@ -80,11 +80,6 @@ fn to_array(mat: &nalgebra::Matrix4<f32>) -> [[f32; 4]; 4] {
 
 impl WidgetBase for Button {
     fn draw(&self) -> DrawList {
-        let pos0 = (self.size.0 / 2.) - (self.size.1 / 2.);
-        let pos1 = (self.size.0 / 2.) - (self.size.1 / 2.);
-        let pos2 = (self.size.0 / 2.) + (self.size.1 / 2.);
-        let pos3 = (self.size.0 / 2.) + (self.size.1 / 2.);
-
         let (r, g, b, a) = self.color;
         let color = [r, g, b, a];
 

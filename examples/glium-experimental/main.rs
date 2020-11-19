@@ -1,4 +1,3 @@
-use std::cell::RefCell;
 use std::f32::consts::PI;
 
 use glium::Surface;
@@ -7,10 +6,9 @@ extern crate image;
 
 use pengui::{
     backend::glium::GliumBackend,
-    build,
-    core::{CodeLocation, DrawCommand, LockedInterface, Uniforms, Vertex, WidgetBuilder},
+    core::{CodeLocation, DrawCommand, Uniforms, Vertex, WidgetBuilder},
     loc,
-    widget::{Button, Window, WindowBuilder},
+    widget::Button,
     UserInterface,
 };
 
@@ -25,11 +23,11 @@ fn main() {
     let mut camera = Camera::new();
     use std::io::Cursor;
     let image = image::load(
-        Cursor::new(&include_bytes!("resources/logo_ensps.png")[..]),
+        Cursor::new(&include_bytes!("../resources/logo_ensps.png")[..]),
         image::ImageFormat::Png,
     )
     .unwrap()
-    .to_rgba();
+    .to_rgba8();
     let image_dimensions = image.dimensions();
     let image =
         glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
