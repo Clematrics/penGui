@@ -57,9 +57,9 @@ fn main() {
 
         Button::new("label not displayed".to_string()).build(loc!(), ui.root.clone());
         Button::new("label not displayed".to_string())
-			.color((1., 0., 0., 0.5))
-			.position((0., 0.25, 0.))
-			.texture(enpsps_tex)
+            .color((1., 0., 0., 0.5))
+            .position((0., 0.25, 0.))
+            .texture(enpsps_tex)
             .build(loc!(), ui.root.clone());
 
         ui.end_frame();
