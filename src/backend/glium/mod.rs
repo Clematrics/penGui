@@ -1,38 +1,6 @@
-use crate::core;
-use crate::core::{DrawCommand, TextureId, Vertex};
+use crate::core::{DrawCommand, DrawList, Mat4x4, TextureId, Vertex};
 
 use glium::Surface;
-
-static VERTEX_SHADER_NO_TEXTURE_SRC: &'static str = r#"
-#version 330
-
-in vec3 position;
-in vec4 color;
-in vec2 tex_uv;
-
-out vec4 pipe_color;
-
-uniform mat4 perspective;
-uniform mat4 view;
-uniform mat4 model;
-
-void main() {
-	gl_Position = perspective * view * model * vec4(position, 1.0);
-	pipe_color = color;
-}
-"#;
-
-static FRAGMENT_SHADER_NO_TEXTURE_SRC: &'static str = r#"
-#version 330
-
-in vec4 pipe_color;
-
-out vec4 out_color;
-
-void main() {
-	out_color = vec4(pipe_color.xyz, 1.0);
-}
-"#;
 
 static VERTEX_SHADER_SRC: &'static str = r#"
 #version 330
@@ -44,12 +12,11 @@ in vec2 tex_uv;
 out vec4 pipe_color;
 out vec2 pipe_tex_uv;
 
-uniform mat4 perspective;
-uniform mat4 view;
+uniform mat4 perspective_view;
 uniform mat4 model;
 
 void main() {
-	gl_Position = perspective * view * model * vec4(position, 1.0);
+	gl_Position = perspective_view * model * vec4(position, 1.0);
 	pipe_color = color;
 	pipe_tex_uv = tex_uv;
 }
@@ -61,38 +28,38 @@ static FRAGMENT_SHADER_SRC: &'static str = r#"
 in vec4 pipe_color;
 in vec2 pipe_tex_uv;
 
-uniform sampler2D texture_0;
-
 out vec4 out_color;
 
+uniform sampler2D t;
+
 void main() {
-	out_color = texture(texture_0, pipe_tex_uv) * vec4(pipe_color.xyz, 1.0);
+	out_color = vec4(pipe_color.xyz, 1.0) * texture(t, pipe_tex_uv);
 }
 "#;
 
 pub struct GliumBackend {
     display: glium::Display,
     draw_parameters: glium::DrawParameters<'static>,
-    program_wo_texture: glium::Program,
-    program_w_texture: glium::Program,
+    program: glium::Program,
+    blank_texture: glium::Texture2d,
     textures: Vec<glium::Texture2d>,
 }
+
+type DrawResult = Result<(), glium::DrawError>;
+type Frame = glium::Frame;
+type Texture = glium::texture::RawImage2d<'static, u8>;
 
 glium::implement_vertex!(Vertex, position, color, tex_uv);
 
 impl GliumBackend {
     pub fn new(facade: glium::Display) -> Self {
-        let program_wo_texture = glium::Program::from_source(
-            &facade,
-            &VERTEX_SHADER_NO_TEXTURE_SRC,
-            &FRAGMENT_SHADER_NO_TEXTURE_SRC,
-            None,
-        )
-        .unwrap();
-
-        let program_w_texture =
+        let program =
             glium::Program::from_source(&facade, &VERTEX_SHADER_SRC, &FRAGMENT_SHADER_SRC, None)
                 .unwrap();
+
+        let img: Vec<u8> = vec![255, 255, 255, 255];
+        let blank_texture = glium::texture::RawImage2d::from_raw_rgba(img, (1, 1));
+        let blank_texture = glium::Texture2d::new(&facade, blank_texture).unwrap();
 
         Self {
             display: facade,
@@ -105,19 +72,18 @@ impl GliumBackend {
                 blend: glium::Blend::alpha_blending(),
                 ..Default::default()
             },
-            program_wo_texture: program_wo_texture,
-            program_w_texture: program_w_texture,
+            program: program,
+            blank_texture,
             textures: vec![],
         }
     }
-}
 
-impl core::Backend for GliumBackend {
-    type DrawResult = Result<(), glium::DrawError>;
-    type Frame = glium::Frame;
-    type Texture = glium::texture::RawImage2d<'static, u8>;
-
-    fn draw_command(&self, frame: &mut Self::Frame, command: &DrawCommand) -> Self::DrawResult {
+    pub fn draw_command(
+        &self,
+        frame: &mut Frame,
+        global_transform: Mat4x4,
+        command: &DrawCommand,
+    ) -> DrawResult {
         let vertex_buffer =
             glium::VertexBuffer::immutable(&self.display, &command.vertex_buffer.as_slice())
                 .unwrap();
@@ -128,37 +94,40 @@ impl core::Backend for GliumBackend {
         )
         .unwrap();
 
-        match command.uniforms.texture_0 {
-            Some(texture_id) => {
-                let uniforms = glium::uniform! { perspective: command.uniforms.perspective, view: command.uniforms.view, model: command.uniforms.model, texture_0: &self.textures[texture_id] };
+        let uniforms = glium::uniform! {
+            perspective_view: global_transform,
+            model: command.uniforms.model_matrix,
+            t: if let Some(id) = command.uniforms.texture { &self.textures[id as usize] } else { &self.blank_texture },
+        };
 
-                frame.draw(
-                    &vertex_buffer,
-                    &index_buffer,
-                    &self.program_w_texture,
-                    &uniforms,
-                    &self.draw_parameters,
-                )
-            }
-            None => {
-                let uniforms = glium::uniform! { perspective: command.uniforms.perspective, view: command.uniforms.view, model: command.uniforms.model };
-
-                frame.draw(
-                    &vertex_buffer,
-                    &index_buffer,
-                    &self.program_wo_texture,
-                    &uniforms,
-                    &self.draw_parameters,
-                )
-            }
-        }
+        frame.draw(
+            &vertex_buffer,
+            &index_buffer,
+            &self.program,
+            &uniforms,
+            &self.draw_parameters,
+        )
     }
 
-    fn new_frame(&self) -> Self::Frame {
+    pub fn draw_list(
+        &self,
+        frame: &mut Frame,
+        global_transform: Mat4x4,
+        list: &DrawList,
+    ) -> DrawResult {
+        list.commands
+            .iter()
+            .try_for_each(|command| self.draw_command(frame, global_transform, command))?;
+        list.list
+            .iter()
+            .try_for_each(|list| self.draw_list(frame, global_transform, list))
+    }
+
+    pub fn new_frame(&self) -> Frame {
         self.display.draw()
     }
 
-    fn register_texture(&mut self, image: Self::Texture) -> TextureId {
+    pub fn register_texture(&mut self, image: Texture) -> TextureId {
         let texture = glium::texture::Texture2d::new(&self.display, image).unwrap();
         let id = self.textures.len();
         self.textures.push(texture);
