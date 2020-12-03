@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use glium::Surface;
-
+use nalgebra::*;
 extern crate image;
 
 use pengui::{
@@ -56,13 +56,12 @@ fn main() {
         Button::new("label not displayed".to_string()).build(loc!(), ui.root.clone());
         Button::new("label not displayed".to_string())
             .color((1., 0., 0., 0.5))
-            .position((0., 0.25, 0.))
             .texture(enpsps_tex)
             .build(loc!(), ui.root.clone());
 
         ui.end_frame();
         ui.generate_layout();
-        let list = ui.draw();
+        let list = ui.draw(Point3::new(0., 0., 0.), (1., 1.));
         backend
             .draw_list(&mut target, camera.perspective_view_matrix(), &list)
             .expect("error while rendering ui");

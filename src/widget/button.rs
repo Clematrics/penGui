@@ -1,3 +1,5 @@
+use nalgebra::Point3;
+
 use crate::core::{
     CodeLocation, ComponentId, DrawCommand, DrawList, DrawMode, NodeMetadata, NodeReference,
     TextureId, Uniforms, Vertex, WidgetBase, WidgetBuilder,
@@ -5,9 +7,9 @@ use crate::core::{
 
 pub struct Button {
     label: String,
-    size: (f32, f32),
+    /*size: (f32, f32),*/
     color: (f32, f32, f32, f32),
-    position: (f32, f32, f32),
+    /*position: (f32, f32, f32),*/
     texture: Option<TextureId>,
 }
 
@@ -15,9 +17,9 @@ impl Button {
     pub fn new(label: String) -> Self {
         Self {
             label,
-            size: (0.75, 0.25),
+            /*size: (0.75, 0.25),*/
             color: (0., 0.4, 1., 1.),
-            position: (0., 0., 0.),
+            /*position: (0., 0., 0.),*/
             texture: None,
         }
     }
@@ -27,10 +29,10 @@ impl Button {
         self
     }
 
-    pub fn position(mut self, pos: (f32, f32, f32)) -> Self {
+    /*pub fn position(mut self, pos: (f32, f32, f32)) -> Self {
         self.position = pos;
         self
-    }
+    }*/
 
     pub fn texture(mut self, texture_id: TextureId) -> Self {
         self.texture = Some(texture_id);
@@ -79,12 +81,12 @@ fn to_array(mat: &nalgebra::Matrix4<f32>) -> [[f32; 4]; 4] {
 }
 
 impl WidgetBase for Button {
-    fn draw(&self) -> DrawList {
+    fn draw(&self, position: Point3<f32>, size: (f32, f32)) -> DrawList {
         let (r, g, b, a) = self.color;
         let color = [r, g, b, a];
 
         let mut uniforms = Uniforms::new();
-        let (x, y, z) = self.position;
+        let (x, y, z) = (position.x, position.y, position.z);
         uniforms.model_matrix = to_array(
             &nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous(),
         );
@@ -93,22 +95,22 @@ impl WidgetBase for Button {
         let command = DrawCommand {
             vertex_buffer: vec![
                 Vertex {
-                    position: [-self.size.0 / 2., -self.size.1 / 2., 0.],
+                    position: [-size.0 / 2., -size.1 / 2., 0.],
                     color: color,
                     tex_uv: [0., 0.],
                 },
                 Vertex {
-                    position: [self.size.0 / 2., -self.size.1 / 2., 0.],
+                    position: [size.0 / 2., -size.1 / 2., 0.],
                     color: color,
                     tex_uv: [1., 0.],
                 },
                 Vertex {
-                    position: [-self.size.0 / 2., self.size.1 / 2., 0.],
+                    position: [-size.0 / 2., size.1 / 2., 0.],
                     color: color,
                     tex_uv: [0., 1.],
                 },
                 Vertex {
-                    position: [self.size.0 / 2., self.size.1 / 2., 0.],
+                    position: [size.0 / 2., size.1 / 2., 0.],
                     color: color,
                     tex_uv: [1., 1.],
                 },

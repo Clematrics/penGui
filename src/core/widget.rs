@@ -6,6 +6,7 @@
 // It must give visual informations through the form of draw commands after applying the global transformation to its local one
 
 use std::any::Any; // Implement Any for type coercion
+use nalgebra::Point3;
 
 use super::{CodeLocation, ComponentId, DrawList, NodeMetadata, NodeReference, WidgetQueryResult};
 
@@ -23,8 +24,7 @@ pub trait WidgetBase {
     fn query(&mut self, _id: ComponentId) -> WidgetQueryResult {
         panic!("Trying to query a widget from another one which does not contains one (or has not implemented the 'query' function")
     }
-
-    fn draw(&self) -> DrawList {
+    fn draw(&self, _position: Point3<f32>, _size: (f32, f32)) -> DrawList {
         DrawList::new()
     }
 }

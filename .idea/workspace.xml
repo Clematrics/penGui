@@ -14,6 +14,13 @@
   <component name="ChangeListManager">
     <list default="true" id="0d17fcf2-243b-4a2d-bdcb-025c284c2026" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/glium-experimental/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/examples/glium-experimental/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/interface.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/interface.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/node.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/node.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/widget.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/widget.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widget/button.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/widget/button.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widget/window.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/widget/window.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/widget/window_handler.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/widget/window_handler.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,9 +52,9 @@
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
   </component>
   <component name="RunManager">
-    <configuration name="Run glium-3d-camera" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+    <configuration name="Run glium-experimental" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="channel" value="DEFAULT" />
-      <option name="command" value="run --package pengui --example glium-3d-camera" />
+      <option name="command" value="run --package pengui --example glium-experimental" />
       <option name="allFeatures" value="false" />
       <option name="emulateTerminal" value="false" />
       <option name="backtrace" value="SHORT" />
@@ -59,7 +66,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Cargo.Run glium-3d-camera" />
+        <item itemvalue="Cargo.Run glium-experimental" />
       </list>
     </recent_temporary>
   </component>
@@ -77,6 +84,7 @@
       <updated>1603659502930</updated>
       <workItem from="1603659505107" duration="2759000" />
       <workItem from="1603875025247" duration="1316000" />
+      <workItem from="1606990842585" duration="620000" />
     </task>
     <servers />
   </component>
@@ -88,51 +96,50 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="540" y="387" width="829" height="247" key="#Rust/0.0.1920.1080@0.0.1920.1080" timestamp="1603659712055" />
+    <state x="417" y="181" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1606990903633">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="417" y="181" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1606990903633" />
     <state x="733" y="253" width="426" height="459" key="FileChooserDialogImpl" timestamp="1603705377134">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="733" y="253" width="426" height="459" key="FileChooserDialogImpl/0.0.1920.1080@0.0.1920.1080" timestamp="1603705377134" />
-    <state width="1874" height="353" key="GridCell.Tab.0.bottom" timestamp="1603906402290">
+    <state width="1874" height="287" key="GridCell.Tab.0.bottom" timestamp="1606991366963">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state width="1874" height="353" key="GridCell.Tab.0.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1603906402290" />
-    <state width="1874" height="353" key="GridCell.Tab.0.center" timestamp="1603906402287">
+    <state width="1874" height="287" key="GridCell.Tab.0.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1606991366963" />
+    <state width="1874" height="287" key="GridCell.Tab.0.center" timestamp="1606991366961">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state width="1874" height="353" key="GridCell.Tab.0.center/0.0.1920.1080@0.0.1920.1080" timestamp="1603906402287" />
-    <state width="1874" height="353" key="GridCell.Tab.0.left" timestamp="1603906402286">
+    <state width="1874" height="287" key="GridCell.Tab.0.center/0.0.1920.1080@0.0.1920.1080" timestamp="1606991366961" />
+    <state width="1874" height="287" key="GridCell.Tab.0.left" timestamp="1606991366960">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state width="1874" height="353" key="GridCell.Tab.0.left/0.0.1920.1080@0.0.1920.1080" timestamp="1603906402286" />
-    <state width="1874" height="353" key="GridCell.Tab.0.right" timestamp="1603906402288">
+    <state width="1874" height="287" key="GridCell.Tab.0.left/0.0.1920.1080@0.0.1920.1080" timestamp="1606991366960" />
+    <state width="1874" height="287" key="GridCell.Tab.0.right" timestamp="1606991366962">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state width="1874" height="353" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1603906402288" />
-    <state width="1874" height="353" key="GridCell.Tab.1.bottom" timestamp="1603906402293">
+    <state width="1874" height="287" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1606991366962" />
+    <state width="1874" height="353" key="GridCell.Tab.1.bottom" timestamp="1606991090095">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state width="1874" height="353" key="GridCell.Tab.1.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1603906402293" />
-    <state width="1874" height="353" key="GridCell.Tab.1.center" timestamp="1603906402292">
+    <state width="1874" height="353" key="GridCell.Tab.1.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1606991090095" />
+    <state width="1874" height="353" key="GridCell.Tab.1.center" timestamp="1606991090094">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state width="1874" height="353" key="GridCell.Tab.1.center/0.0.1920.1080@0.0.1920.1080" timestamp="1603906402292" />
-    <state width="1874" height="353" key="GridCell.Tab.1.left" timestamp="1603906402291">
+    <state width="1874" height="353" key="GridCell.Tab.1.center/0.0.1920.1080@0.0.1920.1080" timestamp="1606991090094" />
+    <state width="1874" height="353" key="GridCell.Tab.1.left" timestamp="1606991090094">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state width="1874" height="353" key="GridCell.Tab.1.left/0.0.1920.1080@0.0.1920.1080" timestamp="1603906402291" />
-    <state width="1874" height="353" key="GridCell.Tab.1.right" timestamp="1603906402292">
+    <state width="1874" height="353" key="GridCell.Tab.1.left/0.0.1920.1080@0.0.1920.1080" timestamp="1606991090094" />
+    <state width="1874" height="353" key="GridCell.Tab.1.right" timestamp="1606991090095">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state width="1874" height="353" key="GridCell.Tab.1.right/0.0.1920.1080@0.0.1920.1080" timestamp="1603906402292" />
+    <state width="1874" height="353" key="GridCell.Tab.1.right/0.0.1920.1080@0.0.1920.1080" timestamp="1606991090095" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/widgets/button.rs</url>
-          <line>49</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/core/window.rs</url>
           <line>78</line>
@@ -142,6 +149,16 @@
           <url>file://$PROJECT_DIR$/src/core/window.rs</url>
           <line>90</line>
           <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/widget/button.rs</url>
+          <line>83</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/widget/window.rs</url>
+          <line>88</line>
+          <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

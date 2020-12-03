@@ -1,8 +1,8 @@
-use std::rc::Weak;
-
 use super::node::{Node, NodeReference, NodeWeakReference};
 use crate::core::{ComponentId, DrawList, Mat4x4, UNIT_TRANSFORM};
 use crate::widget::WindowHandler;
+use nalgebra::*;
+use std::rc::Weak;
 
 pub struct GlobalProperties {
     // no events, but input state, stats, ...
@@ -98,8 +98,8 @@ impl UserInterface {
         // TODO: implement
     }
 
-    pub fn draw(&self) -> DrawList {
-        self.root.borrow_mut().draw()
+    pub fn draw(&self, position: Point3<f32>, size: (f32, f32)) -> DrawList {
+        self.root.borrow_mut().draw(position, size)
     }
 
     pub fn register_event(&self) {

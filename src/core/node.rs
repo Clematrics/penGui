@@ -3,6 +3,8 @@ use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 use std::rc::{Rc, Weak};
 
+use nalgebra::*;
+
 use crate::core::ComponentId;
 use crate::core::{DrawList, DummyWidget, Widget, WidgetBuilder};
 
@@ -52,8 +54,8 @@ impl Node {
         }
     }
 
-    pub fn draw(&self) -> DrawList {
-        self.content.draw()
+    pub fn draw(&self, position:Point3<f32>, size: (f32, f32)) -> DrawList {
+        self.content.draw(position, size)
     }
 
     pub fn borrow_parts(&mut self) -> (&NodeMetadata, &mut Box<dyn Widget>) {

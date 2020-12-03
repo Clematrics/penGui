@@ -1,3 +1,4 @@
+use nalgebra::*;
 use std::rc::Rc;
 
 use crate::core::{
@@ -84,11 +85,22 @@ impl WidgetBase for Window {
         }
     }
 
-    fn draw(&self) -> DrawList {
+    fn draw(&self, position: Point3<f32>, size: (f32, f32)) -> DrawList {
+        let unit_y = Vector3::new(0., 1., 0.);
+
+        let widget_size = (size.0, size.1 / (self.content.len()) as f32);
+
+        let mut current_pos = {
+            let top_side = position + unit_y * size.1 / 2.;
+            top_side - unit_y * widget_size.1 / 2.
+        };
+
         let mut list = DrawList::new();
-        self.content
-            .iter()
-            .for_each(|node| list.list.push(node.borrow_mut().draw()));
+        self.content.iter().for_each(|node| {
+            list.list
+                .push(node.borrow_mut().draw(current_pos, widget_size));
+            current_pos -= unit_y * widget_size.1
+        });
         list
     }
 }
