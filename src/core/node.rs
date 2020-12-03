@@ -54,7 +54,7 @@ impl Node {
         }
     }
 
-    pub fn draw(&self, position:Point3<f32>, size: (f32, f32)) -> DrawList {
+    pub fn draw(&self, position: Point3<f32>, size: (f32, f32)) -> DrawList {
         self.content.draw(position, size)
     }
 

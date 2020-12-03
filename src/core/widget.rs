@@ -5,8 +5,8 @@
 // A widget must be able to give interaction surfaces and associated functions to react to events (doing nothing eventually)
 // It must give visual informations through the form of draw commands after applying the global transformation to its local one
 
-use std::any::Any; // Implement Any for type coercion
 use nalgebra::Point3;
+use std::any::Any; // Implement Any for type coercion
 
 use super::{CodeLocation, ComponentId, DrawList, NodeMetadata, NodeReference, WidgetQueryResult};
 
