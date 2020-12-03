@@ -9,6 +9,7 @@ use pengui::{
     core::{CodeLocation, DrawCommand, Uniforms, Vertex, WidgetBuilder},
     loc,
     widget::Button,
+    widget::PaddingBuilder,
     UserInterface,
 };
 
@@ -52,7 +53,10 @@ fn main() {
         target.clear_color_and_depth((red, 0.0, blue, 1.0), 1.0);
 
         ui.new_frame();
-
+        PaddingBuilder::new((0.2, 0.2), |p| {
+            Button::new("label not displayed".to_string()).build(loc!(), p.clone());
+        })
+        .build(loc!(), ui.root.clone());
         Button::new("label not displayed".to_string()).build(loc!(), ui.root.clone());
         Button::new("label not displayed".to_string())
             .color((1., 0., 0., 0.5))

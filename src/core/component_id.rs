@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 pub type UniqueId = u64;
 
-#[derive(Hash)]
+#[derive(Hash, Copy, Clone)]
 pub struct CodeLocation(pub &'static str, pub u32, pub u32);
 
 pub fn new_code_location(s: &'static str, l: u32, r: u32) -> CodeLocation {
@@ -56,7 +56,7 @@ impl ComponentIdGenerator {
     }
 }
 
-#[derive(PartialEq, Eq, Hash)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy)]
 pub enum ComponentId {
     Generated(UniqueId, TypeId),
     Custom(UniqueId, TypeId),
