@@ -5,17 +5,18 @@ use crate::core::{
     CodeLocation, ComponentId, DrawList, Node, NodeMetadata, NodeReference, WidgetBuilder,
     WidgetLogic, WidgetQueryResult,
 };
+use crate::loc;
 
-pub struct PaddingBuilder {
+pub struct PaddingBuilder<T: WidgetBuilder> {
     padding: (f32, f32),
-    generator: Option<Box<dyn Fn(NodeReference)>>,
+    content: Option<T>,
 }
 
-impl PaddingBuilder {
-    pub fn new<F: 'static + Fn(NodeReference)>(padding: (f32, f32), generator: F) -> Self {
+impl<T: WidgetBuilder> PaddingBuilder<T> {
+    pub fn new(padding: (f32, f32), content: T) -> Self {
         PaddingBuilder {
             padding,
-            generator: Some(Box::new(generator)),
+            content: Some(content),
         }
     }
 
@@ -25,9 +26,9 @@ impl PaddingBuilder {
     }
 }
 
-impl WidgetBuilder for PaddingBuilder {
+impl<T: WidgetBuilder> WidgetBuilder for PaddingBuilder<T> {
     type AchievedType = Padding;
-    type BuildFeedback = ();
+    type BuildFeedback = T::BuildFeedback;
 
     fn update(self, _metadata: &NodeMetadata, old: &mut Self::AchievedType) {
         old.padding = self.padding;
@@ -42,17 +43,13 @@ impl WidgetBuilder for PaddingBuilder {
 
     fn build(mut self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
-        let generator = self.generator.take().unwrap_or(Box::new(|_| ()));
+        let content = self.content.take().unwrap();
         let node_ref = parent
             .borrow_mut()
             .query::<Self::AchievedType>(id)
             .update(self);
-        // .update(&|_, _| {})
-        // .or_create(Padding {
-        //     title: self.title,
-        //     content: Vec::new(),
-        // });
-        (generator)(node_ref);
+
+        content.build(loc!(), node_ref)
     }
 }
 
