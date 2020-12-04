@@ -59,15 +59,26 @@ impl WidgetBuilder for WindowBuilder {
             let node_bis = node_ref.clone();
             let mut node = node_bis.borrow_mut();
             let (_, content) = node.borrow_parts();
-            let window = content.as_any_mut().downcast_mut::<Self::AchievedType>().unwrap();
-            window.content.iter().for_each(|node_ref| node_ref.borrow_mut().metadata.invalid = true);
+            let window = content
+                .as_any_mut()
+                .downcast_mut::<Self::AchievedType>()
+                .unwrap();
+            window
+                .content
+                .iter()
+                .for_each(|node_ref| node_ref.borrow_mut().metadata.invalid = true);
         }
         (generator)(node_ref.clone());
         {
             let mut node = node_ref.borrow_mut();
             let (_, content) = node.borrow_parts();
-            let window = content.as_any_mut().downcast_mut::<Self::AchievedType>().unwrap();
-            window.content.retain(|node_ref| node_ref.borrow_mut().metadata.invalid == false);
+            let window = content
+                .as_any_mut()
+                .downcast_mut::<Self::AchievedType>()
+                .unwrap();
+            window
+                .content
+                .retain(|node_ref| node_ref.borrow_mut().metadata.invalid == false);
         }
     }
 }

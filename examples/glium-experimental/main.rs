@@ -62,7 +62,8 @@ fn main() {
                 .color((1., 1., 1., 1.))
                 .texture(ensps_tex)
                 .build(loc!(), ui.clone());
-        }).build(loc!(), ui.root.clone());
+        })
+        .build(loc!(), ui.root.clone());
 
         ui.end_frame();
         ui.generate_layout();
