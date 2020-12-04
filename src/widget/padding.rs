@@ -2,8 +2,8 @@ use nalgebra::*;
 use std::rc::Rc;
 
 use crate::core::{
-    CodeLocation, ComponentId, DrawList, Node, NodeMetadata, NodeReference, WidgetBase,
-    WidgetBuilder, WidgetQueryResult,
+    CodeLocation, ComponentId, DrawList, Node, NodeMetadata, NodeReference, WidgetBuilder,
+    WidgetLogic, WidgetQueryResult,
 };
 
 pub struct PaddingBuilder {
@@ -61,7 +61,7 @@ pub struct Padding {
     content: Option<NodeReference>,
 }
 
-impl WidgetBase for Padding {
+impl WidgetLogic for Padding {
     fn query(&mut self, id: ComponentId) -> WidgetQueryResult {
         let child = {
             match &self.content {

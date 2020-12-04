@@ -2,7 +2,7 @@ use nalgebra::Point3;
 
 use crate::core::{
     CodeLocation, ComponentId, DrawCommand, DrawList, DrawMode, NodeMetadata, NodeReference,
-    TextureId, Uniforms, Vertex, WidgetBase, WidgetBuilder,
+    TextureId, Uniforms, Vertex, WidgetBuilder, WidgetLogic,
 };
 
 pub struct Button {
@@ -55,18 +55,12 @@ impl WidgetBuilder for Button {
 
     fn build(self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
-        // let update_fn = |_, button: &mut Self::AchievedType| {
-        // 	button.label = self.label;
-        //     button.color = self.color;
-        // };
 
         parent
             .borrow_mut()
             .query::<Self::AchievedType>(id)
             .update(self);
-        // .update(&|_, button: &mut Self::AchievedType| {
-        // })
-        // .or_create(self);
+
         true
     }
 }
@@ -80,7 +74,7 @@ fn to_array(mat: &nalgebra::Matrix4<f32>) -> [[f32; 4]; 4] {
     ]
 }
 
-impl WidgetBase for Button {
+impl WidgetLogic for Button {
     fn draw(&self, position: Point3<f32>, size: (f32, f32)) -> DrawList {
         let (r, g, b, a) = self.color;
         let color = [r, g, b, a];
@@ -116,7 +110,7 @@ impl WidgetBase for Button {
                 },
             ],
             index_buffer: vec![0, 1, 2, 1, 2, 3],
-            draw_mode: DrawMode::TriangleFan,
+            draw_mode: DrawMode::Triangles,
             uniforms: uniforms,
         };
 

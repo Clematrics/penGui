@@ -1,42 +1,19 @@
+//! The `glium`-based backend module.
+//!
+//! Check the `glium-experimental` example to see how the backend is used.
+
 use crate::core::{DrawCommand, DrawList, Mat4x4, TextureId, Vertex};
 
 use glium::Surface;
 
-static VERTEX_SHADER_SRC: &'static str = r#"
-#version 330
-
-in vec3 position;
-in vec4 color;
-in vec2 tex_uv;
-
-out vec4 pipe_color;
-out vec2 pipe_tex_uv;
-
-uniform mat4 perspective_view;
-uniform mat4 model;
-
-void main() {
-	gl_Position = perspective_view * model * vec4(position, 1.0);
-	pipe_color = color;
-	pipe_tex_uv = tex_uv;
-}
-"#;
-
-static FRAGMENT_SHADER_SRC: &'static str = r#"
-#version 330
-
-in vec4 pipe_color;
-in vec2 pipe_tex_uv;
-
-out vec4 out_color;
-
-uniform sampler2D t;
-
-void main() {
-	out_color = vec4(pipe_color.xyz, 1.0) * texture(t, pipe_tex_uv);
-}
-"#;
-
+/// `glium`-based backend
+///
+/// A structure holding all the information needed to
+/// display 3D content in a window using the [`glium`](https://crates.io/crates/glium) crate.
+///
+/// This backend is also a texture manager.
+///
+/// Has a few functions to draw penGui interface given the interface's draw list.
 pub struct GliumBackend {
     display: glium::Display,
     draw_parameters: glium::DrawParameters<'static>,
@@ -45,13 +22,9 @@ pub struct GliumBackend {
     textures: Vec<glium::Texture2d>,
 }
 
-type DrawResult = Result<(), glium::DrawError>;
-type Frame = glium::Frame;
-type Texture = glium::texture::RawImage2d<'static, u8>;
-
-glium::implement_vertex!(Vertex, position, color, tex_uv);
-
 impl GliumBackend {
+    /// Creates a new glium backend from a drawing surface.
+    /// The texture manager is loaded and a default blank texture is created.
     pub fn new(facade: glium::Display) -> Self {
         let program =
             glium::Program::from_source(&facade, &VERTEX_SHADER_SRC, &FRAGMENT_SHADER_SRC, None)
@@ -78,6 +51,13 @@ impl GliumBackend {
         }
     }
 
+    /// Draws a single draw command from penGui on a frame.
+    /// A transformation is applied globally to every vertex after all others.
+    /// This transformation is especially useful to specify the perspective & view matrix.
+    ///
+    /// # Errors
+    ///
+    /// Passes any `DrawError` `glium` returns.
     pub fn draw_command(
         &self,
         frame: &mut Frame,
@@ -109,6 +89,18 @@ impl GliumBackend {
         )
     }
 
+    /// Creates a new frame to draw on
+    pub fn new_frame(&self) -> Frame {
+        self.display.draw()
+    }
+
+    /// Draws recursively a list of commands from penGui on a frame.
+    /// A transformation is applied globally to every vertex after all others.
+    /// This transformation is especially useful to specify the perspective & view matrix.
+    ///
+    /// # Errors
+    ///
+    /// Passes any `DrawError` `glium` returns.
     pub fn draw_list(
         &self,
         frame: &mut Frame,
@@ -123,10 +115,7 @@ impl GliumBackend {
             .try_for_each(|list| self.draw_list(frame, global_transform, list))
     }
 
-    pub fn new_frame(&self) -> Frame {
-        self.display.draw()
-    }
-
+    /// Registers a new texture and returns the unique ID associated with it.
     pub fn register_texture(&mut self, image: Texture) -> TextureId {
         let texture = glium::texture::Texture2d::new(&self.display, image).unwrap();
         let id = self.textures.len();
@@ -134,3 +123,48 @@ impl GliumBackend {
         id
     }
 }
+
+// Useful type abbreviations
+type DrawResult = Result<(), glium::DrawError>;
+type Frame = glium::Frame;
+type Texture = glium::texture::RawImage2d<'static, u8>;
+
+// creation of the vertex structure for `glium` from the penGui one
+glium::implement_vertex!(Vertex, position, color, tex_uv);
+
+/// GLSL vertex shader source
+static VERTEX_SHADER_SRC: &'static str = r#"
+#version 330
+
+in vec3 position;
+in vec4 color;
+in vec2 tex_uv;
+
+out vec4 pipe_color;
+out vec2 pipe_tex_uv;
+
+uniform mat4 perspective_view;
+uniform mat4 model;
+
+void main() {
+	gl_Position = perspective_view * model * vec4(position, 1.0);
+	pipe_color = color;
+	pipe_tex_uv = tex_uv;
+}
+"#;
+
+/// GLSL fragment shader source
+static FRAGMENT_SHADER_SRC: &'static str = r#"
+#version 330
+
+in vec4 pipe_color;
+in vec2 pipe_tex_uv;
+
+out vec4 out_color;
+
+uniform sampler2D t;
+
+void main() {
+	out_color = vec4(pipe_color.xyz, 1.0) * texture(t, pipe_tex_uv);
+}
+"#;

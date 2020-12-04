@@ -10,7 +10,7 @@ use pengui::{
     loc,
     widget::Button,
     widget::PaddingBuilder,
-    UserInterface,
+    Interface,
 };
 
 mod setup;
@@ -35,14 +35,14 @@ fn main() {
 
     let enpsps_tex = backend.register_texture(image);
 
-    let mut ui = UserInterface::new();
+    let mut ui = Interface::new();
 
     event_loop.run(move |event, _, control_flow| {
         main_window.handle_events(&event, control_flow);
         camera.handle_events(&event);
 
-        let (_, abort_frame) = main_window.get_delta_time();
-        if abort_frame {
+        let delta_t = main_window.get_delta_time();
+        if delta_t < setup::main_window::MAX_FRAME_DELAY_NS {
             return;
         }
         let time = main_window.new_frame_time();
@@ -130,7 +130,7 @@ fn main() {
                 &DrawCommand {
                     vertex_buffer: cube_vertices,
                     index_buffer: cube_indices,
-                    draw_mode: pengui::core::DrawMode::TriangleFan,
+                    draw_mode: pengui::core::DrawMode::Triangles,
                     uniforms: Uniforms::new(),
                 },
             )

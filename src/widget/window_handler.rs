@@ -3,8 +3,8 @@ use std::rc::Rc;
 use nalgebra::*;
 
 use crate::core::{
-    CodeLocation, ComponentId, DrawList, Node, NodeMetadata, NodeReference, WidgetBase,
-    WidgetBuilder, WidgetQueryResult,
+    CodeLocation, ComponentId, DrawList, Node, NodeMetadata, NodeReference, WidgetBuilder,
+    WidgetLogic, WidgetQueryResult,
 };
 
 pub struct WindowHandler {
@@ -34,7 +34,7 @@ impl WidgetBuilder for WindowHandler {
     fn build(self, _loc: CodeLocation, _parent: NodeReference) -> Self::BuildFeedback {}
 }
 
-impl WidgetBase for WindowHandler {
+impl WidgetLogic for WindowHandler {
     fn query(&mut self, id: ComponentId) -> WidgetQueryResult {
         let child = self
             .windows

@@ -3,6 +3,7 @@ use std::f32::consts::PI;
 use glium::glutin::event::{DeviceEvent, Event, MouseScrollDelta, WindowEvent};
 use nalgebra as na;
 
+/// An arc-ball camera
 pub struct Camera {
     distance: f32,
     yaw: f32,
@@ -11,8 +12,9 @@ pub struct Camera {
 }
 
 impl Camera {
+    /// Create a new arc-ball camera looking at the origin toward the -z axis,
+    /// at a distance of 1.5 by default. The initial ratio is 1.
     pub fn new() -> Self {
-        // Looking toward the -z axis by default
         Self {
             distance: 1.5,
             yaw: 0.,
@@ -21,6 +23,9 @@ impl Camera {
         }
     }
 
+    /// Handles events to make the camera respond to mouse and keyboard inputs.
+    /// Moving the mouse will make the camera rotate around its point of focus.
+    /// Using the mouse wheel will change the distance of the camera.
     pub fn handle_events(&mut self, event: &Event<()>) {
         match event {
             Event::DeviceEvent { event, .. } => match event {
@@ -52,10 +57,12 @@ impl Camera {
         }
     }
 
+    /// Sets the dimensions of the camera given the width and height of the drawing surface.
     pub fn set_dimensions(&mut self, width: u32, height: u32) {
         self.ratio = width as f32 / height as f32;
     }
 
+    /// Returns the perspective-view matrix of the camera.
     pub fn perspective_view_matrix(&self) -> [[f32; 4]; 4] {
         let perspective = {
             let fovy = PI / 2. / self.ratio;

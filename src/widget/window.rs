@@ -2,8 +2,8 @@ use nalgebra::*;
 use std::rc::Rc;
 
 use crate::core::{
-    CodeLocation, ComponentId, DrawList, Node, NodeMetadata, NodeReference, WidgetBase,
-    WidgetBuilder, WidgetQueryResult,
+    CodeLocation, ComponentId, DrawList, Node, NodeMetadata, NodeReference, WidgetBuilder,
+    WidgetLogic, WidgetQueryResult,
 };
 
 pub struct WindowBuilder {
@@ -68,7 +68,7 @@ pub struct Window {
     content: Vec<NodeReference>,
 }
 
-impl WidgetBase for Window {
+impl WidgetLogic for Window {
     fn query(&mut self, id: ComponentId) -> WidgetQueryResult {
         let child = self
             .content

@@ -3,7 +3,9 @@ extern crate glium;
 
 extern crate nalgebra;
 
-pub use self::core::UserInterface;
+extern crate glyph_brush;
+
+pub use self::core::Interface;
 
 pub mod backend;
 pub mod core;

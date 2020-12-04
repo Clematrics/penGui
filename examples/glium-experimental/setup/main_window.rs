@@ -1,20 +1,28 @@
+use std::time::Instant;
+
 use glium::glutin::{
-    event::{Event, WindowEvent},
+    event::{Event, VirtualKeyCode, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
     ContextBuilder,
 };
-use glium::{glutin, Display};
-use std::time::Instant;
+use glium::Display;
 
+/// Max delay in nanoseconds between two frames to get 60 frames per second.
 pub const MAX_FRAME_DELAY_NS: u64 = 16_666_667;
 
+/// Main window.
+///
+/// This structure is mainly an helper to tidy the window, event loop and openGL context creation.
+///
+/// Holds the time at which the window was created, and the time of the last frame.
 pub struct MainWindow {
     pub start_time: Instant,
     pub last_frame_time: Instant,
 }
 
 impl MainWindow {
+    /// Creates a new window, its associated event loop and the drawing surface.
     pub fn new() -> (Self, EventLoop<()>, Display) {
         let event_loop = EventLoop::new();
         let window = WindowBuilder::new();
@@ -34,13 +42,15 @@ impl MainWindow {
         )
     }
 
-    pub fn get_delta_time(&self) -> (u64, bool) {
+    /// Returns the time elapsed since the last frame was created.
+    pub fn get_delta_time(&self) -> u64 {
         let delta_t = Instant::now() - self.last_frame_time;
         let delta_t = delta_t.as_nanos() as u64;
 
-        (delta_t, delta_t < MAX_FRAME_DELAY_NS)
+        delta_t
     }
 
+    /// Updates the last frame time and returns the time elapsed since the beginning.
     pub fn new_frame_time(&mut self) -> f32 {
         self.last_frame_time = Instant::now();
 
@@ -50,6 +60,7 @@ impl MainWindow {
         time
     }
 
+    /// Updates the control flow to redraw the frame in 16ms if necessary.
     pub fn end_frame(&self, control_flow: &mut ControlFlow) {
         if *control_flow == ControlFlow::Exit {
             return;
@@ -61,6 +72,8 @@ impl MainWindow {
         *control_flow = ControlFlow::WaitUntil(next_frame_time);
     }
 
+    /// Handles events related to the window.
+    /// Only react to the close button and the `Q` key, which closes the window.
     pub fn handle_events(&self, event: &Event<()>, control_flow: &mut ControlFlow) {
         match event {
             Event::WindowEvent { event, .. } => match event {
@@ -69,7 +82,7 @@ impl MainWindow {
                 }
                 WindowEvent::KeyboardInput { input, .. } => {
                     if let Some(key) = input.virtual_keycode {
-                        if key == glutin::event::VirtualKeyCode::Q {
+                        if key == VirtualKeyCode::Q {
                             *control_flow = ControlFlow::Exit;
                         }
                     }

@@ -1,3 +1,4 @@
+// NOTE:
 // It can be built into an interface and when built, returns an event from the previous frame, or nothing
 // Since a widget holds subwidgets, it must allow to iter through them, or find one with some id
 // It must give layout informations (constraints and liberty) to construct the global layout
@@ -5,22 +6,106 @@
 // A widget must be able to give interaction surfaces and associated functions to react to events (doing nothing eventually)
 // It must give visual informations through the form of draw commands after applying the global transformation to its local one
 
-use nalgebra::Point3;
 use std::any::Any; // Implement Any for type coercion
+
+use nalgebra::Point3;
 
 use super::{CodeLocation, ComponentId, DrawList, NodeMetadata, NodeReference, WidgetQueryResult};
 
+/// Trait for the builder of a `Widget`.
+///
+/// Only the `build` function is relevant
+///
+/// # Examples
+///
+/// This can be used in the following way:
+///
+/// ```
+/// WidgetBuilder::new(/* */)
+///     .function(/* */)
+///     .other_function(/* */)
+///     /// ...
+///     .build(loc!(), parent_node);
+/// ```
+///
+/// Using a chain of functions, you can gather all parameters needed to build
+/// a widget, and then, as a last step, build the widget and attach it to a parent.
+///
+/// `build` can return a type specific to each widget builder, so a button for instance,
+/// could return whether it was clicked or not. It could also returns nothing.
 pub trait WidgetBuilder {
+    /// The type of the widget built and added to the interface
     type AchievedType: Widget + 'static;
+    /// The type returned from the `build` function
     type BuildFeedback;
 
+    /// This function should update the widget already in the interface with the new information
+    /// provided during this frame.
+    ///
+    /// This function should not be called outside of the `build` function
     fn update(self, metadata: &NodeMetadata, old: &mut Self::AchievedType) -> ();
+
+    /// This function should create a new instance of a widget, based on the information the
+    /// builder has. This will be used to create a new node if the widget was inexistant during
+    /// the previous frame.
+    ///
+    /// This function should not be called outside of the `build` function
     fn create(self) -> Self::AchievedType;
 
-    fn build(self, loc: CodeLocation, node: NodeReference) -> Self::BuildFeedback;
+    /// This function is the final step when building a widget. It should create the `ComponentId`
+    /// of the widget from the `CodeLocation` provided and an optional custom id.
+    /// Then it should query this id to the given parent to check if a previous widget with the same id
+    /// existed, and update it accordingly. If it did not existed, one will be created automatically.
+    ///
+    /// If a widget contains other widgets, it should invalidate them before updating them, and then eliminate
+    /// all widgets remaining invalid (since updating a widget will mark it as valid for this frame)
+    ///
+    /// Since the update consumes the builder, you cannot extract information by reference from the builder
+    /// to use it afterwards. It is thus recommended to use an `Option<Type>` and use the `take` function to
+    /// take ownership of the contained value, so it can be used later.
+    ///
+    /// # Examples
+    ///
+    /// A typical implementation for a classic widget could look like this:
+    ///
+    /// ```
+    /// let id = ComponentId::new::<Self::AchievedType>(loc);
+    ///
+    /// let needed_afterward = self.needed_afterward.take().unwrap();
+    ///
+    /// parent
+    ///     .borrow_mut()
+    ///     .query::<Self::AchievedType>(id)
+    ///     .update(self);
+    ///
+    /// using(needed_afterward);
+    /// return feedback;
+    /// ```
+    ///
+    /// The implementation for a container (here of only one widget) could look like this:
+    ///
+    /// ```
+    /// let id = ComponentId::new::<Self::AchievedType>(loc);
+    ///
+    /// // widget_inside is the builder for a widget that should be contained in the current one
+    /// let widget_inside = self.widget_inside.take().unwrap();
+    ///
+    /// // node is the node of the current widget (re)built
+    /// let node = parent
+    ///     .borrow_mut()
+    ///     .query::<Self::AchievedType>(id)
+    ///     .update(self);
+    ///
+    /// // The code location provided here does not matter since there is only one widget stored
+    /// widget_inside.build(loc!(), node);
+    /// return feedback;
+    /// ```
+    ///
+    /// TODO: implement macros to help this kind of implementation
+    fn build(self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback;
 }
 
-pub trait WidgetBase {
+pub trait WidgetLogic {
     fn query(&mut self, _id: ComponentId) -> WidgetQueryResult {
         panic!("Trying to query a widget from another one which does not contains one (or has not implemented the 'query' function")
     }
@@ -29,14 +114,18 @@ pub trait WidgetBase {
     }
 }
 
-pub trait Widget: WidgetBase {
+/// Trait that gives dynamic typing capabilities to objects implementing
+/// `WidgetLogic`, `Any` and implicitly `Sized`. It is automatically implemented
+/// for all such objects. This completes the interface needed for all widgets.
+pub trait Widget: WidgetLogic + Any {
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
 }
 
+// Implementing `Widget` for all types
 impl<T> Widget for T
 where
-    T: WidgetBase + Any,
+    T: WidgetLogic + Any,
 {
     fn as_any(&self) -> &dyn Any
     where
@@ -53,9 +142,14 @@ where
     }
 }
 
+/// Dummy widget used as the default widget when a new node is created.
+/// This is normally automatically replaced during the building process,
+/// if `WidgetLogic::create` is correctly implemented (that is, it does not
+/// return a `DummyWidget`)
 pub struct DummyWidget;
 
-impl WidgetBase for DummyWidget {
+impl WidgetLogic for DummyWidget {
+    /// Should never be called
     fn query(&mut self, _id: ComponentId) -> WidgetQueryResult {
         panic!("Attempting to query a child of a DummyWidget")
     }
