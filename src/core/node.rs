@@ -138,6 +138,7 @@ impl<T: Widget + 'static> NodeQueryResult<T> {
                 {
                     let mut node = node_ref.borrow_mut();
                     let (metadata, content) = node.borrow_parts();
+                    metadata.invalid = false;
                     let downcast_res = content.as_any_mut().downcast_mut::<T>();
                     match downcast_res {
                         Some(content_ref) => builder.update(metadata, content_ref),

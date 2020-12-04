@@ -8,8 +8,7 @@ use pengui::{
     backend::glium::GliumBackend,
     core::{CodeLocation, DrawCommand, Uniforms, Vertex, WidgetBuilder},
     loc,
-    widget::Button,
-    widget::PaddingBuilder,
+    widget::*,
     Interface,
 };
 
@@ -33,11 +32,12 @@ fn main() {
     let image =
         glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
 
-    let enpsps_tex = backend.register_texture(image);
+    let ensps_tex = backend.register_texture(image);
 
     let mut ui = Interface::new();
 
     event_loop.run(move |event, _, control_flow| {
+        let ensps_tex = ensps_tex;
         main_window.handle_events(&event, control_flow);
         camera.handle_events(&event);
 
@@ -53,13 +53,16 @@ fn main() {
         target.clear_color_and_depth((red, 0.0, blue, 1.0), 1.0);
 
         ui.new_frame();
-        PaddingBuilder::new((0.2, 0.2), Button::new("label not displayed".to_string()))
-            .build(loc!(), ui.root.clone());
-        Button::new("label not displayed".to_string()).build(loc!(), ui.root.clone());
-        Button::new("label not displayed".to_string())
-            .color((1., 0., 0., 0.5))
-            .texture(enpsps_tex)
-            .build(loc!(), ui.root.clone());
+        WindowBuilder::new(move |ui| {
+            PaddingBuilder::new((0.2, 0.2), Button::new("label not displayed".to_string()))
+                .build(loc!(), ui.clone());
+            Button::new("label not displayed".to_string()).build(loc!(), ui.clone());
+            Button::new("label not displayed".to_string())
+                .color((1., 0., 0., 0.5))
+                .color((1., 1., 1., 1.))
+                .texture(ensps_tex)
+                .build(loc!(), ui.clone());
+        }).build(loc!(), ui.root.clone());
 
         ui.end_frame();
         ui.generate_layout();
