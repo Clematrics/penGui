@@ -1,6 +1,7 @@
 use super::node::{Node, NodeReference, NodeWeakReference};
 use crate::core::{ComponentId, DrawList, Mat4x4, UNIT_TRANSFORM};
 use crate::widget::WindowHandler;
+use crate::core::events::InputState;
 use nalgebra::*;
 use std::rc::Weak;
 
@@ -8,6 +9,7 @@ use std::rc::Weak;
 pub struct GlobalProperties {
     // no events, but input state, stats, ...
     global_transformation: Mat4x4,
+    input_state: InputState,
     _focus: NodeWeakReference,
 }
 
@@ -79,6 +81,7 @@ impl Interface {
         Interface {
             properties: GlobalProperties {
                 global_transformation: UNIT_TRANSFORM,
+                input_state: Default::default(),
                 _focus: Weak::new(),
             },
             root: Node::new_reference_from(
