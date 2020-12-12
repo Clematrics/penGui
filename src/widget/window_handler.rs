@@ -19,6 +19,12 @@ impl WindowHandler {
     }
 }
 
+impl Default for WindowHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl WidgetBuilder for WindowHandler {
     type AchievedType = WindowHandler;
     type BuildFeedback = ();
@@ -51,7 +57,7 @@ impl WidgetLogic for WindowHandler {
         }
     }
 
-    fn draw(&self, position: Point3<f32>, size: (f32, f32)) -> DrawList {
+    fn draw(&self, _metadata: &NodeMetadata, position: Point3<f32>, size: (f32, f32)) -> DrawList {
         let unit_y = Vector3::new(0., 1., 0.);
 
         let widget_size = (size.0, size.1 / (self.windows.len()) as f32);

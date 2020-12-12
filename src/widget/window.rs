@@ -49,7 +49,7 @@ impl WidgetBuilder for WindowBuilder {
 
     fn build(mut self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
-        let generator = self.generator.take().unwrap_or(Box::new(|_| ()));
+        let generator = self.generator.take().unwrap_or_else(|| Box::new(|_| ()));
         let node_ref = parent
             .borrow_mut()
             .query::<Self::AchievedType>(id)
@@ -78,7 +78,7 @@ impl WidgetBuilder for WindowBuilder {
                 .unwrap();
             window
                 .content
-                .retain(|node_ref| node_ref.borrow_mut().metadata.invalid == false);
+                .retain(|node_ref| !node_ref.borrow_mut().metadata.invalid);
         }
     }
 }
@@ -105,7 +105,7 @@ impl WidgetLogic for Window {
         }
     }
 
-    fn draw(&self, position: Point3<f32>, size: (f32, f32)) -> DrawList {
+    fn draw(&self, _metadata: &NodeMetadata, position: Point3<f32>, size: (f32, f32)) -> DrawList {
         let unit_y = Vector3::new(0., 1., 0.);
 
         let widget_size = (size.0, size.1 / (self.content.len()) as f32);

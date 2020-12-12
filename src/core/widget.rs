@@ -43,7 +43,7 @@ pub trait WidgetBuilder {
     /// provided during this frame.
     ///
     /// This function should not be called outside of the `build` function
-    fn update(self, metadata: &NodeMetadata, old: &mut Self::AchievedType) -> ();
+    fn update(self, metadata: &NodeMetadata, old: &mut Self::AchievedType);
 
     /// This function should create a new instance of a widget, based on the information the
     /// builder has. This will be used to create a new node if the widget was inexistant during
@@ -145,7 +145,12 @@ pub trait WidgetLogic {
     /// A widget must be able to be drawn on screen. It should then returns the information
     /// indicating how to draw it. The `DrawList` returned should be in a way that represents
     /// adequately the contained widgets, if there are some.
-    fn draw(&self, _position: Point3<f32>, _size: (f32, f32)) -> DrawList {
+    fn draw(
+        &self,
+        _metadata: &NodeMetadata,
+        _position: Point3<f32>,
+        _size: (f32, f32),
+    ) -> DrawList {
         DrawList::new()
     }
 }

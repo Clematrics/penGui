@@ -82,7 +82,7 @@ impl WidgetLogic for Padding {
         }
     }
 
-    fn draw(&self, position: Point3<f32>, size: (f32, f32)) -> DrawList {
+    fn draw(&self, _metadata: &NodeMetadata, position: Point3<f32>, size: (f32, f32)) -> DrawList {
         let widget_size = (size.0 - self.padding.0, size.1 - self.padding.1);
         self.content
             .as_ref()

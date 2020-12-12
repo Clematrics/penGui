@@ -45,7 +45,7 @@ impl GliumBackend {
                 blend: glium::Blend::alpha_blending(),
                 ..Default::default()
             },
-            program: program,
+            program,
             blank_texture,
             textures: vec![],
         }
@@ -133,7 +133,7 @@ type Texture = glium::texture::RawImage2d<'static, u8>;
 glium::implement_vertex!(Vertex, position, color, tex_uv);
 
 /// GLSL vertex shader source
-static VERTEX_SHADER_SRC: &'static str = r#"
+static VERTEX_SHADER_SRC: &str = r#"
 #version 330
 
 in vec3 position;
@@ -154,7 +154,7 @@ void main() {
 "#;
 
 /// GLSL fragment shader source
-static FRAGMENT_SHADER_SRC: &'static str = r#"
+static FRAGMENT_SHADER_SRC: &str = r#"
 #version 330
 
 in vec4 pipe_color;

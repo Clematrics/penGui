@@ -126,3 +126,9 @@ impl Interface {
         // TODO: not yet implemented
     }
 }
+
+impl Default for Interface {
+    fn default() -> Self {
+        Self::new()
+    }
+}

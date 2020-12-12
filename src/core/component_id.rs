@@ -18,7 +18,7 @@ pub struct CodeLocation(pub &'static str, pub u32, pub u32);
 #[macro_export]
 macro_rules! build {
     ( $root:expr, $expr:expr ) => {
-        root.build(CodeLocation(file!(), line!(), column!()), expr)
+        $root.expr(CodeLocation(file!(), line!(), column!()), $expr.clone())
     };
 }
 
@@ -27,7 +27,6 @@ macro_rules! build {
 macro_rules! loc {
     () => {
         CodeLocation(file!(), line!(), column!())
-        // CodeLocation{0: file!(), 1: line!(), 2: column!()}
     };
 }
 

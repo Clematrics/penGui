@@ -17,11 +17,24 @@ pub type NodeWeakReference = Weak<RefCell<Node>>;
 /// - the `ComponentId` with respect to the parent
 /// - the validity of the widget
 /// - events intercepted last frame (TODO: unimplemented)
-/// - layout constraints and its solution (TODO: unimplemented)
+/// - layout constraints and its solution (NOTE: implementation in progress)
 /// - local style (TODO: unimplemented)
 pub struct NodeMetadata {
     pub id: ComponentId,
     pub invalid: bool,
+    pub size: Option<(f32, f32)>,
+    pub position: Option<(f32, f32, f32)>,
+}
+
+impl NodeMetadata {
+    pub fn new(id: ComponentId) -> Self {
+        NodeMetadata {
+            id,
+            invalid: false,
+            size: None,
+            position: None,
+        }
+    }
 }
 
 /// An node is a wrapper around an object with a `Widget` trait,
@@ -36,7 +49,7 @@ impl Node {
     /// with a `DummyWidget` inside
     pub fn new_reference(id: ComponentId) -> NodeReference {
         Rc::new(RefCell::new(Node {
-            metadata: NodeMetadata { id, invalid: false },
+            metadata: NodeMetadata::new(id),
             content: Box::new(DummyWidget),
         }))
     }
@@ -45,7 +58,7 @@ impl Node {
     /// and the provided boxed widget
     pub fn new_reference_from(id: ComponentId, widget: Box<dyn Widget>) -> NodeReference {
         Rc::new(RefCell::new(Node {
-            metadata: NodeMetadata { id, invalid: false },
+            metadata: NodeMetadata::new(id),
             content: widget,
         }))
     }
@@ -68,7 +81,7 @@ impl Node {
     /// NOTE: Takes a position and a size to place the widget in the local space.
     /// This is temporary, and will change when the layout system comes in place
     pub fn draw(&self, position: Point3<f32>, size: (f32, f32)) -> DrawList {
-        self.content.draw(position, size)
+        self.content.draw(&self.metadata, position, size)
     }
 
     /// Helper function to mutably borrow the contained widget and its metadata independently

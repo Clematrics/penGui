@@ -83,6 +83,12 @@ impl DrawList {
     }
 }
 
+impl Default for DrawList {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Empty `DrawCommand` doing nothing.
 /// Uses `DrawMode::Triangles` as the default draw mode, and default uniforms.
 /// TODO: check if it is useful in the long term

@@ -75,7 +75,8 @@ fn to_array(mat: &nalgebra::Matrix4<f32>) -> [[f32; 4]; 4] {
 }
 
 impl WidgetLogic for Button {
-    fn draw(&self, position: Point3<f32>, size: (f32, f32)) -> DrawList {
+    fn draw(&self, _metadata: &NodeMetadata, position: Point3<f32>, size: (f32, f32)) -> DrawList {
+        #![allow(clippy::many_single_char_names)]
         let (r, g, b, a) = self.color;
         let color = [r, g, b, a];
 
@@ -90,28 +91,28 @@ impl WidgetLogic for Button {
             vertex_buffer: vec![
                 Vertex {
                     position: [-size.0 / 2., -size.1 / 2., 0.],
-                    color: color,
+                    color,
                     tex_uv: [0., 0.],
                 },
                 Vertex {
                     position: [size.0 / 2., -size.1 / 2., 0.],
-                    color: color,
+                    color,
                     tex_uv: [1., 0.],
                 },
                 Vertex {
                     position: [-size.0 / 2., size.1 / 2., 0.],
-                    color: color,
+                    color,
                     tex_uv: [0., 1.],
                 },
                 Vertex {
                     position: [size.0 / 2., size.1 / 2., 0.],
-                    color: color,
+                    color,
                     tex_uv: [1., 1.],
                 },
             ],
             index_buffer: vec![0, 1, 2, 1, 2, 3],
             draw_mode: DrawMode::Triangles,
-            uniforms: uniforms,
+            uniforms,
         };
 
         let mut list = DrawList::new();
