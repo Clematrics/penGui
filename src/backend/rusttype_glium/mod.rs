@@ -2,7 +2,7 @@ extern crate rusttype;
 
 use std::borrow::Cow;
 
-use crate::core::{CharacterInfo, FontAtlas};
+use crate::core::{CharacterInfo, FontAtlas, TextureId};
 
 use rusttype::gpu_cache::{Cache, CacheBuilder};
 use rusttype::{Font, Point, Scale};
@@ -12,6 +12,7 @@ pub struct FontWrapper {
     font: Font<'static>,
     scale: Scale,
     pub texture: glium::Texture2d,
+    texture_id: Option<TextureId>,
 }
 
 impl FontWrapper {
@@ -38,11 +39,23 @@ impl FontWrapper {
             font,
             scale: Scale::uniform(12.0),
             texture,
+            texture_id: None,
         }
+    }
+
+    pub fn set_id(&mut self, texture_id: TextureId) {
+        self.texture_id = Some(texture_id);
     }
 }
 
 impl FontAtlas for FontWrapper {
+    fn get_texture(&self) -> TextureId {
+        match self.texture_id {
+            Some(id) => id,
+            None => panic!("No id was attributed to this FontWrapper"),
+        }
+    }
+
     fn char_texture(&mut self, character: char) -> CharacterInfo {
         let glyph = self
             .font
