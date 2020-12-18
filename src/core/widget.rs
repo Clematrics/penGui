@@ -10,7 +10,9 @@ use std::any::Any; // Implement Any for type coercion
 
 use nalgebra::Point3;
 
-use super::{CodeLocation, ComponentId, DrawList, NodeMetadata, NodeReference, WidgetQueryResult, Event};
+use super::{
+    CodeLocation, ComponentId, DrawList, Event, NodeMetadata, NodeReference, WidgetQueryResult,
+};
 
 /// Trait for the builder of a `Widget`.
 ///
@@ -154,9 +156,7 @@ pub trait WidgetLogic {
         DrawList::new()
     }
 
-    fn receive_event(&mut self, event: Event) -> () {
-        
-    }
+    fn receive_event(&mut self, event: Event) -> () {}
 }
 
 /// Trait that gives dynamic typing capabilities to objects implementing
