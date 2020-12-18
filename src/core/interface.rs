@@ -1,7 +1,7 @@
 use super::node::{Node, NodeReference, NodeWeakReference};
+use crate::core::events::InputState;
 use crate::core::{ComponentId, DrawList, Mat4x4, UNIT_TRANSFORM};
 use crate::widget::WindowHandler;
-use crate::core::events::InputState;
 use nalgebra::*;
 use std::rc::Weak;
 

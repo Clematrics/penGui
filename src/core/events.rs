@@ -109,21 +109,21 @@ pub enum Event {
 use std::collections::HashSet;
 
 pub struct InputState {
-	mouse_position: (f32, f32),
-	mouse_movement: (f32, f32),
+    mouse_position: (f32, f32),
+    mouse_movement: (f32, f32),
     mouse_buttons_pressed: HashSet<MouseButton>,
     keys_pressed: HashSet<Key>,
     caps_lock_activated: bool,
 }
 
 impl Default for InputState {
-	fn default() -> Self {
-		Self {
-			mouse_position: (0.0, 0.0),
-			mouse_movement: (0.0, 0.0),
-			mouse_buttons_pressed: HashSet::new(),
-			keys_pressed: HashSet::new(),
-			caps_lock_activated: false,
-		}
-	}
+    fn default() -> Self {
+        Self {
+            mouse_position: (0.0, 0.0),
+            mouse_movement: (0.0, 0.0),
+            mouse_buttons_pressed: HashSet::new(),
+            keys_pressed: HashSet::new(),
+            caps_lock_activated: false,
+        }
+    }
 }
