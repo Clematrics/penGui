@@ -4,7 +4,7 @@ use rustc_version::{version, Version};
 use std::process::exit;
 
 fn main() {
-    let minimal_ver = "1.47.0";
+    let minimal_ver = "1.45.0";
     let ver = version().unwrap();
     if ver < Version::parse(minimal_ver).unwrap() {
         eprintln!(

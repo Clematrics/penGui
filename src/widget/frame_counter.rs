@@ -52,8 +52,8 @@ mod tests {
     use crate::core::*;
     use crate::*;
     use widget::*;
-
-    fn test_frame_counter() {
+    #[test]
+    fn test_frame_counter_1() {
         let mut ui = Interface::new();
         for i in 0..12 {
             ui.new_frame();
@@ -63,9 +63,29 @@ mod tests {
                 Button::new("label not displayed".to_string()).build(loc!(), ui.clone());
 
                 assert_eq!(i, FrameCounter::new().build(loc!(), ui.clone()));
-                assert_eq!(i, FrameCounter::new().build(loc!(), ui.clone()));
+                Button::new("label not displayed".to_string())
+                    .color((1., 0., 0., 0.5))
+                    .color((1., 1., 1., 1.))
+                    .build(loc!(), ui.clone());
+            })
+            .build(loc!(), ui.root.clone());
 
-
+            ui.end_frame();
+            ui.generate_layout();
+        }
+    }
+    #[test]
+    fn test_frame_counter_2() {
+        let mut ui = Interface::new();
+        for i in 0..12 {
+            ui.new_frame();
+            WindowBuilder::new(move |ui| {
+                PaddingBuilder::new((0.2, 0.2), Button::new("label not displayed".to_string()))
+                    .build(loc!(), ui.clone());
+                Button::new("label not displayed".to_string()).build(loc!(), ui.clone());
+                let mut fake_loc = loc!();
+                fake_loc = CodeLocation(fake_loc.0, fake_loc.1 * i, fake_loc.2 + i);
+                assert_eq!(0, FrameCounter::new().build(fake_loc, ui.clone()));
                 Button::new("label not displayed".to_string())
                     .color((1., 0., 0., 0.5))
                     .color((1., 1., 1., 1.))

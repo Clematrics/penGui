@@ -10,7 +10,7 @@ use std::any::Any; // Implement Any for type coercion
 
 use nalgebra::Point3;
 
-use super::{CodeLocation, ComponentId, DrawList, NodeMetadata, NodeReference, WidgetQueryResult};
+use super::{CodeLocation, ComponentId, DrawList, NodeMetadata, NodeReference, WidgetQueryResult, Event};
 
 /// Trait for the builder of a `Widget`.
 ///
@@ -152,6 +152,10 @@ pub trait WidgetLogic {
         _size: (f32, f32),
     ) -> DrawList {
         DrawList::new()
+    }
+
+    fn receive_event(&mut self, event: Event) -> () {
+        
     }
 }
 
