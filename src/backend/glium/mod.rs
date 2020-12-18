@@ -37,6 +37,8 @@ impl GliumBackend {
         let blank_texture = glium::texture::RawImage2d::from_raw_rgba(img, (1, 1));
         let blank_texture = glium::Texture2d::new(&facade, blank_texture).unwrap();
 
+        let default_font = FontWrapper::new(&facade);
+
         Self {
             display: facade,
             draw_parameters: glium::DrawParameters {
@@ -51,7 +53,7 @@ impl GliumBackend {
             program,
             blank_texture,
             textures: Vec::new(),
-            fonts: Vec::new(),
+            fonts: vec![ default_font ],
         }
     }
 

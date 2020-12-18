@@ -1,19 +1,23 @@
+use std::cell::Ref;
+
 use nalgebra::Point3;
 
 use crate::core::{
-    CodeLocation, ComponentId, DrawCommand, DrawList, DrawMode, NodeMetadata, NodeReference,
+    CodeLocation, ComponentId, DrawCommand, DrawList, DrawMode, FontAtlas, NodeMetadata, NodeReference,
     TextureId, Uniforms, Vertex, WidgetBuilder, WidgetLogic,
 };
 
 pub struct Text {
-    text: &'static str,
+	text: &'static str,
+	font: &'static dyn FontAtlas,
     color: (f32, f32, f32, f32),
 }
 
 impl Text {
-    pub fn new(text: &'static str) -> Self {
+    pub fn new(text: &'static str, font: &'static dyn FontAtlas) -> Self {
         Self {
-            text,
+			text,
+			font,
             color: (1.0, 1.0, 1.0, 1.0),
         }
     }
@@ -68,11 +72,11 @@ impl WidgetLogic for Text {
             &nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous(),
         );
 
-        todo!();
+		uniforms.texture = Some(self.font.get_texture());
 
-        // TODO: uniforms.texture = ...;
+		todo!()
 
-        // let command = DrawCommand {
+		// let command = DrawCommand {
         //     vertex_buffer: vec![
         //         Vertex {
         //             position: [-size.0 / 2., -size.1 / 2., 0.],
