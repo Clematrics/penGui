@@ -6,22 +6,22 @@ use crate::core::{
 };
 
 pub struct Text {
-	text: &'static str,
-	color: (f32, f32, f32, f32),
+    text: &'static str,
+    color: (f32, f32, f32, f32),
 }
 
 impl Text {
     pub fn new(text: &'static str) -> Self {
         Self {
-			text,
-			color: (1.0, 1.0, 1.0, 1.0),
+            text,
+            color: (1.0, 1.0, 1.0, 1.0),
         }
-	}
+    }
 
-	pub fn color(mut self, color: (f32, f32, f32, f32)) -> Self {
-		self.color = color;
-		self
-	}
+    pub fn color(mut self, color: (f32, f32, f32, f32)) -> Self {
+        self.color = color;
+        self
+    }
 }
 
 impl WidgetBuilder for Text {
@@ -29,8 +29,8 @@ impl WidgetBuilder for Text {
     type BuildFeedback = ();
 
     fn update(self, _metadata: &NodeMetadata, old: &mut Self::AchievedType) {
-		old.text = self.text;
-		old.color = self.color;
+        old.text = self.text;
+        old.color = self.color;
     }
 
     fn create(self) -> Self::AchievedType {
@@ -66,9 +66,9 @@ impl WidgetLogic for Text {
         let (x, y, z) = (position.x, position.y, position.z);
         uniforms.model_matrix = to_array(
             &nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous(),
-		);
+        );
 
-		todo!();
+        todo!();
 
         // TODO: uniforms.texture = ...;
 
