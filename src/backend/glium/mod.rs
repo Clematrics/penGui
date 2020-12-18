@@ -6,6 +6,8 @@ use crate::core::{DrawCommand, DrawList, Mat4x4, TextureId, Vertex};
 
 use glium::Surface;
 
+use super::rusttype_glium::FontWrapper;
+
 /// `glium`-based backend
 ///
 /// A structure holding all the information needed to
@@ -20,6 +22,7 @@ pub struct GliumBackend {
     program: glium::Program,
     blank_texture: glium::Texture2d,
     textures: Vec<glium::Texture2d>,
+    fonts: Vec<FontWrapper>,
 }
 
 impl GliumBackend {
@@ -47,7 +50,8 @@ impl GliumBackend {
             },
             program,
             blank_texture,
-            textures: vec![],
+            textures: Vec::new(),
+            fonts: Vec::new(),
         }
     }
 
@@ -74,10 +78,20 @@ impl GliumBackend {
         )
         .unwrap();
 
+        let texture = if let Some(id) = &command.uniforms.texture {
+            match id {
+                TextureId::Texture(id) => &self.textures[*id],
+                TextureId::Font(id) => &self.fonts[*id].texture,
+            }
+        }
+        else {
+            &self.blank_texture
+        };
+
         let uniforms = glium::uniform! {
             perspective_view: global_transform,
             model: command.uniforms.model_matrix,
-            t: if let Some(id) = command.uniforms.texture { &self.textures[id as usize] } else { &self.blank_texture },
+            t: texture,
         };
 
         frame.draw(
@@ -116,18 +130,39 @@ impl GliumBackend {
     }
 
     /// Registers a new texture and returns the unique ID associated with it.
-    pub fn register_texture(&mut self, image: Texture) -> TextureId {
-        let texture = glium::texture::Texture2d::new(&self.display, image).unwrap();
+    pub fn register_texture(&mut self, image: RawTexture) -> TextureId {
+        let texture = glium::texture::Texture2d::with_mipmaps(
+            &self.display,
+            image,
+            glium::texture::MipmapsOption::NoMipmap,
+        )
+        .unwrap();
         let id = self.textures.len();
         self.textures.push(texture);
-        id
+        TextureId::Texture(id)
+    }
+
+    /// Registers a new font and returns the unique ID associated with it.
+    pub fn register_font(&mut self, font: FontWrapper) -> TextureId {
+        let id = self.fonts.len();
+        self.fonts.push(font);
+        TextureId::Font(id)
+    }
+
+    /// Get a texture from its id
+    pub fn get_texture(&self, id: TextureId) -> &Texture {
+        match id {
+            TextureId::Texture(id) => &self.textures[id],
+            TextureId::Font(id) => &self.fonts[id].texture,
+        }
     }
 }
 
 // Useful type abbreviations
 type DrawResult = Result<(), glium::DrawError>;
 type Frame = glium::Frame;
-type Texture = glium::texture::RawImage2d<'static, u8>;
+type RawTexture = glium::texture::RawImage2d<'static, u8>;
+type Texture = glium::Texture2d;
 
 // creation of the vertex structure for `glium` from the penGui one
 glium::implement_vertex!(Vertex, position, color, tex_uv);

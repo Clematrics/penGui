@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 glium = "0.28.0"
 nalgebra = "0.23.1"
+rusttype = { version = "0.9.2", features = ["gpu_cache"] }
 
 [build-dependencies]
 rustc_version = "0.3.0"

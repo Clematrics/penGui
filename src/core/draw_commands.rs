@@ -13,7 +13,11 @@ pub struct Vertex {
 /// Internal type for a 4x4 matrix
 pub type Mat4x4 = [[f32; 4]; 4];
 /// Type to hold texture identifiers
-pub type TextureId = usize;
+#[derive(Copy, Clone)]
+pub enum TextureId {
+    Texture(usize),
+    Font(usize),
+}
 
 /// A unit transformation
 pub const UNIT_TRANSFORM: Mat4x4 = [
