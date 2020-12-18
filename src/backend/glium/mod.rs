@@ -53,7 +53,7 @@ impl GliumBackend {
             program,
             blank_texture,
             textures: Vec::new(),
-            fonts: vec![ default_font ],
+            fonts: vec![default_font],
         }
     }
 
