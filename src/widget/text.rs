@@ -9,12 +9,12 @@ use crate::core::{
 
 pub struct Text {
     text: &'static str,
-    font: &'static dyn FontAtlas,
+    font: &'static mut dyn FontAtlas,
     color: (f32, f32, f32, f32),
 }
 
 impl Text {
-    pub fn new(text: &'static str, font: &'static dyn FontAtlas) -> Self {
+    pub fn new(text: &'static str, font: &'static mut dyn FontAtlas) -> Self {
         Self {
             text,
             font,
@@ -32,9 +32,9 @@ impl WidgetBuilder for Text {
     type AchievedType = Text;
     type BuildFeedback = ();
 
-    fn update(self, _metadata: &NodeMetadata, old: &mut Self::AchievedType) {
-        old.text = self.text;
-        old.color = self.color;
+    fn update(self, _metadata: &NodeMetadata, widget: &mut Self::AchievedType) {
+        widget.text = self.text;
+        widget.color = self.color;
     }
 
     fn create(self) -> Self::AchievedType {
@@ -72,9 +72,11 @@ impl WidgetLogic for Text {
             &nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous(),
         );
 
-        uniforms.texture = Some(self.font.get_texture());
+		uniforms.texture = Some(self.font.get_texture());
 
-        todo!()
+		let char_info = self.font.char_texture('c');
+
+		todo!()
 
         // let command = DrawCommand {
         //     vertex_buffer: vec![
