@@ -47,8 +47,7 @@ impl WidgetBuilder for FrameCounter {
                 .as_any_mut()
                 .downcast_mut::<Self::AchievedType>()
                 .unwrap();
-            window
-                .count
+            window.count
         }
     }
 }
