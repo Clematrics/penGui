@@ -83,8 +83,7 @@ impl GliumBackend {
                 TextureId::Texture(id) => &self.textures[*id],
                 TextureId::Font(id) => &self.fonts[*id].texture,
             }
-        }
-        else {
+        } else {
             &self.blank_texture
         };
 
