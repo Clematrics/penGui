@@ -24,8 +24,8 @@ impl WidgetBuilder for FrameCounter {
     type AchievedType = FrameCounter;
     type BuildFeedback = u32;
 
-    fn update(self, _metadata: &NodeMetadata, old: &mut Self::AchievedType) {
-        old.count = self.count + 1
+    fn update(self, _metadata: &NodeMetadata, widget: &mut Self::AchievedType) {
+        widget.count = widget.count + 1
     }
 
     fn create(self) -> Self::AchievedType {
@@ -34,13 +34,22 @@ impl WidgetBuilder for FrameCounter {
 
     fn build(self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
-        let r = self.count;
-        parent
+        let node_ref = parent
             .borrow_mut()
             .query::<Self::AchievedType>(id)
             .update(self);
 
-        r
+        {
+            let node_bis = node_ref.clone();
+            let mut node = node_bis.borrow_mut();
+            let (_, content) = node.borrow_parts();
+            let window = content
+                .as_any_mut()
+                .downcast_mut::<Self::AchievedType>()
+                .unwrap();
+            window
+                .count
+        }
     }
 }
 
@@ -48,10 +57,11 @@ impl WidgetLogic for FrameCounter {}
 
 #[cfg(test)]
 mod tests {
-
+    use super::*;
     use crate::core::*;
     use crate::*;
     use widget::*;
+
     #[test]
     fn test_frame_counter_1() {
         let mut ui = Interface::new();
