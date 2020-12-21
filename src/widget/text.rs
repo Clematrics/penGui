@@ -1,20 +1,21 @@
-use std::cell::Ref;
+use std::cell::RefCell;
+use std::rc::Weak;
 
 use nalgebra::Point3;
 
 use crate::core::{
-    CodeLocation, ComponentId, DrawCommand, DrawList, DrawMode, FontAtlas, NodeMetadata,
-    NodeReference, TextureId, Uniforms, Vertex, WidgetBuilder, WidgetLogic,
+    CharacterInfo, CodeLocation, ComponentId, DrawCommand, DrawList, DrawMode, FontAtlas,
+    NodeMetadata, NodeReference, Uniforms, Vertex, WidgetBuilder, WidgetLogic,
 };
 
 pub struct Text {
     text: &'static str,
-    font: &'static mut dyn FontAtlas,
+    font: Weak<RefCell<dyn FontAtlas>>,
     color: (f32, f32, f32, f32),
 }
 
 impl Text {
-    pub fn new(text: &'static str, font: &'static mut dyn FontAtlas) -> Self {
+    pub fn new(text: &'static str, font: Weak<RefCell<dyn FontAtlas>>) -> Self {
         Self {
             text,
             font,
@@ -61,7 +62,7 @@ fn to_array(mat: &nalgebra::Matrix4<f32>) -> [[f32; 4]; 4] {
 }
 
 impl WidgetLogic for Text {
-    fn draw(&self, _metadata: &NodeMetadata, position: Point3<f32>, _size: (f32, f32)) -> DrawList {
+    fn draw(&self, _metadata: &NodeMetadata, position: Point3<f32>, size: (f32, f32)) -> DrawList {
         #![allow(clippy::many_single_char_names)]
         let (r, g, b, a) = self.color;
         let color = [r, g, b, a];
@@ -72,42 +73,47 @@ impl WidgetLogic for Text {
             &nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous(),
         );
 
-		uniforms.texture = Some(self.font.get_texture());
+        let font = self
+            .font
+            .upgrade()
+            .expect("A font is not owned anymore by the backend");
+        uniforms.texture = Some(font.borrow().get_texture());
 
-		let char_info = self.font.char_texture('c');
+        let CharacterInfo {
+            texture_uv: (u, v),
+            size: (w, h),
+        } = font.borrow_mut().char_info('c');
 
-		todo!()
+        let command = DrawCommand {
+            vertex_buffer: vec![
+                Vertex {
+                    position: [-size.0 / 2., -size.1 / 2., 0.],
+                    color,
+                    tex_uv: [u, v],
+                },
+                Vertex {
+                    position: [size.0 / 2., -size.1 / 2., 0.],
+                    color,
+                    tex_uv: [u + w, v],
+                },
+                Vertex {
+                    position: [-size.0 / 2., size.1 / 2., 0.],
+                    color,
+                    tex_uv: [u, v + h],
+                },
+                Vertex {
+                    position: [size.0 / 2., size.1 / 2., 0.],
+                    color,
+                    tex_uv: [u + w, v + h],
+                },
+            ],
+            index_buffer: vec![0, 1, 2, 1, 2, 3],
+            draw_mode: DrawMode::Triangles,
+            uniforms,
+        };
 
-        // let command = DrawCommand {
-        //     vertex_buffer: vec![
-        //         Vertex {
-        //             position: [-size.0 / 2., -size.1 / 2., 0.],
-        //             color,
-        //             tex_uv: [0., 0.],
-        //         },
-        //         Vertex {
-        //             position: [size.0 / 2., -size.1 / 2., 0.],
-        //             color,
-        //             tex_uv: [1., 0.],
-        //         },
-        //         Vertex {
-        //             position: [-size.0 / 2., size.1 / 2., 0.],
-        //             color,
-        //             tex_uv: [0., 1.],
-        //         },
-        //         Vertex {
-        //             position: [size.0 / 2., size.1 / 2., 0.],
-        //             color,
-        //             tex_uv: [1., 1.],
-        //         },
-        //     ],
-        //     index_buffer: vec![0, 1, 2, 1, 2, 3],
-        //     draw_mode: DrawMode::Triangles,
-        //     uniforms,
-        // };
-
-        // let mut list = DrawList::new();
-        // list.commands.push(command);
-        // list
+        let mut list = DrawList::new();
+        list.commands.push(command);
+        list
     }
 }

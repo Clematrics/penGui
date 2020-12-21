@@ -36,7 +36,10 @@ fn main() {
 
     let mut ui = Interface::new();
 
+    let font = backend.get_font(0);
+
     event_loop.run(move |event, _, control_flow| {
+        let font = font.clone();
         let ensps_tex = ensps_tex;
         main_window.handle_events(&event, control_flow);
         camera.handle_events(&event);
@@ -54,9 +57,10 @@ fn main() {
 
         ui.new_frame();
         WindowBuilder::new(move |ui| {
+            let font = font.clone();
             PaddingBuilder::new((0.2, 0.2), Button::new("label not displayed".to_string()))
                 .build(loc!(), ui.clone());
-            Button::new("label not displayed".to_string()).build(loc!(), ui.clone());
+            Text::new("sdfs", font).build(loc!(), ui.clone());
             Button::new("label not displayed".to_string())
                 .color((1., 0., 0., 0.5))
                 .color((1., 1., 1., 1.))

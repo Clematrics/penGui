@@ -2,6 +2,9 @@
 //!
 //! Check the `glium-experimental` example to see how the backend is used.
 
+use std::cell::RefCell;
+use std::rc::*;
+
 use crate::core::{DrawCommand, DrawList, Mat4x4, TextureId, Vertex};
 
 use glium::Surface;
@@ -22,7 +25,7 @@ pub struct GliumBackend {
     program: glium::Program,
     blank_texture: glium::Texture2d,
     textures: Vec<glium::Texture2d>,
-    fonts: Vec<FontWrapper>,
+    fonts: Vec<Rc<RefCell<FontWrapper>>>,
 }
 
 impl GliumBackend {
@@ -37,7 +40,8 @@ impl GliumBackend {
         let blank_texture = glium::texture::RawImage2d::from_raw_rgba(img, (1, 1));
         let blank_texture = glium::Texture2d::new(&facade, blank_texture).unwrap();
 
-        let default_font = FontWrapper::new(&facade);
+        let mut default_font = FontWrapper::new(&facade);
+        default_font.set_id(TextureId::Font(0));
 
         Self {
             display: facade,
@@ -53,7 +57,7 @@ impl GliumBackend {
             program,
             blank_texture,
             textures: Vec::new(),
-            fonts: vec![default_font],
+            fonts: vec![Rc::new(RefCell::new(default_font))],
         }
     }
 
@@ -80,28 +84,67 @@ impl GliumBackend {
         )
         .unwrap();
 
-        let texture = if let Some(id) = &command.uniforms.texture {
-            match id {
+        if let Some(id) = &command.uniforms.texture {
+            let texture_id = match id {
+                TextureId::Texture(id) => id,
+                TextureId::Font(id) => id,
+            };
+            let font = self.fonts[*texture_id].borrow();
+            let texture: &Texture = match id {
                 TextureId::Texture(id) => &self.textures[*id],
-                TextureId::Font(id) => &self.fonts[*id].texture,
-            }
+                TextureId::Font(_) => &font.texture,
+            };
+            let uniforms = glium::uniform! {
+                perspective_view: global_transform,
+                model: command.uniforms.model_matrix,
+                t: texture,
+            };
+
+            frame.draw(
+                &vertex_buffer,
+                &index_buffer,
+                &self.program,
+                &uniforms,
+                &self.draw_parameters,
+            )
         } else {
-            &self.blank_texture
-        };
+            let uniforms = glium::uniform! {
+                perspective_view: global_transform,
+                model: command.uniforms.model_matrix,
+                t: &self.blank_texture,
+            };
 
-        let uniforms = glium::uniform! {
-            perspective_view: global_transform,
-            model: command.uniforms.model_matrix,
-            t: texture,
-        };
+            frame.draw(
+                &vertex_buffer,
+                &index_buffer,
+                &self.program,
+                &uniforms,
+                &self.draw_parameters,
+            )
+        }
 
-        frame.draw(
-            &vertex_buffer,
-            &index_buffer,
-            &self.program,
-            &uniforms,
-            &self.draw_parameters,
-        )
+        // let texture: &Texture = if let Some(id) = &command.uniforms.texture {
+        //     match id {
+        //         TextureId::Texture(id) => &self.textures[*id],
+        //         TextureId::Font(id) => &font.texture,
+        //     }
+        // } else {
+        //     &self.blank_texture
+        // };
+
+        // let uniforms = glium::uniform! {
+        //     perspective_view: global_transform,
+        //     model: command.uniforms.model_matrix,
+        //     t: texture,
+        // };
+
+        // frame.draw(
+        //     &vertex_buffer,
+        //     &index_buffer,
+        //     &self.program,
+        //     &uniforms,
+        //     &self.draw_parameters,
+        // )
     }
 
     /// Creates a new frame to draw on
@@ -146,16 +189,13 @@ impl GliumBackend {
     /// Registers a new font and returns the unique ID associated with it.
     pub fn register_font(&mut self, font: FontWrapper) -> TextureId {
         let id = self.fonts.len();
-        self.fonts.push(font);
+        self.fonts.push(Rc::new(RefCell::new(font)));
         TextureId::Font(id)
     }
 
-    /// Get a texture from its id
-    pub fn get_texture(&self, id: TextureId) -> &Texture {
-        match id {
-            TextureId::Texture(id) => &self.textures[id],
-            TextureId::Font(id) => &self.fonts[id].texture,
-        }
+    /// Get a font from its id
+    pub fn get_font(&mut self, id: usize) -> Weak<RefCell<FontWrapper>> {
+        Rc::downgrade(&self.fonts[id])
     }
 }
 

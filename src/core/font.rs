@@ -7,5 +7,5 @@ pub struct CharacterInfo {
 
 pub trait FontAtlas {
     fn get_texture(&self) -> TextureId;
-    fn char_texture(&mut self, character: char) -> CharacterInfo;
+    fn char_info(&mut self, character: char) -> CharacterInfo;
 }

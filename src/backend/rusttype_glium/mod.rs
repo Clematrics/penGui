@@ -56,14 +56,14 @@ impl FontAtlas for FontWrapper {
         }
     }
 
-    fn char_texture(&mut self, character: char) -> CharacterInfo {
+    fn char_info(&mut self, character: char) -> CharacterInfo {
         let glyph = self
             .font
             .glyph(character)
             .scaled(self.scale)
             .positioned(Point { x: 0.0, y: 0.0 });
         self.cache.queue_glyph(0, glyph.clone());
-        let ref texture = &self.texture;
+        let texture = &&self.texture;
         self.cache
             .cache_queued(|rect, data| {
                 texture.main_level().write(
