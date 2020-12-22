@@ -2,10 +2,10 @@ extern crate rusttype;
 
 use std::borrow::Cow;
 
-use crate::core::{CharacterInfo, FontAtlas, TextureId};
+use crate::core::{CharacterInfo, FontAtlas, TextureId, VerticalMetrics};
 
 use rusttype::gpu_cache::{Cache, CacheBuilder};
-use rusttype::{Font, Point, Scale};
+use rusttype::{Font, Point, Scale, VMetrics};
 
 pub struct FontWrapper {
     cache: Cache<'static>,
@@ -49,6 +49,19 @@ impl FontWrapper {
 }
 
 impl FontAtlas for FontWrapper {
+    fn get_vertical_metrics(&self) -> VerticalMetrics {
+        let VMetrics {
+            ascent,
+            descent,
+            line_gap,
+        } = self.font.v_metrics(self.scale);
+        VerticalMetrics {
+            ascent,
+            descent,
+            line_gap,
+        }
+    }
+
     fn get_texture(&self) -> TextureId {
         match self.texture_id {
             Some(id) => id,
@@ -91,6 +104,7 @@ impl FontAtlas for FontWrapper {
                 uv_coords.max.y - uv_coords.min.y,
             ),
             texture_uv: (uv_coords.min.x, uv_coords.min.y),
+            advance_width: glyph.unpositioned().h_metrics().advance_width,
         }
     }
 }

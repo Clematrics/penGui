@@ -82,6 +82,7 @@ impl WidgetLogic for Text {
         let CharacterInfo {
             texture_uv: (u, v),
             size: (w, h),
+            ..
         } = font.borrow_mut().char_info('c');
 
         let command = DrawCommand {
