@@ -1,5 +1,5 @@
-use std::f32::consts::PI;
 use std::cell::RefCell;
+use std::f32::consts::PI;
 
 use glium::Surface;
 use nalgebra::*;
@@ -49,16 +49,16 @@ fn main() {
         use glium::glutin::event::{Event, WindowEvent};
         match event {
             Event::WindowEvent { event, .. } => match event {
-                WindowEvent::ReceivedCharacter(c) => {
-                    match c {
-                        '\u{8}' => { text.borrow_mut().pop(); },
-                        _ if c != '\u{7f}' => text.borrow_mut().push(c),
-                        _ => {}
+                WindowEvent::ReceivedCharacter(c) => match c {
+                    '\u{8}' => {
+                        text.borrow_mut().pop();
                     }
-                }
+                    _ if c != '\u{7f}' => text.borrow_mut().push(c),
+                    _ => {}
+                },
                 _ => (),
             },
-            _ => ()
+            _ => (),
         }
 
         let text = text.clone();

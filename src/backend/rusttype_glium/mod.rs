@@ -79,9 +79,7 @@ impl FontAtlas for FontWrapper {
         let texture = &&self.texture;
         self.cache
             .cache_queued(|rect, data| {
-                let vec: Vec<u8> = data.iter().flat_map(|u| {
-                    vec![255, 255, 255, *u]
-                }).collect();
+                let vec: Vec<u8> = data.iter().flat_map(|u| vec![255, 255, 255, *u]).collect();
                 texture.main_level().write(
                     glium::Rect {
                         left: rect.min.x,
@@ -113,17 +111,22 @@ impl FontAtlas for FontWrapper {
             .unwrap_or(0.);
         let advance_width = glyph.unpositioned().h_metrics().advance_width / self.scale.x;
 
-        let (uv_coords, rect) = self.cache.rect_for(0, &glyph).ok().flatten().unwrap_or_default();
+        let (uv_coords, rect) = self
+            .cache
+            .rect_for(0, &glyph)
+            .ok()
+            .flatten()
+            .unwrap_or_default();
 
         let top_left = (
             rect.min.x as f32 / self.scale.x,
-            (- rect.min.y) as f32 / self.scale.y,
+            (-rect.min.y) as f32 / self.scale.y,
             // rusttype uses screen coordinates, where y increases when going downward
             // thus we flip the y axis
         );
         let bottom_right = (
             rect.max.x as f32 / self.scale.x,
-            (- rect.max.y) as f32 / self.scale.y,
+            (-rect.max.y) as f32 / self.scale.y,
             // rusttype uses screen coordinates, where y increases when going downward
             // thus we flip the y axis
         );
