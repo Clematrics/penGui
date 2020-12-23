@@ -9,13 +9,13 @@ use crate::core::{
 };
 
 pub struct Text {
-    text: &'static str,
+    text: String,
     font: Weak<RefCell<dyn FontAtlas>>,
     color: (f32, f32, f32, f32),
 }
 
 impl Text {
-    pub fn new(text: &'static str, font: Weak<RefCell<dyn FontAtlas>>) -> Self {
+    pub fn new(text: String, font: Weak<RefCell<dyn FontAtlas>>) -> Self {
         Self {
             text,
             font,
@@ -81,9 +81,9 @@ impl WidgetLogic for Text {
 
         let CharacterInfo {
             texture_uv: (u, v),
-            size: (w, h),
+            texture_size: (w, h),
             ..
-        } = font.borrow_mut().char_info('c');
+        } = font.borrow_mut().char_info('c', None);
 
         let command = DrawCommand {
             vertex_buffer: vec![

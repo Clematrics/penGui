@@ -1,4 +1,5 @@
 use std::f32::consts::PI;
+use std::cell::RefCell;
 
 use glium::Surface;
 use nalgebra::*;
@@ -37,12 +38,30 @@ fn main() {
     let mut ui = Interface::new();
 
     let font = backend.get_font(0);
+    let text = RefCell::new(String::new());
 
     event_loop.run(move |event, _, control_flow| {
         let font = font.clone();
         let ensps_tex = ensps_tex;
         main_window.handle_events(&event, control_flow);
         camera.handle_events(&event);
+
+        use glium::glutin::event::{Event, WindowEvent};
+        match event {
+            Event::WindowEvent { event, .. } => match event {
+                WindowEvent::ReceivedCharacter(c) => {
+                    match c {
+                        '\u{8}' => { text.borrow_mut().pop(); },
+                        _ if c != '\u{7f}' => text.borrow_mut().push(c),
+                        _ => {}
+                    }
+                }
+                _ => (),
+            },
+            _ => ()
+        }
+
+        let text = text.clone();
 
         let delta_t = main_window.get_delta_time();
         if delta_t < setup::main_window::MAX_FRAME_DELAY_NS {
@@ -57,10 +76,11 @@ fn main() {
 
         ui.new_frame();
         WindowBuilder::new(move |ui| {
+            let text = text.clone();
             let font = font.clone();
             PaddingBuilder::new((0.2, 0.2), Button::new("label not displayed".to_string()))
                 .build(loc!(), ui.clone());
-            Text::new("sdfs", font).build(loc!(), ui.clone());
+            Text::new(text.clone().into_inner(), font).build(loc!(), ui.clone());
             Button::new("label not displayed".to_string())
                 .color((1., 0., 0., 0.5))
                 .color((1., 1., 1., 1.))
@@ -71,10 +91,6 @@ fn main() {
 
         ui.end_frame();
         ui.generate_layout();
-        let list = ui.draw(Point3::new(0., 0., 0.), (1., 1.));
-        backend
-            .draw_list(&mut target, camera.perspective_view_matrix(), &list)
-            .expect("error while rendering ui");
 
         let (width, height) = target.get_dimensions();
         camera.set_dimensions(width, height);
@@ -141,6 +157,10 @@ fn main() {
                 },
             )
             .unwrap();
+        let list = ui.draw(Point3::new(0., 0., 0.), (1., 1.));
+        backend
+            .draw_list(&mut target, camera.perspective_view_matrix(), &list)
+            .expect("error while rendering ui");
 
         target.finish().unwrap();
 
