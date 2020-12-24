@@ -22,7 +22,7 @@ use super::{
 ///
 /// This can be used in the following way:
 ///
-/// ```
+/// ```compile_fail
 /// WidgetBuilder::new(/* */)
 ///     .function(/* */)
 ///     .other_function(/* */)
@@ -71,7 +71,7 @@ pub trait WidgetBuilder {
     ///
     /// A typical implementation for a classic widget could look like this:
     ///
-    /// ```
+    /// ```compile_fail
     /// let id = ComponentId::new::<Self::AchievedType>(loc);
     ///
     /// let needed_afterward = self.needed_afterward.take().unwrap();
@@ -87,7 +87,7 @@ pub trait WidgetBuilder {
     ///
     /// The implementation for a container (here of only one widget) could look like this:
     ///
-    /// ```
+    /// ```compile_fail
     /// let id = ComponentId::new::<Self::AchievedType>(loc);
     ///
     /// // widget_inside is the builder for a widget that should be contained in the current one
@@ -110,7 +110,7 @@ pub trait WidgetBuilder {
     /// The implementation for a container with multiple widgets could look like this
     /// (all widegts are placed in a Vec<NodeReference> field called content):
     ///
-    /// ```
+    /// ```compile_fail
     /// let id = ComponentId::new::<Self::AchievedType>(loc);
     ///
     /// // generator is a lambda that will add mutliple widgets to this container
@@ -156,7 +156,7 @@ pub trait WidgetLogic {
         DrawList::new()
     }
 
-    fn receive_event(&mut self, event: Event) -> () {}
+    fn receive_event(&mut self, event: Event) {}
 }
 
 /// Trait that gives dynamic typing capabilities to objects implementing
