@@ -187,11 +187,11 @@ impl Input {
                     },
                 ..
             } => match state {
-                ElementState::Pressed => Self::key_from(key).map(|key| Event::KeyPressed(key)),
-                ElementState::Released => Self::key_from(key).map(|key| Event::KeyReleased(key)),
+                ElementState::Pressed => Self::key_from(key).map(Event::KeyPressed),
+                ElementState::Released => Self::key_from(key).map(Event::KeyReleased),
             },
-            WindowEvent::CursorMoved { position, .. } => None, // TODO:
-            WindowEvent::MouseWheel { delta, .. } => None,     // TODO:
+            WindowEvent::CursorMoved { position: _, .. } => None, // TODO:
+            WindowEvent::MouseWheel { delta: _, .. } => None,     // TODO:
             WindowEvent::MouseInput { state, button, .. } => {
                 let button = match button {
                     GlutinMouseButton::Left => Some(MouseButton::Left),
@@ -200,8 +200,8 @@ impl Input {
                     GlutinMouseButton::Other(_) => None,
                 };
                 match state {
-                    ElementState::Pressed => button.map(|b| Event::MouseButtonPressed(b)),
-                    ElementState::Released => button.map(|b| Event::MouseButtonReleased(b)),
+                    ElementState::Pressed => button.map(Event::MouseButtonPressed),
+                    ElementState::Released => button.map(Event::MouseButtonReleased),
                 }
             }
             _ => None,

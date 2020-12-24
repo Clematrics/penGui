@@ -19,6 +19,9 @@ pub const MAX_FRAME_DELAY_NS: u64 = 16_666_667;
 pub struct MainWindow {
     pub start_time: Instant,
     pub last_frame_time: Instant,
+
+    pub alt_pressed: bool,
+    pub ctrl_pressed: bool,
 }
 
 impl MainWindow {
@@ -36,6 +39,8 @@ impl MainWindow {
             MainWindow {
                 start_time,
                 last_frame_time,
+                alt_pressed: false,
+                ctrl_pressed: false,
             },
             event_loop,
             display,
@@ -74,15 +79,19 @@ impl MainWindow {
 
     /// Handles events related to the window.
     /// Only react to the close button and the `Q` key, which closes the window.
-    pub fn handle_events(&self, event: &Event<()>, control_flow: &mut ControlFlow) {
+    pub fn handle_events(&mut self, event: &Event<()>, control_flow: &mut ControlFlow) {
         match event {
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::CloseRequested => {
                     *control_flow = ControlFlow::Exit;
                 }
+                WindowEvent::ModifiersChanged(modifiers) => {
+                    self.alt_pressed = modifiers.alt();
+                    self.ctrl_pressed = modifiers.ctrl();
+                }
                 WindowEvent::KeyboardInput { input, .. } => {
-                    if let Some(key) = input.virtual_keycode {
-                        if key == VirtualKeyCode::Q {
+                    if let Some(VirtualKeyCode::W) = input.virtual_keycode {
+                        if self.ctrl_pressed {
                             *control_flow = ControlFlow::Exit;
                         }
                     }

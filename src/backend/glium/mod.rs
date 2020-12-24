@@ -22,6 +22,7 @@ use super::rusttype_glium::FontWrapper;
 pub struct GliumBackend {
     display: glium::Display,
     draw_parameters: glium::DrawParameters<'static>,
+    debug_rendering: bool,
     program: glium::Program,
     blank_texture: glium::Texture2d,
     textures: Vec<glium::Texture2d>,
@@ -52,12 +53,32 @@ impl GliumBackend {
                     ..Default::default()
                 },
                 blend: glium::Blend::alpha_blending(),
+                line_width: Some(1.0),
+                point_size: Some(1.0),
                 ..Default::default()
             },
+            debug_rendering: false,
             program,
             blank_texture,
             textures: Vec::new(),
             fonts: vec![Rc::new(RefCell::new(default_font))],
+        }
+    }
+
+    pub fn switch_debug_rendering(&mut self) {
+        match self.draw_parameters.polygon_mode {
+            glium::draw_parameters::PolygonMode::Fill => {
+                self.draw_parameters.polygon_mode = glium::draw_parameters::PolygonMode::Line;
+                self.debug_rendering = true;
+            }
+            glium::draw_parameters::PolygonMode::Line => {
+                self.draw_parameters.polygon_mode = glium::draw_parameters::PolygonMode::Point;
+                self.debug_rendering = true;
+            }
+            glium::draw_parameters::PolygonMode::Point => {
+                self.draw_parameters.polygon_mode = glium::draw_parameters::PolygonMode::Fill;
+                self.debug_rendering = false;
+            }
         }
     }
 
@@ -97,7 +118,7 @@ impl GliumBackend {
             let uniforms = glium::uniform! {
                 perspective_view: global_transform,
                 model: command.uniforms.model_matrix,
-                t: texture,
+                t: if self.debug_rendering { &self.blank_texture } else { texture },
             };
 
             frame.draw(

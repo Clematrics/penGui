@@ -1,5 +1,3 @@
-use nalgebra::Point3;
-
 use crate::core::{
     CodeLocation, ComponentId, DrawCommand, DrawList, DrawMode, NodeMetadata, NodeReference,
     TextureId, Uniforms, Vertex, WidgetBuilder, WidgetLogic,
@@ -20,12 +18,18 @@ impl FrameCounter {
     }*/
 }
 
+impl Default for FrameCounter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl WidgetBuilder for FrameCounter {
     type AchievedType = FrameCounter;
     type BuildFeedback = u32;
 
     fn update(self, _metadata: &NodeMetadata, widget: &mut Self::AchievedType) {
-        widget.count = widget.count + 1
+        widget.count += 1;
     }
 
     fn create(self) -> Self::AchievedType {
@@ -40,7 +44,7 @@ impl WidgetBuilder for FrameCounter {
             .update(self);
 
         {
-            let node_bis = node_ref.clone();
+            let node_bis = node_ref;
             let mut node = node_bis.borrow_mut();
             let (_, content) = node.borrow_parts();
             let window = content

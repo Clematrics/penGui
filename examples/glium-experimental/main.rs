@@ -56,6 +56,15 @@ fn main() {
                     _ if c != '\u{7f}' => text.borrow_mut().push(c),
                     _ => {}
                 },
+                WindowEvent::KeyboardInput { input, .. } => {
+                    if let Some(glium::glutin::event::VirtualKeyCode::D) = input.virtual_keycode {
+                        if let glium::glutin::event::ElementState::Released = input.state {
+                            if main_window.alt_pressed {
+                                backend.switch_debug_rendering();
+                            }
+                        }
+                    }
+                }
                 _ => (),
             },
             _ => (),
