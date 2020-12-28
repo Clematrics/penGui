@@ -26,10 +26,11 @@ impl Camera {
     /// Handles events to make the camera respond to mouse and keyboard inputs.
     /// Moving the mouse will make the camera rotate around its point of focus.
     /// Using the mouse wheel will change the distance of the camera.
-    pub fn handle_events(&mut self, event: &Event<()>) {
+    /// The boolean `should_move` is an additional guard for the camera to move.
+    pub fn handle_events(&mut self, event: &Event<()>, should_move: bool) {
         match event {
             Event::DeviceEvent { event, .. } => match event {
-                DeviceEvent::MouseMotion { delta: (dx, dy) } => {
+                DeviceEvent::MouseMotion { delta: (dx, dy) } if should_move => {
                     self.yaw -= *dx as f32 / 800.;
                     self.pitch += *dy as f32 / 800.;
                     if self.pitch < -(PI / 2.) + 0.1 {

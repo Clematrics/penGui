@@ -20,6 +20,7 @@ pub struct MainWindow {
     pub start_time: Instant,
     pub last_frame_time: Instant,
 
+    pub mouse_inside: bool,
     pub alt_pressed: bool,
     pub ctrl_pressed: bool,
 }
@@ -39,6 +40,7 @@ impl MainWindow {
             MainWindow {
                 start_time,
                 last_frame_time,
+                mouse_inside: false,
                 alt_pressed: false,
                 ctrl_pressed: false,
             },
@@ -85,6 +87,8 @@ impl MainWindow {
                 WindowEvent::CloseRequested => {
                     *control_flow = ControlFlow::Exit;
                 }
+                WindowEvent::CursorEntered { .. } => self.mouse_inside = true,
+                WindowEvent::CursorLeft { .. } => self.mouse_inside = false,
                 WindowEvent::ModifiersChanged(modifiers) => {
                     self.alt_pressed = modifiers.alt();
                     self.ctrl_pressed = modifiers.ctrl();
