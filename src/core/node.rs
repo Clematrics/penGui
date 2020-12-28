@@ -6,7 +6,9 @@ use std::rc::{Rc, Weak};
 use nalgebra::*;
 
 use crate::core::ComponentId;
-use crate::core::{DrawList, DummyWidget, Widget, WidgetBuilder};
+use crate::core::{
+    DrawList, DummyWidget, LayoutQuery, LayoutResponse, LayoutStatus, Widget, WidgetBuilder,
+};
 
 /// Type describing a shared, mutable reference to a `Node`
 pub type NodeReference = Rc<RefCell<Node>>;
@@ -74,6 +76,11 @@ impl Node {
                 NodeQueryResult::<T>::InitializedNode(node, PhantomData)
             }
         }
+    }
+
+    /// Wraps the `layout` function of the contained widget.
+    pub fn layout(&self, query: &LayoutQuery) -> LayoutResponse {
+        self.content.layout(query)
     }
 
     /// Wraps the `draw` function of the contained widget.

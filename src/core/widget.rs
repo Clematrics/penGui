@@ -11,7 +11,8 @@ use std::any::Any; // Implement Any for type coercion
 use nalgebra::Point3;
 
 use super::{
-    CodeLocation, ComponentId, DrawList, Event, NodeMetadata, NodeReference, WidgetQueryResult,
+    CodeLocation, ComponentId, DrawList, Event, LayoutQuery, LayoutResponse, LayoutStatus,
+    NodeMetadata, NodeReference, WidgetQueryResult,
 };
 
 /// Trait for the builder of a `Widget`.
@@ -144,6 +145,15 @@ pub trait WidgetLogic {
         panic!("Trying to query a widget from another one which does not contains one (or has not implemented the 'query' function")
     }
 
+    /// A widget can receive a layout query from its parent, with the available space and the constraints.
+    /// The widget must respond to this query.
+    fn layout(&self, _query: &LayoutQuery) -> LayoutResponse {
+        LayoutResponse {
+            size: (0., 0.),
+            status: (LayoutStatus::Ok, LayoutStatus::Ok),
+        }
+    }
+
     /// A widget must be able to be drawn on screen. It should then returns the information
     /// indicating how to draw it. The `DrawList` returned should be in a way that represents
     /// adequately the contained widgets, if there are some.
@@ -189,7 +199,7 @@ where
 
 /// Dummy widget used as the default widget when a new node is created.
 /// This is normally automatically replaced during the building process,
-/// if `WidgetLogic::create` is correctly implemented (that is, it does not
+/// if `WidgetBuilder::create` is correctly implemented (that is, it does not
 /// return a `DummyWidget`)
 pub struct DummyWidget;
 

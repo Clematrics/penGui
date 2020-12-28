@@ -3,6 +3,7 @@ pub use self::draw_commands::*;
 pub use self::events::*;
 pub use self::font::*;
 pub use self::interface::*;
+pub use self::layout::*;
 pub use self::node::*;
 pub use self::widget::*;
 
@@ -11,5 +12,6 @@ mod draw_commands;
 mod events;
 mod font;
 mod interface;
+mod layout;
 mod node;
 mod widget;
