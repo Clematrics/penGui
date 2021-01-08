@@ -63,6 +63,14 @@ impl Camera {
         self.ratio = width as f32 / height as f32;
     }
 
+    pub fn position(&self) -> na::Point3<f32> {
+        let x = self.distance * -self.yaw.sin() * self.pitch.cos();
+        let y = self.distance * self.pitch.sin();
+        let z = self.distance * -self.yaw.cos() * self.pitch.cos();
+
+        na::Point3::new(x, y, z)
+    }
+
     /// Returns the perspective matrix of the camera.
     fn perspective_matrix(&self) -> na::Perspective3<f32> {
         let fovy = PI / 2. / self.ratio;
@@ -74,12 +82,8 @@ impl Camera {
 
     /// Returns the view matrix of the camera.
     fn view_matrix(&self) -> na::Matrix4<f32> {
-        let x = self.distance * -self.yaw.sin() * self.pitch.cos();
-        let y = self.distance * self.pitch.sin();
-        let z = self.distance * -self.yaw.cos() * self.pitch.cos();
-
         let target = na::Point3::new(0., 0., 0.);
-        let eye = na::Point3::new(x, y, z);
+        let eye = self.position();
         let view = na::Isometry3::look_at_rh(&eye, &target, &na::Vector3::y());
 
         view.to_homogeneous()
