@@ -1,8 +1,11 @@
+use std::rc::Weak;
+
 use super::node::{Node, NodeReference, NodeWeakReference};
-use crate::core::events::InputState;
+use crate::core::events::{Event, InputState};
 use crate::core::{ComponentId, DrawList, LayoutQuery, Mat4x4, Objective};
 use crate::widget::WindowHandler;
-use std::rc::Weak;
+
+use nalgebra::{Point3, Vector3};
 
 /// Global properties of an interface
 pub struct GlobalProperties {
@@ -127,8 +130,9 @@ impl Interface {
     }
 
     /// Registers an event in the interface, propagating it to the right widget
-    pub fn register_event(&self) {
-        // TODO: not yet implemented
+    pub fn register_event(&self, event: Event, ray: Option<&Vector3<f32>>, origin: &Point3<f32>) {
+        // TODO: change the InputState of the interface accordingly
+        self.root.borrow_mut().send_event(event, ray, origin);
     }
 }
 

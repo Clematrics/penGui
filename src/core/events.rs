@@ -106,6 +106,14 @@ pub enum Event {
     Character(char),
 }
 
+pub enum EventResponse {
+    Registered,
+    // When a widget registers an event but asks its parent
+    // to continue the propagation to its siblings
+    PassivelyRegistered,
+    Pass,
+}
+
 use std::collections::HashSet;
 
 pub struct InputState {

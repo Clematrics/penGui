@@ -8,11 +8,11 @@
 
 use std::any::Any; // Implement Any for type coercion
 
-use nalgebra::Point3;
+use nalgebra::{Point3, Vector3};
 
 use super::{
-    CodeLocation, ComponentId, DrawList, Event, LayoutQuery, LayoutResponse, LayoutStatus,
-    NodeMetadata, NodeReference, WidgetQueryResult,
+    CodeLocation, ComponentId, DrawList, Event, EventResponse, LayoutQuery, LayoutResponse,
+    LayoutStatus, NodeMetadata, NodeReference, WidgetQueryResult,
 };
 
 /// Trait for the builder of a `Widget`.
@@ -157,16 +157,28 @@ pub trait WidgetLogic {
     /// A widget must be able to be drawn on screen. It should then returns the information
     /// indicating how to draw it. The `DrawList` returned should be in a way that represents
     /// adequately the contained widgets, if there are some.
-    fn draw(
-        &self,
-        _metadata: &NodeMetadata,
-        // _position: Point3<f32>,
-        // _size: (f32, f32),
-    ) -> DrawList {
+    fn draw(&self, _metadata: &NodeMetadata) -> DrawList {
         DrawList::new()
     }
 
-    fn receive_event(&mut self, event: Event) {}
+    fn interaction_distance(
+        &self,
+        _metadata: &NodeMetadata,
+        _ray: &Vector3<f32>,
+        _origin: &Point3<f32>,
+    ) -> Option<f32> {
+        None
+    }
+
+    fn send_event(
+        &mut self,
+        _metadata: &mut NodeMetadata,
+        _event: Event,
+        _ray: Option<&Vector3<f32>>,
+        _origin: &Point3<f32>,
+    ) -> EventResponse {
+        EventResponse::Pass
+    }
 }
 
 /// Trait that gives dynamic typing capabilities to objects implementing

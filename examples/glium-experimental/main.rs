@@ -7,7 +7,8 @@ extern crate image;
 
 use pengui::{
     backend::glium::GliumBackend,
-    core::{CodeLocation, DrawCommand, Mat4x4, Uniforms, Vertex, WidgetBuilder},
+    core::{CodeLocation, DrawCommand, Event as pgEvent, Mat4x4, Uniforms, Vertex, WidgetBuilder},
+    frontend::glutin::Input,
     loc,
     widget::*,
     Interface,
@@ -47,13 +48,13 @@ fn main() {
         camera.handle_events(&event, main_window.alt_pressed);
 
         use glium::glutin::event::{Event, WindowEvent};
-        match event {
+        match &event {
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::ReceivedCharacter(c) => match c {
                     '\u{8}' => {
                         text.borrow_mut().pop();
                     }
-                    _ if c != '\u{7f}' => text.borrow_mut().push(c),
+                    _ if *c != '\u{7f}' => text.borrow_mut().push(*c),
                     _ => {}
                 },
                 WindowEvent::KeyboardInput { input, .. } => {
@@ -103,6 +104,18 @@ fn main() {
 
         ui.end_frame();
         ui.generate_layout();
+        if let Event::WindowEvent { event, .. } = event {
+            if let Some(event) = Input::from(event) {
+                let ray = match event {
+                    pgEvent::MouseButtonPressed(..) => {
+                        let (x, y) = main_window.mouse_pos;
+                        Some(camera.ray_from(x, y).into_inner())
+                    }
+                    _ => None,
+                };
+                ui.register_event(event, ray.as_ref(), &camera.position());
+            }
+        }
 
         let (width, height) = target.get_dimensions();
         camera.set_dimensions(width, height);

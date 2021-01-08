@@ -7,7 +7,8 @@ use nalgebra::*;
 
 use crate::core::ComponentId;
 use crate::core::{
-    DrawList, DummyWidget, LayoutQuery, LayoutResponse, LayoutStatus, Widget, WidgetBuilder,
+    DrawList, DummyWidget, Event, EventResponse, LayoutQuery, LayoutResponse, LayoutStatus, Widget,
+    WidgetBuilder,
 };
 
 /// Type describing a shared, mutable reference to a `Node`
@@ -87,8 +88,23 @@ impl Node {
     ///
     /// NOTE: Takes a position and a size to place the widget in the local space.
     /// This is temporary, and will change when the layout system comes in place
-    pub fn draw(&self /*, position: Point3<f32>, size: (f32, f32) */) -> DrawList {
-        self.content.draw(&self.metadata /*, position, size*/)
+    pub fn draw(&self) -> DrawList {
+        self.content.draw(&self.metadata)
+    }
+
+    pub fn interaction_distance(&self, ray: &Vector3<f32>, origin: &Point3<f32>) -> Option<f32> {
+        self.content
+            .interaction_distance(&self.metadata, ray, origin)
+    }
+
+    pub fn send_event(
+        &mut self,
+        event: Event,
+        ray: Option<&Vector3<f32>>,
+        origin: &Point3<f32>,
+    ) -> EventResponse {
+        self.content
+            .send_event(&mut self.metadata, event, ray, origin)
     }
 
     /// Helper function to mutably borrow the contained widget and its metadata independently
