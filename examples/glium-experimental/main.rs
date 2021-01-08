@@ -172,7 +172,12 @@ fn main() {
             .unwrap();
         let list = ui.draw(/*Point3::new(0., 0., 0.), (1., 1.)*/);
         backend
-            .draw_list(&mut target, camera.perspective_view_matrix(), Mat4x4::identity(), &list)
+            .draw_list(
+                &mut target,
+                camera.perspective_view_matrix(),
+                Mat4x4::identity(),
+                &list,
+            )
             .expect("error while rendering ui");
 
         target.finish().unwrap();

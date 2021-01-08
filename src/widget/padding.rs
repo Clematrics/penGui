@@ -140,7 +140,8 @@ impl WidgetLogic for Padding {
         metadata: &NodeMetadata, /*, position: Point3<f32>, size: (f32, f32)*/
     ) -> DrawList {
         let mut list = DrawList::new();
-        list.list.push(self.content.as_ref().unwrap().borrow().draw());
+        list.list
+            .push(self.content.as_ref().unwrap().borrow().draw());
         let color = [1., 0., 0., 1.];
         let tex_uv = [0., 0.];
         let mut uniforms = Uniforms::new();
