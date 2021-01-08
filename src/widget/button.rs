@@ -170,7 +170,7 @@ impl WidgetLogic for Button {
                 .upgrade()
                 .expect("A font is not owned anymore by the backend"),
             color,
-            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z + 0.001)).to_homogeneous()
+            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z + 0.001)).to_homogeneous(),
         );
 
         let mut list = DrawList::new();

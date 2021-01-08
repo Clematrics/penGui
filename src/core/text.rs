@@ -9,7 +9,7 @@ pub fn draw_text(
     color: [f32; 4],
     transformation: Mat4x4,
 ) -> DrawCommand {
-	let mut font = font.borrow_mut();
+    let mut font = font.borrow_mut();
     let mut uniforms = Uniforms::new();
     uniforms.model_matrix = transformation;
 
