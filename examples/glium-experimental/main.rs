@@ -44,7 +44,7 @@ fn main() {
         let font = font.clone();
         let ensps_tex = ensps_tex;
         main_window.handle_events(&event, control_flow);
-        camera.handle_events(&event, main_window.mouse_inside && main_window.alt_pressed);
+        camera.handle_events(&event, main_window.alt_pressed);
 
         use glium::glutin::event::{Event, WindowEvent};
         match event {
