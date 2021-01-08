@@ -24,8 +24,8 @@ pub type NodeWeakReference = Weak<RefCell<Node>>;
 pub struct NodeMetadata {
     pub id: ComponentId,
     pub invalid: bool,
-    pub size: Option<(f32, f32)>,
-    pub position: Option<(f32, f32, f32)>,
+    pub size: (f32, f32),
+    pub position: (f32, f32, f32),
 }
 
 impl NodeMetadata {
@@ -33,8 +33,8 @@ impl NodeMetadata {
         NodeMetadata {
             id,
             invalid: false,
-            size: None,
-            position: None,
+            size: (0., 0.),
+            position: (0., 0., 0.),
         }
     }
 }
@@ -79,7 +79,7 @@ impl Node {
     }
 
     /// Wraps the `layout` function of the contained widget.
-    pub fn layout(&self, query: &LayoutQuery) -> LayoutResponse {
+    pub fn layout(&mut self, query: &LayoutQuery) -> LayoutResponse {
         self.content.layout(query)
     }
 
@@ -87,8 +87,8 @@ impl Node {
     ///
     /// NOTE: Takes a position and a size to place the widget in the local space.
     /// This is temporary, and will change when the layout system comes in place
-    pub fn draw(&self, position: Point3<f32>, size: (f32, f32)) -> DrawList {
-        self.content.draw(&self.metadata, position, size)
+    pub fn draw(&self /*, position: Point3<f32>, size: (f32, f32) */) -> DrawList {
+        self.content.draw(&self.metadata /*, position, size*/)
     }
 
     /// Helper function to mutably borrow the contained widget and its metadata independently

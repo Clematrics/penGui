@@ -7,7 +7,7 @@ extern crate image;
 
 use pengui::{
     backend::glium::GliumBackend,
-    core::{CodeLocation, DrawCommand, Uniforms, Vertex, WidgetBuilder},
+    core::{CodeLocation, DrawCommand, Mat4x4, Uniforms, Vertex, WidgetBuilder},
     loc,
     widget::*,
     Interface,
@@ -87,10 +87,13 @@ fn main() {
         WindowBuilder::new(move |ui| {
             let text = text.clone();
             let font = font.clone();
-            PaddingBuilder::new((0.2, 0.2), Button::new("label not displayed".to_string()))
-                .build(loc!(), ui.clone());
-            Text::new(text.clone().into_inner(), font).build(loc!(), ui.clone());
-            Button::new("label not displayed".to_string())
+            PaddingBuilder::new(
+                (0.2, 0.2),
+                Button::new("label not displayed".to_string(), font.clone()),
+            )
+            .build(loc!(), ui.clone());
+            Text::new(text.clone().into_inner(), font.clone()).build(loc!(), ui.clone());
+            Button::new("label not displayed".to_string(), font)
                 .color((1., 0., 0., 0.5))
                 .color((1., 1., 1., 1.))
                 .texture(ensps_tex)
@@ -158,6 +161,7 @@ fn main() {
             .draw_command(
                 &mut target,
                 camera.perspective_view_matrix(),
+                Mat4x4::identity(),
                 &DrawCommand {
                     vertex_buffer: cube_vertices,
                     index_buffer: cube_indices,
@@ -166,9 +170,9 @@ fn main() {
                 },
             )
             .unwrap();
-        let list = ui.draw(Point3::new(0., 0., 0.), (1., 1.));
+        let list = ui.draw(/*Point3::new(0., 0., 0.), (1., 1.)*/);
         backend
-            .draw_list(&mut target, camera.perspective_view_matrix(), &list)
+            .draw_list(&mut target, camera.perspective_view_matrix(), Mat4x4::identity(), &list)
             .expect("error while rendering ui");
 
         target.finish().unwrap();

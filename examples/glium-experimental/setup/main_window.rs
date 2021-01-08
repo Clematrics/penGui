@@ -1,12 +1,17 @@
 use std::time::Instant;
 
 use glium::glutin::{
+    dpi::LogicalSize,
     event::{Event, VirtualKeyCode, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
     ContextBuilder,
 };
 use glium::Display;
+
+/// Default width for the window
+pub const DEFAULT_WINDOW_WIDTH: u32 = 1024;
+pub const DEFAULT_WINDOW_HEIGHT: u32 = 768;
 
 /// Max delay in nanoseconds between two frames to get 60 frames per second.
 pub const MAX_FRAME_DELAY_NS: u64 = 16_666_667;
@@ -20,6 +25,8 @@ pub struct MainWindow {
     pub start_time: Instant,
     pub last_frame_time: Instant,
 
+    pub window_size: (u32, u32),
+    pub mouse_pos: (f32, f32),
     pub mouse_inside: bool,
     pub alt_pressed: bool,
     pub ctrl_pressed: bool,
@@ -29,7 +36,12 @@ impl MainWindow {
     /// Creates a new window, its associated event loop and the drawing surface.
     pub fn new() -> (Self, EventLoop<()>, Display) {
         let event_loop = EventLoop::new();
-        let window = WindowBuilder::new();
+        let window = WindowBuilder::new()
+            .with_title("Hello world!")
+            .with_inner_size(LogicalSize::new(
+                DEFAULT_WINDOW_WIDTH,
+                DEFAULT_WINDOW_HEIGHT,
+            ));
         let context = ContextBuilder::new().with_srgb(false);
         let display = Display::new(window, context, &event_loop).unwrap();
 
@@ -40,6 +52,8 @@ impl MainWindow {
             MainWindow {
                 start_time,
                 last_frame_time,
+                window_size: (DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT),
+                mouse_pos: (0., 0.),
                 mouse_inside: false,
                 alt_pressed: false,
                 ctrl_pressed: false,
@@ -80,12 +94,18 @@ impl MainWindow {
     }
 
     /// Handles events related to the window.
-    /// Only react to the close button and the `Q` key, which closes the window.
+    /// React to the close button and the `Ctrl+W` key, which closes the window.
     pub fn handle_events(&mut self, event: &Event<()>, control_flow: &mut ControlFlow) {
         match event {
             Event::WindowEvent { event, .. } => match event {
+                WindowEvent::Resized(size) => {
+                    self.window_size = (size.width, size.height);
+                }
                 WindowEvent::CloseRequested => {
                     *control_flow = ControlFlow::Exit;
+                }
+                WindowEvent::CursorMoved { position, .. } => {
+                    self.mouse_pos = (position.x as f32, position.y as f32);
                 }
                 WindowEvent::CursorEntered { .. } => self.mouse_inside = true,
                 WindowEvent::CursorLeft { .. } => self.mouse_inside = false,

@@ -11,21 +11,15 @@ pub struct Vertex {
 }
 
 /// Internal type for a 4x4 matrix
-pub type Mat4x4 = [[f32; 4]; 4];
+// pub type Mat4x4 = [[f32; 4]; 4];
+// pub use nalgebra::Matrix4 as Mat4x4;
+pub type Mat4x4 = nalgebra::Matrix4<f32>;
 /// Type to hold texture identifiers
 #[derive(Copy, Clone)]
 pub enum TextureId {
     Texture(usize),
     Font(usize),
 }
-
-/// A unit transformation
-pub const UNIT_TRANSFORM: Mat4x4 = [
-    [1.0, 0.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0, 0.0],
-    [0.0, 0.0, 1.0, 0.0],
-    [0.0, 0.0, 0.0, 1.0],
-];
 
 /// A structure to store uniforms needed for each draw command
 /// It holds:
@@ -39,11 +33,17 @@ pub struct Uniforms {
 
 impl Uniforms {
     /// Creates new uniforms, with a unit model matrix, and no texture
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         Self {
-            model_matrix: UNIT_TRANSFORM,
+            model_matrix: Mat4x4::identity(),
             texture: None,
         }
+    }
+}
+
+impl Default for Uniforms {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -75,6 +75,7 @@ pub struct DrawCommand {
 pub struct DrawList {
     pub commands: Vec<DrawCommand>,
     pub list: Vec<DrawList>,
+    pub list_transform: Mat4x4,
 }
 
 impl DrawList {
@@ -83,6 +84,7 @@ impl DrawList {
         DrawList {
             commands: Vec::new(),
             list: Vec::new(),
+            list_transform: Mat4x4::identity(),
         }
     }
 }
@@ -92,13 +94,3 @@ impl Default for DrawList {
         Self::new()
     }
 }
-
-/// Empty `DrawCommand` doing nothing.
-/// Uses `DrawMode::Triangles` as the default draw mode, and default uniforms.
-/// TODO: check if it is useful in the long term
-pub static NULL_DRAW_COMMAND: DrawCommand = DrawCommand {
-    vertex_buffer: vec![],
-    index_buffer: vec![],
-    draw_mode: DrawMode::Triangles,
-    uniforms: Uniforms::new(),
-};

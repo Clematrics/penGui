@@ -5,7 +5,8 @@ use nalgebra::Point3;
 
 use crate::core::{
     CharacterInfo, CodeLocation, ComponentId, DrawCommand, DrawList, DrawMode, FontAtlas,
-    NodeMetadata, NodeReference, Uniforms, Vertex, WidgetBuilder, WidgetLogic,
+    LayoutQuery, LayoutResponse, LayoutStatus, NodeMetadata, NodeReference, Uniforms, Vertex,
+    WidgetBuilder, WidgetLogic,
 };
 
 pub struct Text {
@@ -52,26 +53,70 @@ impl WidgetBuilder for Text {
     }
 }
 
-fn to_array(mat: &nalgebra::Matrix4<f32>) -> [[f32; 4]; 4] {
-    [
-        [mat[(0, 0)], mat[(1, 0)], mat[(2, 0)], mat[(3, 0)]],
-        [mat[(0, 1)], mat[(1, 1)], mat[(2, 1)], mat[(3, 1)]],
-        [mat[(0, 2)], mat[(1, 2)], mat[(2, 2)], mat[(3, 2)]],
-        [mat[(0, 3)], mat[(1, 3)], mat[(2, 3)], mat[(3, 3)]],
-    ]
-}
-
 impl WidgetLogic for Text {
-    fn draw(&self, _metadata: &NodeMetadata, position: Point3<f32>, size: (f32, f32)) -> DrawList {
+    fn layout(&mut self, query: &LayoutQuery) -> LayoutResponse {
+        let font = self
+            .font
+            .upgrade()
+            .expect("A font is not owned anymore by the backend");
+
+        let (width, _height) = font.borrow().size_of(self.text.as_str());
+
+        if let Some(available_height) = query.available_space.1 {
+            if available_height <= 1. {
+                return LayoutResponse {
+                    size: (0., 0.),
+                    status: (LayoutStatus::Ok, LayoutStatus::WontDisplay),
+                };
+            }
+        }
+
+        // let font_height = {
+        //     let metrics = font.borrow().get_vertical_metrics();
+        //     metrics.ascent + metrics.descent
+        // };
+
+        // let (height, factor) = match query.available_space.1 {
+        //     None => (font_height, 1.),
+        //     Some(height) => (height, height / font_height),
+        // };
+
+        // let mut width = 0.0;
+        // let mut last_char = None;
+        // self.text.chars().for_each(|c| {
+        //     let mut font = font.borrow_mut();
+
+        //     let CharacterInfo { advance_width, .. } = font.char_info(c, last_char);
+
+        //     width += advance_width * factor;
+        //     last_char = Some(c);
+        // });
+
+        LayoutResponse {
+            size: (width, 1.),
+            status: (
+                if width > query.available_space.0.unwrap_or(std::f32::INFINITY) {
+                    LayoutStatus::Inconsistencies
+                } else {
+                    LayoutStatus::Ok
+                },
+                LayoutStatus::Ok,
+            ),
+        }
+    }
+
+    fn draw(
+        &self,
+        metadata: &NodeMetadata, /*, position: Point3<f32>, size: (f32, f32)*/
+    ) -> DrawList {
         #![allow(clippy::many_single_char_names)]
         let (r, g, b, a) = self.color;
         let color = [r, g, b, a];
 
         let mut uniforms = Uniforms::new();
-        let (x, y, z) = (position.x, position.y, position.z);
-        uniforms.model_matrix = to_array(
-            &nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous(),
-        );
+        let (x, y, z) = metadata.position;
+        uniforms.model_matrix =
+            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous();
 
         let font = self
             .font
@@ -131,7 +176,7 @@ impl WidgetLogic for Text {
             index_buffer.push((base + 2) as u32);
             index_buffer.push((base + 3) as u32);
 
-            cursor += advance_width;
+            cursor += advance_width + kerning;
             last_char = Some(c);
         });
 

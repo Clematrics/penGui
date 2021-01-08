@@ -5,11 +5,20 @@
 use std::cell::RefCell;
 use std::rc::*;
 
-use crate::core::{DrawCommand, DrawList, Mat4x4, TextureId, Vertex};
+use crate::core::{DrawCommand, DrawList, DrawMode, Mat4x4, TextureId, Vertex};
 
 use glium::Surface;
 
 use super::rusttype_glium::FontWrapper;
+
+fn raw_matrix(mat: &Mat4x4) -> [[f32; 4]; 4] {
+    [
+        [mat[(0, 0)], mat[(1, 0)], mat[(2, 0)], mat[(3, 0)]],
+        [mat[(0, 1)], mat[(1, 1)], mat[(2, 1)], mat[(3, 1)]],
+        [mat[(0, 2)], mat[(1, 2)], mat[(2, 2)], mat[(3, 2)]],
+        [mat[(0, 3)], mat[(1, 3)], mat[(2, 3)], mat[(3, 3)]],
+    ]
+}
 
 /// `glium`-based backend
 ///
@@ -22,6 +31,7 @@ use super::rusttype_glium::FontWrapper;
 pub struct GliumBackend {
     display: glium::Display,
     draw_parameters: glium::DrawParameters<'static>,
+    debug_poly_mode: glium::draw_parameters::PolygonMode,
     debug_rendering: bool,
     program: glium::Program,
     blank_texture: glium::Texture2d,
@@ -46,17 +56,8 @@ impl GliumBackend {
 
         Self {
             display: facade,
-            draw_parameters: glium::DrawParameters {
-                depth: glium::Depth {
-                    test: glium::draw_parameters::DepthTest::IfLess,
-                    write: true,
-                    ..Default::default()
-                },
-                blend: glium::Blend::alpha_blending(),
-                line_width: Some(1.0),
-                point_size: Some(1.0),
-                ..Default::default()
-            },
+            draw_parameters: Self::draw_parameters(),
+            debug_poly_mode: glium::draw_parameters::PolygonMode::Fill,
             debug_rendering: false,
             program,
             blank_texture,
@@ -65,18 +66,32 @@ impl GliumBackend {
         }
     }
 
+    fn draw_parameters() -> glium::DrawParameters<'static> {
+        glium::DrawParameters {
+            depth: glium::Depth {
+                test: glium::draw_parameters::DepthTest::IfLess,
+                write: true,
+                ..Default::default()
+            },
+            blend: glium::Blend::alpha_blending(),
+            line_width: Some(1.0),
+            point_size: Some(1.0),
+            ..Default::default()
+        }
+    }
+
     pub fn switch_debug_rendering(&mut self) {
-        match self.draw_parameters.polygon_mode {
+        match self.debug_poly_mode {
             glium::draw_parameters::PolygonMode::Fill => {
-                self.draw_parameters.polygon_mode = glium::draw_parameters::PolygonMode::Line;
+                self.debug_poly_mode = glium::draw_parameters::PolygonMode::Line;
                 self.debug_rendering = true;
             }
             glium::draw_parameters::PolygonMode::Line => {
-                self.draw_parameters.polygon_mode = glium::draw_parameters::PolygonMode::Point;
+                self.debug_poly_mode = glium::draw_parameters::PolygonMode::Point;
                 self.debug_rendering = true;
             }
             glium::draw_parameters::PolygonMode::Point => {
-                self.draw_parameters.polygon_mode = glium::draw_parameters::PolygonMode::Fill;
+                self.debug_poly_mode = glium::draw_parameters::PolygonMode::Fill;
                 self.debug_rendering = false;
             }
         }
@@ -93,6 +108,7 @@ impl GliumBackend {
         &self,
         frame: &mut Frame,
         global_transform: Mat4x4,
+        local_transform: Mat4x4,
         command: &DrawCommand,
     ) -> DrawResult {
         let vertex_buffer =
@@ -105,6 +121,18 @@ impl GliumBackend {
         )
         .unwrap();
 
+        let mut draw_parameters = Self::draw_parameters();
+
+        draw_parameters.polygon_mode = if !self.debug_rendering {
+            match command.draw_mode {
+                DrawMode::Triangles => glium::draw_parameters::PolygonMode::Fill,
+                DrawMode::Lines => glium::draw_parameters::PolygonMode::Line,
+                DrawMode::Points => glium::draw_parameters::PolygonMode::Point,
+            }
+        } else {
+            self.debug_poly_mode
+        };
+
         if let Some(id) = &command.uniforms.texture {
             let texture_id = match id {
                 TextureId::Texture(id) => id,
@@ -116,8 +144,8 @@ impl GliumBackend {
                 TextureId::Font(_) => &font.texture,
             };
             let uniforms = glium::uniform! {
-                perspective_view: global_transform,
-                model: command.uniforms.model_matrix,
+                perspective_view: raw_matrix(&global_transform),
+                model: raw_matrix(&(local_transform * command.uniforms.model_matrix)),
                 t: if self.debug_rendering { &self.blank_texture } else { texture },
             };
 
@@ -126,12 +154,12 @@ impl GliumBackend {
                 &index_buffer,
                 &self.program,
                 &uniforms,
-                &self.draw_parameters,
+                &draw_parameters,
             )
         } else {
             let uniforms = glium::uniform! {
-                perspective_view: global_transform,
-                model: command.uniforms.model_matrix,
+                perspective_view: raw_matrix(&global_transform),
+                model: raw_matrix(&(local_transform * command.uniforms.model_matrix)),
                 t: &self.blank_texture,
             };
 
@@ -140,7 +168,7 @@ impl GliumBackend {
                 &index_buffer,
                 &self.program,
                 &uniforms,
-                &self.draw_parameters,
+                &draw_parameters,
             )
         }
 
@@ -184,14 +212,16 @@ impl GliumBackend {
         &self,
         frame: &mut Frame,
         global_transform: Mat4x4,
+        local_transform: Mat4x4,
         list: &DrawList,
     ) -> DrawResult {
-        list.commands
-            .iter()
-            .try_for_each(|command| self.draw_command(frame, global_transform, command))?;
+        list.commands.iter().try_for_each(|command| {
+            self.draw_command(frame, global_transform, local_transform, command)
+        })?;
+        let transform = local_transform * list.list_transform;
         list.list
             .iter()
-            .try_for_each(|list| self.draw_list(frame, global_transform, list))
+            .try_for_each(|list| self.draw_list(frame, global_transform, transform, list))
     }
 
     /// Registers a new texture and returns the unique ID associated with it.

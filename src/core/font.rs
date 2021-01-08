@@ -19,4 +19,5 @@ pub trait FontAtlas {
     fn get_vertical_metrics(&self) -> VerticalMetrics;
     fn get_texture(&self) -> TextureId;
     fn char_info(&mut self, character: char, previous_char: Option<char>) -> CharacterInfo;
+    fn size_of(&self, string: &str) -> (f32, f32);
 }

@@ -63,28 +63,50 @@ impl Camera {
         self.ratio = width as f32 / height as f32;
     }
 
+    /// Returns the perspective matrix of the camera.
+    fn perspective_matrix(&self) -> na::Perspective3<f32> {
+        let fovy = PI / 2. / self.ratio;
+        let near = 0.1;
+        let far = 1000.;
+
+        na::Perspective3::new(self.ratio, fovy, near, far)
+    }
+
+    /// Returns the view matrix of the camera.
+    fn view_matrix(&self) -> na::Matrix4<f32> {
+        let x = self.distance * -self.yaw.sin() * self.pitch.cos();
+        let y = self.distance * self.pitch.sin();
+        let z = self.distance * -self.yaw.cos() * self.pitch.cos();
+
+        let target = na::Point3::new(0., 0., 0.);
+        let eye = na::Point3::new(x, y, z);
+        let view = na::Isometry3::look_at_rh(&eye, &target, &na::Vector3::y());
+
+        view.to_homogeneous()
+    }
+
     /// Returns the perspective-view matrix of the camera.
-    pub fn perspective_view_matrix(&self) -> [[f32; 4]; 4] {
-        let perspective = {
-            let fovy = PI / 2. / self.ratio;
-            let near = 0.1;
-            let far = 1000.;
+    pub fn perspective_view_matrix(&self) -> na::Matrix4<f32> {
+        self.perspective_matrix().into_inner() * self.view_matrix()
+    }
 
-            na::Perspective3::new(self.ratio, fovy, near, far).into_inner()
-        };
+    /// Returns a normalized ray representing the mouse position on screen,
+    /// given its normalized position.
+    pub fn ray_from(&self, x: f32, y: f32) -> na::Unit<na::Matrix3x1<f32>> {
+        let projection = self.perspective_matrix();
 
-        let view = {
-            let x = self.distance * -self.yaw.sin() * self.pitch.cos();
-            let y = self.distance * self.pitch.sin();
-            let z = self.distance * -self.yaw.cos() * self.pitch.cos();
+        // Compute two points in clip-space.
+        // "ndc" = normalized device coordinates.
+        let near_ndc_point = na::Point3::new(x, y, -1.0);
+        let far_ndc_point = na::Point3::new(x, y, 1.0);
 
-            let target = na::Point3::new(0., 0., 0.);
-            let eye = na::Point3::new(x, y, z);
-            let view = na::Isometry3::look_at_rh(&eye, &target, &na::Vector3::y());
+        // Unproject them to view-space.
+        let near_view_point = projection.unproject_point(&near_ndc_point);
+        let far_view_point = projection.unproject_point(&far_ndc_point);
 
-            view.to_homogeneous()
-        };
+        // Compute the view-space line parameters.
+        let line_direction = na::Unit::new_normalize(far_view_point - near_view_point);
 
-        super::helpers::to_array(&(perspective * view))
+        line_direction
     }
 }

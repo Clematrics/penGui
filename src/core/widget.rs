@@ -147,7 +147,7 @@ pub trait WidgetLogic {
 
     /// A widget can receive a layout query from its parent, with the available space and the constraints.
     /// The widget must respond to this query.
-    fn layout(&self, _query: &LayoutQuery) -> LayoutResponse {
+    fn layout(&mut self, _query: &LayoutQuery) -> LayoutResponse {
         LayoutResponse {
             size: (0., 0.),
             status: (LayoutStatus::Ok, LayoutStatus::Ok),
@@ -160,8 +160,8 @@ pub trait WidgetLogic {
     fn draw(
         &self,
         _metadata: &NodeMetadata,
-        _position: Point3<f32>,
-        _size: (f32, f32),
+        // _position: Point3<f32>,
+        // _size: (f32, f32),
     ) -> DrawList {
         DrawList::new()
     }

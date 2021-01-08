@@ -143,4 +143,31 @@ impl FontAtlas for FontWrapper {
             kerning,
         }
     }
+
+    fn size_of(&self, string: &str) -> (f32, f32) {
+        let mut previous_glyph: Option<rusttype::PositionedGlyph> = None;
+        let mut width = 0.;
+
+        for c in string.chars() {
+            let glyph = self
+                .font
+                .glyph(c)
+                .scaled(self.scale)
+                .positioned(Point { x: 0.0, y: 0.0 });
+            let kerning = previous_glyph
+                .map(|previous_glyph| {
+                    self.font
+                        .pair_kerning(self.scale, previous_glyph.id(), glyph.id())
+                        / self.scale.x
+                })
+                .unwrap_or(0.);
+            let advance_width = glyph.unpositioned().h_metrics().advance_width / self.scale.x;
+            width += advance_width + kerning;
+
+            previous_glyph = Some(glyph);
+        }
+
+        let vmetrics = self.font.v_metrics(self.scale);
+        (width, vmetrics.ascent - vmetrics.descent)
+    }
 }

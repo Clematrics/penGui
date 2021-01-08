@@ -1,8 +1,7 @@
 use super::node::{Node, NodeReference, NodeWeakReference};
 use crate::core::events::InputState;
-use crate::core::{ComponentId, DrawList, Mat4x4, UNIT_TRANSFORM};
+use crate::core::{ComponentId, DrawList, LayoutQuery, Mat4x4, Objective};
 use crate::widget::WindowHandler;
-use nalgebra::*;
 use std::rc::Weak;
 
 /// Global properties of an interface
@@ -80,7 +79,7 @@ impl Interface {
     pub fn new() -> Interface {
         Interface {
             properties: GlobalProperties {
-                global_transformation: UNIT_TRANSFORM,
+                global_transformation: Mat4x4::identity(),
                 input_state: Default::default(),
                 _focus: Weak::new(),
             },
@@ -113,15 +112,18 @@ impl Interface {
 
     /// Computes the layout, trying to satisfy all constraints provided by each widget.
     pub fn generate_layout(&self) {
-        // TODO: not yet implemented
+        self.root.borrow_mut().layout(&LayoutQuery {
+            available_space: (Some(0.), Some(0.)),
+            objectives: (Objective::None, Objective::None),
+        });
     }
 
     /// Returns a `DrawList`, a tree structure with `DrawCommand`s on its node, holding all the information
     /// necessary to draw the interface. This does not draw anything on the screen: the result of this function
     /// has to be passed to a backend, in charge of drawing.
     /// TODO: change the name?
-    pub fn draw(&self, position: Point3<f32>, size: (f32, f32)) -> DrawList {
-        self.root.borrow_mut().draw(position, size)
+    pub fn draw(&self /*, position: Point3<f32>, size: (f32, f32)*/) -> DrawList {
+        self.root.borrow_mut().draw(/*position, size*/)
     }
 
     /// Registers an event in the interface, propagating it to the right widget
