@@ -126,10 +126,7 @@ impl WidgetLogic for Padding {
         }
     }
 
-    fn draw(
-        &self,
-        metadata: &NodeMetadata, /*, position: Point3<f32>, size: (f32, f32)*/
-    ) -> DrawList {
+    fn draw(&self, metadata: &NodeMetadata) -> DrawList {
         let mut list = DrawList::new();
         list.list
             .push(self.content.as_ref().unwrap().borrow().draw());

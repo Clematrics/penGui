@@ -11,8 +11,6 @@ pub struct Vertex {
 }
 
 /// Internal type for a 4x4 matrix
-// pub type Mat4x4 = [[f32; 4]; 4];
-// pub use nalgebra::Matrix4 as Mat4x4;
 pub type Mat4x4 = nalgebra::Matrix4<f32>;
 /// Type to hold texture identifiers
 #[derive(Copy, Clone)]

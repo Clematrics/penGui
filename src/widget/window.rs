@@ -142,25 +142,15 @@ impl WidgetLogic for Window {
         }
     }
 
-    fn draw(
-        &self,
-        _metadata: &NodeMetadata, /*, _position: Point3<f32>, _size: (f32, f32)*/
-    ) -> DrawList {
-        // let unit_y = Vector3::new(0., 1., 0.);
-
-        // let widget_size = (size.0, size.1 / (self.content.len()) as f32);
-
-        // let mut current_pos = {
-        //     let top_side = position + unit_y * size.1 / 2.;
-        //     top_side - unit_y * widget_size.1 / 2.
-        // };
-
+    fn draw(&self, _metadata: &NodeMetadata) -> DrawList {
         let mut list = DrawList::new();
         self.content.iter().for_each(|node| {
             list.list.push(node.borrow_mut().draw());
         });
         let color = [42. / 256., 60. / 256., 101. / 256., 1.];
         let tex_uv = [0., 0.];
+        list.list_transform =
+            nalgebra::Translation3::from(nalgebra::Vector3::new(0., 0., 0.001)).to_homogeneous();
         list.commands.push(DrawCommand {
             vertex_buffer: vec![
                 Vertex {

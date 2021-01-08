@@ -105,10 +105,7 @@ impl WidgetLogic for Text {
         }
     }
 
-    fn draw(
-        &self,
-        metadata: &NodeMetadata, /*, position: Point3<f32>, size: (f32, f32)*/
-    ) -> DrawList {
+    fn draw(&self, metadata: &NodeMetadata) -> DrawList {
         #![allow(clippy::many_single_char_names)]
         let (r, g, b, a) = self.color;
         let color = [r, g, b, a];
