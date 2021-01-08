@@ -3,11 +3,7 @@ use std::rc::Weak;
 
 use nalgebra::Point3;
 
-use crate::core::{
-    CharacterInfo, CodeLocation, ComponentId, DrawCommand, DrawList, DrawMode, FontAtlas,
-    LayoutQuery, LayoutResponse, LayoutStatus, NodeMetadata, NodeReference, Uniforms, Vertex,
-    WidgetBuilder, WidgetLogic,
-};
+use crate::core::*;
 
 pub struct Text {
     text: String,
@@ -109,83 +105,19 @@ impl WidgetLogic for Text {
         #![allow(clippy::many_single_char_names)]
         let (r, g, b, a) = self.color;
         let color = [r, g, b, a];
-
-        let mut uniforms = Uniforms::new();
         let (x, y, z) = metadata.position;
-        uniforms.model_matrix =
-            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous();
 
-        let font = self
-            .font
-            .upgrade()
-            .expect("A font is not owned anymore by the backend");
-        uniforms.texture = Some(font.borrow().get_texture());
-
-        let count = self.text.chars().count();
-        let mut vertex_buffer = Vec::with_capacity(count * 4);
-        let mut index_buffer = Vec::<u32>::with_capacity(count * 6);
-        let mut cursor = 0.;
-        let mut last_char = None;
-        self.text.chars().enumerate().for_each(|(i, c)| {
-            let mut font = font.borrow_mut();
-
-            let base = 4 * i;
-
-            let CharacterInfo {
-                texture_uv: (u, v),
-                texture_size: (w, h),
-                advance_width,
-                top_left: (tx, ty),
-                bottom_right: (bx, by),
-                kerning,
-            } = font.char_info(c, last_char);
-
-            let ax = cursor + tx + kerning;
-            let ay = ty;
-            let bx = cursor + bx + kerning;
-            let by = by;
-
-            vertex_buffer.push(Vertex {
-                position: [ax, ay, 0.],
-                color,
-                tex_uv: [u, v],
-            });
-            vertex_buffer.push(Vertex {
-                position: [bx, ay, 0.],
-                color,
-                tex_uv: [u + w, v],
-            });
-            vertex_buffer.push(Vertex {
-                position: [ax, by, 0.],
-                color,
-                tex_uv: [u, v + h],
-            });
-            vertex_buffer.push(Vertex {
-                position: [bx, by, 0.],
-                color,
-                tex_uv: [u + w, v + h],
-            });
-
-            index_buffer.push(base as u32);
-            index_buffer.push((base + 1) as u32);
-            index_buffer.push((base + 2) as u32);
-            index_buffer.push((base + 1) as u32);
-            index_buffer.push((base + 2) as u32);
-            index_buffer.push((base + 3) as u32);
-
-            cursor += advance_width + kerning;
-            last_char = Some(c);
-        });
-
-        let command = DrawCommand {
-            vertex_buffer,
-            index_buffer,
-            draw_mode: DrawMode::Triangles,
-            uniforms,
-        };
+        let text_command = draw_text(
+            self.text.as_str(),
+            self.font
+                .upgrade()
+                .expect("A font is not owned anymore by the backend"),
+            color,
+            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous(),
+        );
 
         let mut list = DrawList::new();
-        list.commands.push(command);
+        list.commands.push(text_command);
         list
     }
 }
