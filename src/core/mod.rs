@@ -5,6 +5,7 @@ pub use self::font::*;
 pub use self::interface::*;
 pub use self::layout::*;
 pub use self::node::*;
+pub use self::text::*;
 pub use self::widget::*;
 
 mod component_id;
@@ -14,4 +15,5 @@ mod font;
 mod interface;
 mod layout;
 mod node;
+mod text;
 mod widget;

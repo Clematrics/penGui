@@ -126,44 +126,56 @@ impl WidgetLogic for Button {
         #![allow(clippy::many_single_char_names)]
         let (r, g, b, a) = self.color;
         let color = [r, g, b, a];
-
-        let mut uniforms = Uniforms::new();
         let size = metadata.size;
         let (x, y, z) = metadata.position;
-        uniforms.model_matrix =
-            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous();
-        uniforms.texture = self.texture;
 
-        let command = DrawCommand {
-            vertex_buffer: vec![
-                Vertex {
-                    position: [0., 0., 0.],
-                    color,
-                    tex_uv: [0., 0.],
-                },
-                Vertex {
-                    position: [size.0, 0., 0.],
-                    color,
-                    tex_uv: [1., 0.],
-                },
-                Vertex {
-                    position: [0., size.1, 0.],
-                    color,
-                    tex_uv: [0., 1.],
-                },
-                Vertex {
-                    position: [size.0, size.1, 0.],
-                    color,
-                    tex_uv: [1., 1.],
-                },
-            ],
-            index_buffer: vec![0, 1, 2, 1, 2, 3],
-            draw_mode: DrawMode::Triangles,
-            uniforms,
+        let background_command = {
+            let mut uniforms = Uniforms::new();
+            uniforms.model_matrix =
+                nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous();
+            uniforms.texture = self.texture;
+
+            DrawCommand {
+                vertex_buffer: vec![
+                    Vertex {
+                        position: [0., 0., 0.],
+                        color,
+                        tex_uv: [0., 0.],
+                    },
+                    Vertex {
+                        position: [size.0, 0., 0.],
+                        color,
+                        tex_uv: [1., 0.],
+                    },
+                    Vertex {
+                        position: [0., size.1, 0.],
+                        color,
+                        tex_uv: [0., 1.],
+                    },
+                    Vertex {
+                        position: [size.0, size.1, 0.],
+                        color,
+                        tex_uv: [1., 1.],
+                    },
+                ],
+                index_buffer: vec![0, 1, 2, 1, 2, 3],
+                draw_mode: DrawMode::Triangles,
+                uniforms,
+            }
         };
 
+        let text_command = crate::core::draw_text(
+            self.label.as_str(),
+            self.font
+                .upgrade()
+                .expect("A font is not owned anymore by the backend"),
+            color,
+            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z + 0.001)).to_homogeneous()
+        );
+
         let mut list = DrawList::new();
-        list.commands.push(command);
+        list.commands.push(background_command);
+        list.commands.push(text_command);
         list
     }
 }
