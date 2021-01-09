@@ -54,7 +54,7 @@ mod tests {
     use crate::*;
     use widget::*;
     #[test]
-    fn test_frame_counter_1() {
+    fn frame_counter_1() {
         let mut ui = Interface::new();
         for i in 0..12 {
             ui.new_frame();
@@ -70,7 +70,7 @@ mod tests {
         }
     }
     #[test]
-    fn test_frame_counter_2() {
+    fn frame_counter_2() {
         let mut ui = Interface::new();
         for i in 0..12 {
             ui.new_frame();
@@ -89,7 +89,7 @@ mod tests {
     }
 
     #[test]
-    fn test_frame_counter_with_padding_1() {
+    fn frame_counter_with_padding_1() {
         let mut ui = Interface::new();
         for i in 0..12 {
             ui.new_frame();
@@ -108,7 +108,7 @@ mod tests {
         }
     }
     #[test]
-    fn test_frame_counter_with_padding_2() {
+    fn frame_counter_with_padding_2() {
         let mut ui = Interface::new();
         for i in 0..12 {
             ui.new_frame();

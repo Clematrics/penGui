@@ -68,7 +68,7 @@ pub struct LayoutResponse {
 mod tests {
     use crate::core::*;
     #[test]
-    fn test_layout_status_1() {
+    fn layout_status_1() {
         assert_eq!(
             LayoutStatus::Ok,
             LayoutStatus::and(LayoutStatus::Ok, LayoutStatus::Ok)
@@ -76,7 +76,7 @@ mod tests {
     }
 
     #[test]
-    fn test_layout_status_2() {
+    fn layout_status_2() {
         assert_eq!(
             LayoutStatus::Inconsistencies,
             LayoutStatus::and(LayoutStatus::Inconsistencies, LayoutStatus::Inconsistencies)
@@ -92,7 +92,7 @@ mod tests {
     }
 
     #[test]
-    fn test_layout_status_3() {
+    fn layout_status_3() {
         assert_eq!(
             LayoutStatus::WontDisplay,
             LayoutStatus::and(LayoutStatus::WontDisplay, LayoutStatus::WontDisplay)
