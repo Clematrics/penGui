@@ -88,7 +88,6 @@ impl WidgetLogic for Padding {
         let inner_space = (
             query.available_space.0.map(|x| {
                 if x - 2. * self.padding.0 >= 0. {
-
                     x - 2. * self.padding.0
                 } else {
                     status.0 = LayoutStatus::Inconsistencies;
@@ -97,7 +96,6 @@ impl WidgetLogic for Padding {
             }),
             query.available_space.1.map(|y| {
                 if y - 2. * self.padding.1 >= 0. {
-
                     y - 2. * self.padding.1
                 } else {
                     status.1 = LayoutStatus::Inconsistencies;

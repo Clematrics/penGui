@@ -205,13 +205,13 @@ mod tests {
                 PaddingBuilder::new((0.2, 100.2), FrameCounter::new()).build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
-            })._size((1. , 1.))
+            })
+            ._size((1., 1.))
             .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();
             assert_eq!(response.status.0, LayoutStatus::Ok);
             assert_eq!(response.status.1, LayoutStatus::Inconsistencies);
-
         }
     }
     #[test]
@@ -223,13 +223,13 @@ mod tests {
                 PaddingBuilder::new((100.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
-            })._size((1. , 1.))
-                .build(loc!(), ui.root.clone());
+            })
+            ._size((1., 1.))
+            .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();
             assert_eq!(response.status.0, LayoutStatus::Inconsistencies);
             assert_eq!(response.status.1, LayoutStatus::Ok);
-
         }
     }
     #[test]
@@ -241,13 +241,13 @@ mod tests {
                 PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
-            })._size((1. , 1.))
-                .build(loc!(), ui.root.clone());
+            })
+            ._size((1., 1.))
+            .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();
             assert_eq!(response.status.0, LayoutStatus::Ok);
             assert_eq!(response.status.1, LayoutStatus::Ok);
-
         }
     }
     #[test]
@@ -259,13 +259,13 @@ mod tests {
                 PaddingBuilder::new((10.2, 10.2), FrameCounter::new()).build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
-            })._size((1. , 1.))
-                .build(loc!(), ui.root.clone());
+            })
+            ._size((1., 1.))
+            .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();
             assert_eq!(response.status.0, LayoutStatus::Inconsistencies);
             assert_eq!(response.status.1, LayoutStatus::Inconsistencies);
-
         }
     }
     #[test]
@@ -282,13 +282,13 @@ mod tests {
                 PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
                 PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
-            })._size((1. , 1.))
-                .build(loc!(), ui.root.clone());
+            })
+            ._size((1., 1.))
+            .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();
             assert_eq!(response.status.0, LayoutStatus::Ok);
             assert_eq!(response.status.1, LayoutStatus::Inconsistencies);
-
         }
     }
 }
