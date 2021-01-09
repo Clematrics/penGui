@@ -94,7 +94,7 @@ pub struct Window {
 impl WidgetLogic for Window {
     fn layout(&mut self, _query: &LayoutQuery) -> LayoutResponse {
         let (horizontal_space, mut vertical_space) = self.size;
-
+        let mut status = (LayoutStatus::Ok, LayoutStatus::Ok);
         // For each component, compute the layout with all available space
         // but with the `Minimize` objective. The vertical space taken is
         // substracted from the remaining space
@@ -110,19 +110,25 @@ impl WidgetLogic for Window {
                 let ref mut metadata = node.borrow_mut().metadata;
                 metadata.size = response.size;
                 metadata.position = (0., vertical_space - response.size.1, 0.);
+
             }
 
-            // TODO: do not ignore the status of each component
             vertical_space -= response.size.1;
+            status.0 = LayoutStatus::and(status.0, response.status.0);
+            status.1 = LayoutStatus::and(status.1, response.status.1);
+
             if vertical_space < 0. {
                 // The window will ignore the components that cannot fit
-                break;
+                return LayoutResponse {
+                    size: self.size,
+                    status: (status.0, LayoutStatus::and(LayoutStatus::Inconsistencies, status.1)),
+                }
             }
         }
 
         LayoutResponse {
             size: self.size,
-            status: (LayoutStatus::Ok, LayoutStatus::Ok),
+            status,
         }
     }
 

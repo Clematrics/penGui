@@ -90,11 +90,11 @@ fn main() {
             let font = font.clone();
             PaddingBuilder::new(
                 (0.2, 0.2),
-                Button::new("label not displayed".to_string(), font.clone()),
+                Button::new("button 1".to_string(), font.clone()),
             )
             .build(loc!(), ui.clone());
             Text::new(text.clone().into_inner(), font.clone()).build(loc!(), ui.clone());
-            Button::new("label not displayed".to_string(), font)
+            Button::new("button 2".to_string(), font)
                 .color((1., 0., 0., 0.5))
                 .color((1., 1., 1., 1.))
                 .texture(ensps_tex)

@@ -41,6 +41,20 @@ pub enum LayoutStatus {
     WontDisplay,
 }
 
+impl LayoutStatus {
+    pub fn and(status1: LayoutStatus, status2: LayoutStatus) -> LayoutStatus {
+        match (status1, status2) {
+            (LayoutStatus::Ok, LayoutStatus::Ok) => LayoutStatus::Ok,
+            (LayoutStatus::WontDisplay, _) | (_, LayoutStatus::WontDisplay) => {
+                LayoutStatus::WontDisplay
+            }
+            (LayoutStatus::Inconsistencies, _) | (_, LayoutStatus::Inconsistencies) => {
+                LayoutStatus::Inconsistencies
+            }
+        }
+    }
+}
+
 /// The response a widget returns to its parent after a request.
 /// It contains the size the widget will take inside the attributed space,
 /// and the status of each dimension.
