@@ -110,7 +110,6 @@ impl WidgetLogic for Window {
                 let ref mut metadata = node.borrow_mut().metadata;
                 metadata.size = response.size;
                 metadata.position = (0., vertical_space - response.size.1, 0.);
-
             }
 
             vertical_space -= response.size.1;
@@ -121,8 +120,11 @@ impl WidgetLogic for Window {
                 // The window will ignore the components that cannot fit
                 return LayoutResponse {
                     size: self.size,
-                    status: (status.0, LayoutStatus::and(LayoutStatus::Inconsistencies, status.1)),
-                }
+                    status: (
+                        status.0,
+                        LayoutStatus::and(LayoutStatus::Inconsistencies, status.1),
+                    ),
+                };
             }
         }
 
