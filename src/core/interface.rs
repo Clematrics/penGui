@@ -2,7 +2,9 @@ use std::rc::Weak;
 
 use super::node::{Node, NodeReference, NodeWeakReference};
 use crate::core::events::{Event, InputState};
-use crate::core::{ComponentId, DrawList, LayoutQuery, Mat4x4, Objective};
+use crate::core::{
+    ComponentId, DrawList, LayoutQuery, LayoutResponse, LayoutStatus, Mat4x4, Objective,
+};
 use crate::widget::WindowHandler;
 
 use nalgebra::{Point3, Vector3};
@@ -114,11 +116,11 @@ impl Interface {
     }
 
     /// Computes the layout, trying to satisfy all constraints provided by each widget.
-    pub fn generate_layout(&self) {
-        self.root.borrow_mut().layout(&LayoutQuery {
+    pub fn generate_layout(&self) -> LayoutResponse {
+         self.root.borrow_mut().layout(&LayoutQuery {
             available_space: (Some(0.), Some(0.)),
             objectives: (Objective::None, Objective::None),
-        });
+        })
     }
 
     /// Returns a `DrawList`, a tree structure with `DrawCommand`s on its node, holding all the information

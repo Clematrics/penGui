@@ -125,6 +125,7 @@ impl WidgetLogic for Window {
                 }
             }
         }
+        status.1 = LayoutStatus::and(status.1, LayoutStatus::Inconsistencies);
 
         LayoutResponse {
             size: self.size,
@@ -185,5 +186,31 @@ impl WidgetLogic for Window {
             uniforms: Default::default(),
         });
         list
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::*;
+    use crate::*;
+    use widget::*;
+    #[test]
+    fn test_window_layout_error_1() {
+        let mut ui = Interface::new();
+        for i in 0..12 {
+            ui.new_frame();
+            WindowBuilder::new(move |ui| {
+                PaddingBuilder::new((0.2, 100.2), FrameCounter::new()).build(loc!(), ui.clone());
+                FrameCounter::new().build(loc!(), ui.clone());
+                FrameCounter::new().build(loc!(), ui.clone());
+            })._size((1. , 1.))
+            .build(loc!(), ui.root.clone());
+            let response = ui.generate_layout();
+            ui.end_frame();
+            assert_eq!(response.status.0, LayoutStatus::Ok);
+            assert_eq!(response.status.1, LayoutStatus::Inconsistencies);
+
+        }
     }
 }

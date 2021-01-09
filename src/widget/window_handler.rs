@@ -41,24 +41,6 @@ impl WidgetBuilder for WindowHandler {
 }
 
 impl WidgetLogic for WindowHandler {
-    fn layout(&mut self, _query: &LayoutQuery) -> LayoutResponse {
-        // Computing the layout of each window
-        // We don't need to modify the size and position of each
-        // window, as they manage this themselves
-        for node in &self.windows {
-            node.borrow_mut().layout(&LayoutQuery {
-                available_space: (None, None),
-                objectives: (Objective::Minimize, Objective::Minimize),
-            });
-        }
-
-        // The response is irrelevant here
-        LayoutResponse {
-            size: (0., 0.),
-            status: (LayoutStatus::Ok, LayoutStatus::Ok),
-        }
-    }
-
     fn query(&mut self, id: ComponentId) -> WidgetQueryResult {
         let child = self
             .windows
@@ -72,6 +54,26 @@ impl WidgetLogic for WindowHandler {
                 self.windows.push(node_ref.clone());
                 WidgetQueryResult::Uninitialized(node_ref)
             }
+        }
+    }
+
+    fn layout(&mut self, _query: &LayoutQuery) -> LayoutResponse {
+        // Computing the layout of each window
+        // We don't need to modify the size and position of each
+        // window, as they manage this themselves
+        let mut status = (LayoutStatus::Ok, LayoutStatus::Ok);
+        for node in &self.windows {
+            let response = node.borrow_mut().layout(&LayoutQuery {
+                available_space: (None, None),
+                objectives: (Objective::Minimize, Objective::Minimize),
+            });
+            status.0 = LayoutStatus::and(status.0, response.status.0);
+            status.1 = LayoutStatus::and(status.1, response.status.1)
+        }
+        // The response is irrelevant here
+        LayoutResponse {
+            size: (0., 0.),
+            status,
         }
     }
 

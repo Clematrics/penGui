@@ -84,18 +84,23 @@ impl WidgetLogic for Padding {
     }
 
     fn layout(&mut self, query: &LayoutQuery) -> LayoutResponse {
+        let mut status = (LayoutStatus::Ok, LayoutStatus::Ok);
         let inner_space = (
             query.available_space.0.map(|x| {
-                if x - self.padding.0 >= 0. {
+                if x - 2. * self.padding.0 >= 0. {
+
                     x - 2. * self.padding.0
                 } else {
+                    status.0 = LayoutStatus::Inconsistencies;
                     0.
                 }
             }),
-            query.available_space.0.map(|y| {
-                if y - self.padding.1 >= 0. {
+            query.available_space.1.map(|y| {
+                if y - 2. * self.padding.1 >= 0. {
+
                     y - 2. * self.padding.1
                 } else {
+                    status.1 = LayoutStatus::Inconsistencies;
                     0.
                 }
             }),
@@ -122,7 +127,10 @@ impl WidgetLogic for Padding {
 
         LayoutResponse {
             size: (width, height),
-            status: response.status,
+            status: (
+                LayoutStatus::and(response.status.0, status.0),
+                LayoutStatus::and(response.status.1, status.1),
+            ),
         }
     }
 

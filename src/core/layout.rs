@@ -34,7 +34,7 @@ pub struct LayoutQuery {
 /// where good, unsufficient or impossible to satisfy.
 /// This enum is then useful for the parent to determine
 /// which constraint was problematic, and adapt it if it can.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum LayoutStatus {
     Ok,
     Inconsistencies,
@@ -62,4 +62,56 @@ impl LayoutStatus {
 pub struct LayoutResponse {
     pub size: (f32, f32),
     pub status: (LayoutStatus, LayoutStatus),
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::core::*;
+    #[test]
+    fn test_layout_status_1() {
+        assert_eq!(
+            LayoutStatus::Ok,
+            LayoutStatus::and(LayoutStatus::Ok, LayoutStatus::Ok)
+        )
+    }
+
+    #[test]
+    fn test_layout_status_2() {
+        assert_eq!(
+            LayoutStatus::Inconsistencies,
+            LayoutStatus::and(LayoutStatus::Inconsistencies, LayoutStatus::Inconsistencies)
+        );
+        assert_eq!(
+            LayoutStatus::Inconsistencies,
+            LayoutStatus::and(LayoutStatus::Ok, LayoutStatus::Inconsistencies)
+        );
+        assert_eq!(
+            LayoutStatus::Inconsistencies,
+            LayoutStatus::and(LayoutStatus::Inconsistencies, LayoutStatus::Ok)
+        )
+    }
+
+    #[test]
+    fn test_layout_status_3() {
+        assert_eq!(
+            LayoutStatus::WontDisplay,
+            LayoutStatus::and(LayoutStatus::WontDisplay, LayoutStatus::WontDisplay)
+        );
+        assert_eq!(
+            LayoutStatus::WontDisplay,
+            LayoutStatus::and(LayoutStatus::Inconsistencies, LayoutStatus::WontDisplay)
+        );
+        assert_eq!(
+            LayoutStatus::WontDisplay,
+            LayoutStatus::and(LayoutStatus::WontDisplay, LayoutStatus::Inconsistencies)
+        );
+        assert_eq!(
+            LayoutStatus::WontDisplay,
+            LayoutStatus::and(LayoutStatus::Ok, LayoutStatus::WontDisplay)
+        );
+        assert_eq!(
+            LayoutStatus::WontDisplay,
+            LayoutStatus::and(LayoutStatus::WontDisplay, LayoutStatus::Ok)
+        );
+    }
 }
