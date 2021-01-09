@@ -150,7 +150,7 @@ pub trait WidgetLogic {
     fn layout(&mut self, _query: &LayoutQuery) -> LayoutResponse {
         LayoutResponse {
             size: (0., 0.),
-            status: (LayoutStatus::Ok, LayoutStatus::Inconsistencies),
+            status: (LayoutStatus::Ok, LayoutStatus::Ok),
         }
     }
 

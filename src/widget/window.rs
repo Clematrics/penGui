@@ -125,7 +125,6 @@ impl WidgetLogic for Window {
                 }
             }
         }
-        status.1 = LayoutStatus::and(status.1, LayoutStatus::Inconsistencies);
 
         LayoutResponse {
             size: self.size,
@@ -196,7 +195,7 @@ mod tests {
     use crate::*;
     use widget::*;
     #[test]
-    fn test_window_layout_error_1() {
+    fn window_layout_error_1() {
         let mut ui = Interface::new();
         for i in 0..12 {
             ui.new_frame();
@@ -206,6 +205,83 @@ mod tests {
                 FrameCounter::new().build(loc!(), ui.clone());
             })._size((1. , 1.))
             .build(loc!(), ui.root.clone());
+            let response = ui.generate_layout();
+            ui.end_frame();
+            assert_eq!(response.status.0, LayoutStatus::Ok);
+            assert_eq!(response.status.1, LayoutStatus::Inconsistencies);
+
+        }
+    }
+    #[test]
+    fn window_layout_error_2() {
+        let mut ui = Interface::new();
+        for i in 0..12 {
+            ui.new_frame();
+            WindowBuilder::new(move |ui| {
+                PaddingBuilder::new((100.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
+                FrameCounter::new().build(loc!(), ui.clone());
+                FrameCounter::new().build(loc!(), ui.clone());
+            })._size((1. , 1.))
+                .build(loc!(), ui.root.clone());
+            let response = ui.generate_layout();
+            ui.end_frame();
+            assert_eq!(response.status.0, LayoutStatus::Inconsistencies);
+            assert_eq!(response.status.1, LayoutStatus::Ok);
+
+        }
+    }
+    #[test]
+    fn window_layout_error_3() {
+        let mut ui = Interface::new();
+        for i in 0..12 {
+            ui.new_frame();
+            WindowBuilder::new(move |ui| {
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
+                FrameCounter::new().build(loc!(), ui.clone());
+                FrameCounter::new().build(loc!(), ui.clone());
+            })._size((1. , 1.))
+                .build(loc!(), ui.root.clone());
+            let response = ui.generate_layout();
+            ui.end_frame();
+            assert_eq!(response.status.0, LayoutStatus::Ok);
+            assert_eq!(response.status.1, LayoutStatus::Ok);
+
+        }
+    }
+    #[test]
+    fn window_layout_error_4() {
+        let mut ui = Interface::new();
+        for i in 0..12 {
+            ui.new_frame();
+            WindowBuilder::new(move |ui| {
+                PaddingBuilder::new((10.2, 10.2), FrameCounter::new()).build(loc!(), ui.clone());
+                FrameCounter::new().build(loc!(), ui.clone());
+                FrameCounter::new().build(loc!(), ui.clone());
+            })._size((1. , 1.))
+                .build(loc!(), ui.root.clone());
+            let response = ui.generate_layout();
+            ui.end_frame();
+            assert_eq!(response.status.0, LayoutStatus::Inconsistencies);
+            assert_eq!(response.status.1, LayoutStatus::Inconsistencies);
+
+        }
+    }
+    #[test]
+    fn window_layout_error_5() {
+        let mut ui = Interface::new();
+        for i in 0..12 {
+            ui.new_frame();
+            WindowBuilder::new(move |ui| {
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
+                FrameCounter::new().build(loc!(), ui.clone());
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
+                FrameCounter::new().build(loc!(), ui.clone());
+            })._size((1. , 1.))
+                .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();
             assert_eq!(response.status.0, LayoutStatus::Ok);
