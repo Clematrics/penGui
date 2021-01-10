@@ -1,3 +1,9 @@
 target/
 Cargo.lock
 .idea/
+build.gcda
+build.gcno
+fonts
+lib.gcda
+lib.gcno
+main.gcno
