@@ -8,12 +8,7 @@
 
 use std::any::Any; // Implement Any for type coercion
 
-use nalgebra::{Point3, Vector3};
-
-use super::{
-    CodeLocation, ComponentId, DrawList, Event, EventResponse, LayoutQuery, LayoutResponse,
-    LayoutStatus, NodeMetadata, NodeReference, WidgetQueryResult,
-};
+use crate::core::*;
 
 /// Trait for the builder of a `Widget`.
 ///
@@ -164,8 +159,7 @@ pub trait WidgetLogic {
     fn interaction_distance(
         &self,
         _metadata: &NodeMetadata,
-        _ray: &(Vector3<f32>, Point3<f32>),
-        // _origin: &Point3<f32>,
+        _ray: &Ray,
         _self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
         vec![]

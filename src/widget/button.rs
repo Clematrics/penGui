@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Weak;
 
-use nalgebra::{Point3, Translation3, Vector3};
+use nalgebra::{Point3, Translation3};
 
 use crate::core::*;
 
@@ -187,15 +187,12 @@ impl WidgetLogic for Button {
     fn interaction_distance(
         &self,
         metadata: &NodeMetadata,
-        ray: &(Vector3<f32>, Point3<f32>),
-        // origin: &Point3<f32>,
+        ray: &Ray,
         self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
-        println!("ray is {:?}", ray);
         let (x, y, z) = metadata.position;
         let transformation = Translation3::new(x, y, z).inverse();
-        let new_origin = transformation * ray.1;
-        println!("transformed origin {:?}", new_origin);
+        let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         let size = metadata.size;
         let points = [
             Point3::new(0., 0., 0.),
@@ -208,14 +205,10 @@ impl WidgetLogic for Button {
             [points[1], points[2], points[3]],
         ]
         .iter()
-        .map(|triangle| intersection(&ray.0, &new_origin, triangle))
+        .map(|triangle| intersection(&new_ray, triangle))
         .filter_map(|opt| opt)
-        .inspect(|dist| println!("dist {:?}", dist))
         .min_by(|d1, d2| d1.partial_cmp(d2).unwrap())
-        .map(|d| {
-            println!("propagate");
-            vec![(d, self_node)]
-        })
+        .map(|d| vec![(d, self_node)])
         .unwrap_or(vec![])
     }
 
