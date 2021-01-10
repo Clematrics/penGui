@@ -24,6 +24,7 @@ To run the test suite, run `cargo test`.
 If you want to get a coverage report on the test suite, run the following commands :
 
 ```sh
+cargo install cargo-cov
 rustup install nightly
 cargo +nightly cov test
 cargo +nightly cov report --open
