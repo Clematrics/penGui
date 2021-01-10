@@ -3,8 +3,6 @@ use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 use std::rc::{Rc, Weak};
 
-use nalgebra::*;
-
 use crate::core::*;
 
 /// Type describing a shared, mutable reference to a `Node`
@@ -90,12 +88,11 @@ impl Node {
 
     pub fn interaction_distance(
         &self,
-        ray: &(Vector3<f32>, Point3<f32>),
-        // origin: &Point3<f32>,
+        ray: &Ray,
         self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
         self.content
-            .interaction_distance(&self.metadata, ray, /* origin, */ self_node)
+            .interaction_distance(&self.metadata, ray, self_node)
     }
 
     pub fn send_event(&mut self, event: &Event) -> EventResponse {

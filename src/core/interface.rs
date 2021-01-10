@@ -3,8 +3,6 @@ use std::rc::Weak;
 use crate::core::*;
 use crate::widget::WindowHandler;
 
-use nalgebra::{Point3, Vector3};
-
 /// Global properties of an interface
 pub struct GlobalProperties {
     // no events, but input state, stats, ...
@@ -128,28 +126,14 @@ impl Interface {
     }
 
     /// Registers an event in the interface, propagating it to the right widget
-    pub fn register_event(
-        &self,
-        event: Event,
-        ray: Option<&(Vector3<f32>, Point3<f32>)>,
-        // origin: &Point3<f32>,
-    ) -> EventResponse {
+    pub fn register_event(&self, event: Event, ray: Option<&Ray>) -> EventResponse {
         // TODO: change the InputState of the interface accordingly
         if let Some(ray) = ray {
             let mut distances = self
                 .root
                 .borrow()
-                .interaction_distance(ray, /* origin, */ self.root.clone());
+                .interaction_distance(ray, self.root.clone());
             distances.sort_unstable_by(|(d1, _), (d2, _)| d1.partial_cmp(d2).unwrap());
-
-            if distances.is_empty() {
-                println!("No intersection caught")
-            } else {
-                println!("Intersections in order");
-                for (d, _) in &distances {
-                    println!("{}", d);
-                }
-            }
 
             let mut passively_registered = false;
             for (_distance, widget) in &distances {

@@ -108,13 +108,11 @@ fn main() {
                 let ray = match event {
                     pgEvent::MouseButtonPressed(_) => {
                         let (x, y) = main_window.mouse_pos;
-                        let res = Some(camera.ray_from(x, y));
-                        println!("Ray lancé: {:?}", res);
-                        res
+                        Some(camera.ray_from(x, y))
                     }
                     _ => None,
                 };
-                ui.register_event(event, ray.as_ref() /* , &camera.position() */);
+                ui.register_event(event, ray.as_ref());
             }
         }
 

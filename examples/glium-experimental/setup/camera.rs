@@ -2,6 +2,7 @@ use std::f32::consts::PI;
 
 use glium::glutin::event::{DeviceEvent, Event, MouseScrollDelta, WindowEvent};
 use nalgebra as na;
+use pengui::core::Ray;
 
 /// An arc-ball camera
 pub struct Camera {
@@ -103,7 +104,7 @@ impl Camera {
 
     /// Returns a normalized ray representing the mouse position on screen,
     /// given its normalized position.
-    pub fn ray_from(&self, x: f32, y: f32) -> (na::Vector3<f32>, na::Point3<f32>) {
+    pub fn ray_from(&self, x: f32, y: f32) -> Ray {
         let projection = self.perspective_matrix();
 
         // Compute two points in clip-space.
@@ -124,6 +125,6 @@ impl Camera {
         let mut view = self.view_matrix();
         view.inverse_mut();
 
-        ((view * line_direction).into_inner(), view * line_location)
+        Ray::new((view * line_direction).into_inner(), view * line_location)
     }
 }

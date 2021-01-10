@@ -188,20 +188,18 @@ impl WidgetLogic for Window {
     fn interaction_distance(
         &self,
         metadata: &NodeMetadata,
-        ray: &(Vector3<f32>, Point3<f32>),
-        // ray: &Vector3<f32>,
-        // origin: &Point3<f32>,
+        ray: &Ray,
         _self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
         let (x, y, z) = metadata.position;
         let transformation = Translation3::new(x, y, z).inverse();
-        let new_origin = transformation * ray.1;
+        let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         self.content
             .iter()
             .map(|content| {
                 content
                     .borrow()
-                    .interaction_distance(&(ray.0, new_origin), content.clone())
+                    .interaction_distance(&new_ray, content.clone())
             })
             .flatten()
             .collect()
