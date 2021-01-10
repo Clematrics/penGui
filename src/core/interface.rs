@@ -117,7 +117,7 @@ impl Interface {
 
     /// Computes the layout, trying to satisfy all constraints provided by each widget.
     pub fn generate_layout(&self) -> LayoutResponse {
-         self.root.borrow_mut().layout(&LayoutQuery {
+        self.root.borrow_mut().layout(&LayoutQuery {
             available_space: (Some(0.), Some(0.)),
             objectives: (Objective::None, Objective::None),
         })

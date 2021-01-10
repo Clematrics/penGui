@@ -5,11 +5,11 @@ use std::rc::{Rc, Weak};
 
 use nalgebra::*;
 
+use crate::core::ComponentId;
 use crate::core::{
     DrawList, DummyWidget, Event, EventResponse, LayoutQuery, LayoutResponse, LayoutStatus, Widget,
     WidgetBuilder,
 };
-use crate::core::ComponentId;
 
 /// Type describing a shared, mutable reference to a `Node`
 pub type NodeReference = Rc<RefCell<Node>>;
@@ -164,7 +164,7 @@ impl<T: Widget + 'static> NodeQueryResult<T> {
     /// custom widget builder which is not implemented correctly.
     ///
     /// TODO: test this properly. Is it possible to test this on all types that implement the `Widget` trait?
-    pub fn update<U: WidgetBuilder<AchievedType=T>>(self, builder: U) -> NodeReference {
+    pub fn update<U: WidgetBuilder<AchievedType = T>>(self, builder: U) -> NodeReference {
         match self {
             Self::UninitializedNode(node_ref, _) => {
                 node_ref.borrow_mut().content = Box::new(builder.create());
