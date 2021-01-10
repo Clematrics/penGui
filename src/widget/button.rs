@@ -210,7 +210,7 @@ impl WidgetLogic for Button {
         .filter_map(|opt| opt)
         .min_by(|d1, d2| d1.partial_cmp(d2).unwrap())
         .map(|d| vec![(d, self_node)])
-        .unwrap_or(vec![])
+        .unwrap_or_default()
     }
 
     fn send_event(&mut self, _metadata: &mut NodeMetadata, event: &Event) -> EventResponse {
@@ -220,7 +220,7 @@ impl WidgetLogic for Button {
                 self.pressed = true;
                 EventResponse::Registered
             }
-            _ => return EventResponse::Pass,
+            _ => EventResponse::Pass,
         }
     }
 }

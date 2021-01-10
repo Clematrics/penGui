@@ -83,9 +83,7 @@ impl WidgetBuilder for CheckBox {
                 .as_any_mut()
                 .downcast_mut::<Self::AchievedType>()
                 .unwrap();
-            let checked = checkbox.checked;
-            //checkbox.checked = false;
-            checked
+            checkbox.checked
         }
     }
 }
@@ -269,7 +267,7 @@ impl WidgetLogic for CheckBox {
         .filter_map(|opt| opt)
         .min_by(|d1, d2| d1.partial_cmp(d2).unwrap())
         .map(|d| vec![(d, self_node)])
-        .unwrap_or(vec![])
+        .unwrap_or_default()
     }
 
     fn send_event(&mut self, _metadata: &mut NodeMetadata, event: &Event) -> EventResponse {
@@ -278,7 +276,7 @@ impl WidgetLogic for CheckBox {
                 self.checked = !self.checked;
                 EventResponse::Registered
             }
-            _ => return EventResponse::Pass,
+            _ => EventResponse::Pass,
         }
     }
 }

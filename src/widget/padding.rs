@@ -111,7 +111,7 @@ impl WidgetLogic for Padding {
             });
 
         {
-            let ref mut metadata = self.content.as_ref().unwrap().borrow_mut().metadata;
+            let metadata = &mut self.content.as_ref().unwrap().borrow_mut().metadata;
             metadata.size = response.size;
             metadata.position = (self.padding.0, self.padding.1, 0.);
         }
@@ -164,7 +164,7 @@ impl WidgetLogic for Padding {
             ],
             index_buffer: vec![0, 1, 2, 1, 2, 3],
             draw_mode: DrawMode::Lines,
-            uniforms: uniforms,
+            uniforms,
         });
         list
     }

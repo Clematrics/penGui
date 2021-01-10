@@ -23,6 +23,7 @@ impl Ray {
 /// Checks if a ray intersects a triangle,
 /// using the [Möller-Trumbore algorithm](https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm)
 pub fn intersection(ray: &Ray, triangle: &[Point3<f32>; 3]) -> Option<f32> {
+    #![allow(clippy::many_single_char_names)]
     let Ray(direction, origin) = ray;
     const EPSILON: f32 = 0.000001;
 
@@ -54,9 +55,9 @@ pub fn intersection(ray: &Ray, triangle: &[Point3<f32>; 3]) -> Option<f32> {
     if t > EPSILON {
         // ray intersection
         let distance = (direction * t).norm();
-        return Some(distance);
+        Some(distance)
     } else {
         // This means that there is a line intersection but not a ray intersection.
-        return None;
+        None
     }
 }

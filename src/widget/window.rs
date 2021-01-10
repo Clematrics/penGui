@@ -105,7 +105,7 @@ impl WidgetLogic for Window {
             };
 
             {
-                let ref mut metadata = node.borrow_mut().metadata;
+                let metadata = &mut node.borrow_mut().metadata;
                 metadata.size = response.size;
                 metadata.position = (0., vertical_space - response.size.1, 0.);
             }

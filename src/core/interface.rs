@@ -146,15 +146,15 @@ impl Interface {
                 }
             }
             if passively_registered {
-                return EventResponse::PassivelyRegistered;
+                EventResponse::PassivelyRegistered
             } else {
-                return EventResponse::Pass;
+                EventResponse::Pass
             }
         } else {
             self.properties
                 .focus
                 .upgrade()
-                .and_then(|node| Some(node.borrow_mut().send_event(&event)))
+                .map(|node| node.borrow_mut().send_event(&event))
                 .unwrap_or(EventResponse::Pass)
         }
     }
