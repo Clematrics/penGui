@@ -84,14 +84,19 @@ fn main() {
             {
                 println!("Je suis cliqué dans un padding");
             }
+            let frame_number = FrameCounter::new().build(loc!(), ui.clone());
             Text::new(text.clone().into_inner(), font.clone()).build(loc!(), ui.clone());
-            if Button::new("button 2".to_string(), font)
+            if Button::new("button 2".to_string(), font.clone())
                 .color((1., 0., 0., 0.5))
                 .color((1., 1., 1., 1.))
                 .texture(ensps_tex)
                 .build(loc!(), ui.clone())
             {
                 println!("Je suis cliqué hors du padding")
+            }
+
+            if CheckBox::new("checkbox".to_string(), font).build(loc!(), ui.clone()) {
+                println!("Je suis checked a la frame {}", frame_number);
             }
         })
         .build(loc!(), ui.root.clone());
