@@ -69,7 +69,12 @@ pub struct DrawCommand {
     pub uniforms: Uniforms,
 }
 
-/// A structure
+/// A structure that holds a list of `DrawCommand`s,
+/// as well a list of `DrawList`s that holds other `DrawCommand`s.
+/// The content is arbitrary, but in the context of this library, a `DrawList` is what every widget outputs.
+/// The list of commands then contains the informations necessary to draw the widget,
+/// and the list of `DrawLists` contains the informations necessary to draw the children of the widget.
+/// The matrix `list_tranform` is only applied to the variable `list`.
 pub struct DrawList {
     pub commands: Vec<DrawCommand>,
     pub list: Vec<DrawList>,
