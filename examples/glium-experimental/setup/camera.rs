@@ -22,8 +22,8 @@ impl Camera {
         let height = super::main_window::DEFAULT_WINDOW_HEIGHT as f32;
 
         Self {
-            distance: 1.5,
-            yaw: 0.,
+            distance: 15.,
+            yaw: PI,
             pitch: 0.,
             width,
             height,

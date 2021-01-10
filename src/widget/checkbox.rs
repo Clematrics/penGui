@@ -19,7 +19,7 @@ impl CheckBox {
     pub fn new(label: String, font: Weak<RefCell<dyn FontAtlas>>) -> Self {
         Self {
             label: {
-                let mut new_label = "    ".to_string();
+                let mut new_label = "      ".to_string();
                 new_label.push_str(&label);
                 new_label
             },

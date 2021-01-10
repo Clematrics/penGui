@@ -2,15 +2,16 @@ use crate::core::*;
 
 pub struct FrameCounter {
     count: u32,
+    count_next_frame: bool,
 }
 impl FrameCounter {
     pub fn new() -> Self {
-        Self { count: 0 }
+        Self { count: 0, count_next_frame: true }
     }
-    /*pub fn position(mut self, pos: (f32, f32, f32)) -> Self {
-        self.position = pos;
+    pub fn count_next(mut self, cond: bool) -> Self {
+        self.count_next_frame = cond;
         self
-    }*/
+    }
 }
 impl Default for FrameCounter {
     fn default() -> Self {
@@ -21,7 +22,9 @@ impl WidgetBuilder for FrameCounter {
     type AchievedType = FrameCounter;
     type BuildFeedback = u32;
     fn update(self, _metadata: &NodeMetadata, widget: &mut Self::AchievedType) {
-        widget.count += 1;
+        if self.count_next_frame {
+            widget.count += 1;
+        }
     }
     fn create(self) -> Self::AchievedType {
         self

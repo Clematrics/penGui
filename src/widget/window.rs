@@ -18,12 +18,12 @@ impl WindowBuilder {
         }
     }
 
-    pub fn _title(mut self, title: String) -> Self {
+    pub fn title(mut self, title: String) -> Self {
         self.title = title;
         self
     }
 
-    pub fn _size(mut self, size: (f32, f32)) -> Self {
+    pub fn size(mut self, size: (f32, f32)) -> Self {
         self.size = size;
         self
     }
@@ -87,6 +87,8 @@ pub struct Window {
     content: Vec<NodeReference>,
 }
 
+const WIDGET_SEPARATOR: f32 = 0.5;
+
 impl WidgetLogic for Window {
     fn layout(&mut self, _query: &LayoutQuery) -> LayoutResponse {
         let (horizontal_space, mut vertical_space) = self.size;
@@ -108,7 +110,7 @@ impl WidgetLogic for Window {
                 metadata.position = (0., vertical_space - response.size.1, 0.);
             }
 
-            vertical_space -= response.size.1;
+            vertical_space -= response.size.1 + WIDGET_SEPARATOR;
             status.0 = LayoutStatus::and(status.0, response.status.0);
             status.1 = LayoutStatus::and(status.1, response.status.1);
 
@@ -146,15 +148,20 @@ impl WidgetLogic for Window {
         }
     }
 
-    fn draw(&self, _metadata: &NodeMetadata) -> DrawList {
+    fn draw(&self, metadata: &NodeMetadata) -> DrawList {
         let mut list = DrawList::new();
         self.content.iter().for_each(|node| {
             list.list.push(node.borrow_mut().draw());
         });
         let color = [42. / 256., 60. / 256., 101. / 256., 1.];
         let tex_uv = [0., 0.];
+        let (x, y, z) = metadata.position;
         list.list_transform =
-            nalgebra::Translation3::from(nalgebra::Vector3::new(0., 0., 0.001)).to_homogeneous();
+            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z + 0.001)).to_homogeneous();
+        let mut uniforms = Uniforms::new();
+        uniforms.model_matrix =
+            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous();
+
         list.commands.push(DrawCommand {
             vertex_buffer: vec![
                 Vertex {
@@ -180,7 +187,7 @@ impl WidgetLogic for Window {
             ],
             index_buffer: vec![0, 1, 2, 1, 2, 3],
             draw_mode: DrawMode::Lines,
-            uniforms: Default::default(),
+            uniforms,
         });
         list
     }
@@ -221,7 +228,7 @@ mod tests {
                 FrameCounter::new().build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
             })
-            ._size((1., 1.))
+            .size((1., 1.))
             .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();
@@ -239,7 +246,7 @@ mod tests {
                 FrameCounter::new().build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
             })
-            ._size((1., 1.))
+            .size((1., 1.))
             .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();
@@ -257,7 +264,7 @@ mod tests {
                 FrameCounter::new().build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
             })
-            ._size((1., 1.))
+            .size((1., 1.))
             .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();
@@ -275,7 +282,7 @@ mod tests {
                 FrameCounter::new().build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
             })
-            ._size((1., 1.))
+            .size((1., 1.))
             .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();
@@ -298,7 +305,7 @@ mod tests {
                 PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
             })
-            ._size((1., 1.))
+            .size((1., 1.))
             .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();

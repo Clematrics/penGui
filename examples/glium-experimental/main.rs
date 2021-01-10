@@ -1,8 +1,6 @@
 use glium::Surface;
 use std::cell::RefCell;
 use std::f32::consts::PI;
-use std::thread::sleep;
-use std::time::{Duration, SystemTime};
 extern crate image;
 
 use pengui::{
@@ -39,7 +37,9 @@ fn main() {
     let mut ui = Interface::new();
 
     let font = backend.get_font(0);
-    let text = RefCell::new(String::new());
+    let text = RefCell::new(String::from(
+        "Editable text, japanese characters: 色は匂へど散",
+    ));
 
     event_loop.run(move |event, _, control_flow| {
         let font = font.clone();
@@ -72,50 +72,39 @@ fn main() {
         }
 
         let text = text.clone();
+        let delta_t = main_window.get_delta_time();
 
         ui.new_frame();
-        let time_anchor = SystemTime::now();
 
-        let mut time = time_anchor.elapsed().unwrap();
         WindowBuilder::new(move |ui| {
             let text = text.clone();
             let font = font.clone();
             if PaddingBuilder::new(
                 (0.2, 0.2),
-                Button::new("button 1".to_string(), font.clone()),
+                Button::new("Clickable button".to_string(), font.clone()),
             )
             .build(loc!(), ui.clone())
             {
-                println!("Je suis cliqué dans un padding");
+                println!("Button inside the padding clicked");
             }
-            if CheckBox::new("vsync".to_string(), font.clone()).build(loc!(), ui.clone()) {
-                sleep(Duration::from_nanos(100_000_000 / 60))
-            }
-            let frame_number = FrameCounter::new().build(loc!(), ui.clone());
+            let frame_number = FrameCounter::new().count_next(delta_t >= setup::main_window::MAX_FRAME_DELAY_NS).build(loc!(), ui.clone());
+            Text::new(format!("Frames since beginning : {}", frame_number), font.clone()).build(loc!(), ui.clone());
             Text::new(text.clone().into_inner(), font.clone()).build(loc!(), ui.clone());
-            Text::new(
-                format!("FPS : {:#?}", {
-                    let now = time_anchor.elapsed().unwrap();
-                    let n = (now.as_nanos() - time.as_nanos()) as f64;
-                    time = now;
-                    (1. / (10e-9 * n)) as u64
-                }),
-                font.clone(),
-            )
-            .build(loc!(), ui.clone());
-            if Button::new("button 2".to_string(), font.clone())
+            if Button::new("               ".to_string(), font.clone())
                 .color((1., 0., 0., 0.5))
                 .color((1., 1., 1., 1.))
                 .texture(ensps_tex)
                 .build(loc!(), ui.clone())
             {
-                println!("Je suis cliqué hors du padding")
+                println!("Button with texture clicked")
             }
+            Text::new("↑ Textured button".to_string(), font.clone()).build(loc!(), ui.clone());
 
-            if CheckBox::new("checkbox".to_string(), font).build(loc!(), ui.clone()) {
-                println!("Je suis checked a la frame {}", frame_number);
+            if CheckBox::new("Checkbox".to_string(), font).build(loc!(), ui.clone()) {
+                println!("Checkbox checked at frame {}", frame_number);
             }
         })
+        .size((20., 12.))
         .build(loc!(), ui.root.clone());
 
         ui.end_frame();

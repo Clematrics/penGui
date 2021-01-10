@@ -65,7 +65,10 @@ impl WidgetLogic for WindowHandler {
                 objectives: (Objective::Minimize, Objective::Minimize),
             });
             status.0 = LayoutStatus::and(status.0, response.status.0);
-            status.1 = LayoutStatus::and(status.1, response.status.1)
+            status.1 = LayoutStatus::and(status.1, response.status.1);
+
+            node.borrow_mut().metadata.position =
+                (-response.size.0 / 2., -response.size.1 / 2., 3.);
         }
         // The response is irrelevant here
         LayoutResponse {
