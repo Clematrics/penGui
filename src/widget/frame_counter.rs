@@ -1,7 +1,5 @@
-use crate::core::{
-    CodeLocation, ComponentId, DrawCommand, DrawList, DrawMode, NodeMetadata, NodeReference,
-    TextureId, Uniforms, Vertex, WidgetBuilder, WidgetLogic,
-};
+use crate::core::*;
+
 pub struct FrameCounter {
     count: u32,
 }
@@ -50,7 +48,6 @@ impl WidgetLogic for FrameCounter {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::*;
     use crate::*;
     use widget::*;
     #[test]

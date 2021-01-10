@@ -2,10 +2,7 @@ use std::rc::Rc;
 
 use nalgebra::*;
 
-use crate::core::{
-    CodeLocation, ComponentId, DrawList, LayoutQuery, LayoutResponse, LayoutStatus, Node,
-    NodeMetadata, NodeReference, Objective, WidgetBuilder, WidgetLogic, WidgetQueryResult,
-};
+use crate::core::*;
 
 pub struct WindowHandler {
     windows: Vec<NodeReference>,
@@ -83,5 +80,26 @@ impl WidgetLogic for WindowHandler {
             list.list.push(node.borrow_mut().draw());
         });
         list
+    }
+
+    fn interaction_distance(
+        &self,
+        metadata: &NodeMetadata,
+        ray: &Vector3<f32>,
+        origin: &Point3<f32>,
+        _self_node: NodeReference,
+    ) -> Vec<(f32, NodeReference)> {
+        let (x, y, z) = metadata.position;
+        let transformation = Translation3::new(x, y, z);
+        let new_origin = transformation * origin;
+        self.windows
+            .iter()
+            .map(|window| {
+                window
+                    .borrow()
+                    .interaction_distance(ray, &new_origin, window.clone())
+            })
+            .flatten()
+            .collect()
     }
 }

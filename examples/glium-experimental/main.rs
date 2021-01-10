@@ -88,17 +88,23 @@ fn main() {
         WindowBuilder::new(move |ui| {
             let text = text.clone();
             let font = font.clone();
-            PaddingBuilder::new(
+            if PaddingBuilder::new(
                 (0.2, 0.2),
                 Button::new("button 1".to_string(), font.clone()),
             )
-            .build(loc!(), ui.clone());
+            .build(loc!(), ui.clone())
+            {
+                println!("Je suis cliqué dans un padding");
+            }
             Text::new(text.clone().into_inner(), font.clone()).build(loc!(), ui.clone());
-            Button::new("button 2".to_string(), font)
+            if Button::new("button 2".to_string(), font)
                 .color((1., 0., 0., 0.5))
                 .color((1., 1., 1., 1.))
                 .texture(ensps_tex)
-                .build(loc!(), ui.clone());
+                .build(loc!(), ui.clone())
+            {
+                println!("Je suis cliqué hors du padding")
+            }
         })
         .build(loc!(), ui.root.clone());
 

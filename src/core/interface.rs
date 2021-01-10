@@ -1,10 +1,6 @@
 use std::rc::Weak;
 
-use super::node::{Node, NodeReference, NodeWeakReference};
-use crate::core::events::{Event, InputState};
-use crate::core::{
-    ComponentId, DrawList, LayoutQuery, LayoutResponse, LayoutStatus, Mat4x4, Objective,
-};
+use crate::core::*;
 use crate::widget::WindowHandler;
 
 use nalgebra::{Point3, Vector3};
@@ -132,9 +128,35 @@ impl Interface {
     }
 
     /// Registers an event in the interface, propagating it to the right widget
-    pub fn register_event(&self, event: Event, ray: Option<&Vector3<f32>>, origin: &Point3<f32>) {
+    pub fn register_event(
+        &self,
+        event: Event,
+        ray: Option<&Vector3<f32>>,
+        origin: &Point3<f32>,
+    ) -> EventResponse {
         // TODO: change the InputState of the interface accordingly
-        self.root.borrow_mut().send_event(event, ray, origin);
+        if let Some(ray) = ray {
+            let mut distances =
+                self.root
+                    .borrow()
+                    .interaction_distance(ray, origin, self.root.clone());
+            distances.sort_unstable_by(|(d1, _), (d2, _)| d1.partial_cmp(d2).unwrap());
+            let mut passively_registered = false;
+            for (_distance, widget) in distances {
+                let response = widget.borrow_mut().send_event(&event);
+                match response {
+                    EventResponse::Registered => return EventResponse::Registered,
+                    EventResponse::PassivelyRegistered => passively_registered = true,
+                    _ => (),
+                }
+            }
+            if passively_registered {
+                return EventResponse::PassivelyRegistered;
+            }
+        }
+        EventResponse::Pass
+        // TODO: if no ray, send to focused widget
+        // self.root.borrow_mut().send_event(&event, ray, origin);
     }
 }
 

@@ -5,11 +5,7 @@ use std::rc::{Rc, Weak};
 
 use nalgebra::*;
 
-use crate::core::ComponentId;
-use crate::core::{
-    DrawList, DummyWidget, Event, EventResponse, LayoutQuery, LayoutResponse, LayoutStatus, Widget,
-    WidgetBuilder,
-};
+use crate::core::*;
 
 /// Type describing a shared, mutable reference to a `Node`
 pub type NodeReference = Rc<RefCell<Node>>;
@@ -92,19 +88,18 @@ impl Node {
         self.content.draw(&self.metadata)
     }
 
-    pub fn interaction_distance(&self, ray: &Vector3<f32>, origin: &Point3<f32>) -> Option<f32> {
+    pub fn interaction_distance(
+        &self,
+        ray: &Vector3<f32>,
+        origin: &Point3<f32>,
+        self_node: NodeReference,
+    ) -> Vec<(f32, NodeReference)> {
         self.content
-            .interaction_distance(&self.metadata, ray, origin)
+            .interaction_distance(&self.metadata, ray, origin, self_node)
     }
 
-    pub fn send_event(
-        &mut self,
-        event: Event,
-        ray: Option<&Vector3<f32>>,
-        origin: &Point3<f32>,
-    ) -> EventResponse {
-        self.content
-            .send_event(&mut self.metadata, event, ray, origin)
+    pub fn send_event(&mut self, event: &Event) -> EventResponse {
+        self.content.send_event(&mut self.metadata, event)
     }
 
     /// Helper function to mutably borrow the contained widget and its metadata independently

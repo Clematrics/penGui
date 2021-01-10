@@ -1,18 +1,15 @@
 use std::cell::RefCell;
 use std::rc::Weak;
 
-use nalgebra::Point3;
+use nalgebra::{Point3, Translation3, Vector3};
 
-use crate::core::{
-    CodeLocation, ComponentId, DrawCommand, DrawList, DrawMode, FontAtlas, LayoutQuery,
-    LayoutResponse, LayoutStatus, NodeMetadata, NodeReference, Objective, TextureId, Uniforms,
-    Vertex, WidgetBuilder, WidgetLogic,
-};
+use crate::core::*;
 
 pub struct Button {
     label: String,
     color: (f32, f32, f32, f32),
     font: Weak<RefCell<dyn FontAtlas>>,
+    pressed: bool,
     texture: Option<TextureId>,
 }
 
@@ -22,6 +19,7 @@ impl Button {
             label,
             color: (0., 0.4, 1., 1.),
             font,
+            pressed: false,
             texture: None,
         }
     }
@@ -53,12 +51,22 @@ impl WidgetBuilder for Button {
     fn build(self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
 
-        parent
+        let node = parent
             .borrow_mut()
             .query::<Self::AchievedType>(id)
             .update(self);
 
-        true
+        {
+            let mut node = node.borrow_mut();
+            let (_, button) = node.borrow_parts();
+            let button = button
+                .as_any_mut()
+                .downcast_mut::<Self::AchievedType>()
+                .unwrap();
+            let pressed = button.pressed;
+            button.pressed = false;
+            pressed
+        }
     }
 }
 
@@ -174,5 +182,44 @@ impl WidgetLogic for Button {
         list.commands.push(background_command);
         list.commands.push(text_command);
         list
+    }
+
+    fn interaction_distance(
+        &self,
+        metadata: &NodeMetadata,
+        ray: &Vector3<f32>,
+        origin: &Point3<f32>,
+        self_node: NodeReference,
+    ) -> Vec<(f32, NodeReference)> {
+        let (x, y, z) = metadata.position;
+        let transformation = Translation3::new(x, y, z);
+        let new_origin = transformation * origin;
+        let size = metadata.size;
+        let points = [
+            Point3::new(0., 0., 0.),
+            Point3::new(size.0, 0., 0.),
+            Point3::new(0., size.1, 0.),
+            Point3::new(size.0, size.1, 0.),
+        ];
+        [
+            [points[0], points[1], points[2]],
+            [points[1], points[2], points[3]],
+        ]
+        .iter()
+        .map(|triangle| intersection(ray, &new_origin, triangle))
+        .min_by(|d1, d2| d1.partial_cmp(d2).unwrap())
+        .flatten()
+        .map(|d| vec![(d, self_node)])
+        .unwrap_or(vec![])
+    }
+
+    fn send_event(&mut self, _metadata: &mut NodeMetadata, event: &Event) -> EventResponse {
+        match event {
+            Event::MouseButtonPressed(MouseButton::Left) => {
+                self.pressed = true;
+                EventResponse::Registered
+            }
+            _ => return EventResponse::Pass,
+        }
     }
 }

@@ -1,8 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Weak;
 
-use nalgebra::Point3;
-
 use crate::core::*;
 
 pub struct Text {

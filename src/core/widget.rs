@@ -166,17 +166,12 @@ pub trait WidgetLogic {
         _metadata: &NodeMetadata,
         _ray: &Vector3<f32>,
         _origin: &Point3<f32>,
-    ) -> Option<f32> {
-        None
+        _self_node: NodeReference,
+    ) -> Vec<(f32, NodeReference)> {
+        vec![]
     }
 
-    fn send_event(
-        &mut self,
-        _metadata: &mut NodeMetadata,
-        _event: Event,
-        _ray: Option<&Vector3<f32>>,
-        _origin: &Point3<f32>,
-    ) -> EventResponse {
+    fn send_event(&mut self, _metadata: &mut NodeMetadata, _event: &Event) -> EventResponse {
         EventResponse::Pass
     }
 }

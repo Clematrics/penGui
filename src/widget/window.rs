@@ -1,11 +1,7 @@
 use nalgebra::*;
 use std::rc::Rc;
 
-use crate::core::{
-    CodeLocation, ComponentId, DrawCommand, DrawList, DrawMode, LayoutQuery, LayoutResponse,
-    LayoutStatus, Node, NodeMetadata, NodeReference, Objective, Vertex, WidgetBuilder, WidgetLogic,
-    WidgetQueryResult,
-};
+use crate::core::*;
 
 pub struct WindowBuilder {
     title: String,
@@ -188,18 +184,38 @@ impl WidgetLogic for Window {
         });
         list
     }
+
+    fn interaction_distance(
+        &self,
+        metadata: &NodeMetadata,
+        ray: &Vector3<f32>,
+        origin: &Point3<f32>,
+        _self_node: NodeReference,
+    ) -> Vec<(f32, NodeReference)> {
+        let (x, y, z) = metadata.position;
+        let transformation = Translation3::new(x, y, z);
+        let new_origin = transformation * origin;
+        self.content
+            .iter()
+            .map(|content| {
+                content
+                    .borrow()
+                    .interaction_distance(ray, &new_origin, content.clone())
+            })
+            .flatten()
+            .collect()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::*;
     use crate::*;
     use widget::*;
     #[test]
     fn window_layout_error_1() {
         let mut ui = Interface::new();
-        for i in 0..12 {
+        for _ in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
                 PaddingBuilder::new((0.2, 100.2), FrameCounter::new()).build(loc!(), ui.clone());
@@ -217,7 +233,7 @@ mod tests {
     #[test]
     fn window_layout_error_2() {
         let mut ui = Interface::new();
-        for i in 0..12 {
+        for _ in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
                 PaddingBuilder::new((100.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
@@ -235,7 +251,7 @@ mod tests {
     #[test]
     fn window_layout_error_3() {
         let mut ui = Interface::new();
-        for i in 0..12 {
+        for _ in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
                 PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
@@ -253,7 +269,7 @@ mod tests {
     #[test]
     fn window_layout_error_4() {
         let mut ui = Interface::new();
-        for i in 0..12 {
+        for _ in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
                 PaddingBuilder::new((10.2, 10.2), FrameCounter::new()).build(loc!(), ui.clone());
@@ -271,7 +287,7 @@ mod tests {
     #[test]
     fn window_layout_error_5() {
         let mut ui = Interface::new();
-        for i in 0..12 {
+        for _ in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
                 PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());

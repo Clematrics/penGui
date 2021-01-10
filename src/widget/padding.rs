@@ -172,4 +172,22 @@ impl WidgetLogic for Padding {
         });
         list
     }
+
+    fn interaction_distance(
+        &self,
+        _metadata: &NodeMetadata,
+        ray: &Vector3<f32>,
+        origin: &Point3<f32>,
+        _self_node: NodeReference,
+    ) -> Vec<(f32, NodeReference)> {
+        self.content
+            .iter()
+            .map(|content| {
+                content
+                    .borrow()
+                    .interaction_distance(ray, origin, content.clone())
+            })
+            .flatten()
+            .collect()
+    }
 }
