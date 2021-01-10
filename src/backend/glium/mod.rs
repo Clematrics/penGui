@@ -33,7 +33,6 @@ fn raw_matrix(mat: &Mat4x4) -> [[f32; 4]; 4] {
 /// Has a few functions to draw penGui interface given the interface's draw list.
 pub struct GliumBackend {
     display: glium::Display,
-    draw_parameters: glium::DrawParameters<'static>,
     debug_poly_mode: glium::draw_parameters::PolygonMode,
     debug_rendering: bool,
     program: glium::Program,
@@ -59,7 +58,6 @@ impl GliumBackend {
 
         Self {
             display: facade,
-            draw_parameters: Self::draw_parameters(),
             debug_poly_mode: glium::draw_parameters::PolygonMode::Fill,
             debug_rendering: false,
             program,

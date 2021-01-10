@@ -2,7 +2,7 @@ use std::time::Instant;
 
 use glium::glutin::{
     dpi::LogicalSize,
-    event::{Event, VirtualKeyCode, WindowEvent},
+    event::{Event, Touch, TouchPhase, VirtualKeyCode, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
     ContextBuilder,
@@ -120,6 +120,14 @@ impl MainWindow {
                         }
                     }
                 }
+                WindowEvent::Touch(Touch {
+                    phase, location, ..
+                }) => match phase {
+                    TouchPhase::Moved => {
+                        self.mouse_pos = (location.x as f32, location.y as f32);
+                    }
+                    _ => (),
+                },
                 _ => (),
             },
             _ => (),

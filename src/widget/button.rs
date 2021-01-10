@@ -131,6 +131,7 @@ impl WidgetLogic for Button {
         #![allow(clippy::many_single_char_names)]
         let (r, g, b, a) = self.color;
         let color = [r, g, b, a];
+        let text_color = [r / 1.5, g / 1.5, b / 1.5, a];
         let size = metadata.size;
         let (x, y, z) = metadata.position;
 
@@ -174,7 +175,7 @@ impl WidgetLogic for Button {
             self.font
                 .upgrade()
                 .expect("A font is not owned anymore by the backend"),
-            color,
+            text_color,
             nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z + 0.001)).to_homogeneous(),
         );
 
@@ -214,7 +215,8 @@ impl WidgetLogic for Button {
 
     fn send_event(&mut self, _metadata: &mut NodeMetadata, event: &Event) -> EventResponse {
         match event {
-            Event::MouseButtonPressed(MouseButton::Left) => {
+            Event::MouseButtonPressed(MouseButton::Left)
+            | Event::MouseButtonPressed(MouseButton::Touch) => {
                 self.pressed = true;
                 EventResponse::Registered
             }
