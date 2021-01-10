@@ -212,7 +212,10 @@ impl WidgetLogic for Button {
         .filter_map(|opt| opt)
         .inspect(|dist| println!("dist {:?}", dist))
         .min_by(|d1, d2| d1.partial_cmp(d2).unwrap())
-        .map(|d| {println!("propagate"); vec![(d, self_node)]})
+        .map(|d| {
+            println!("propagate");
+            vec![(d, self_node)]
+        })
         .unwrap_or(vec![])
     }
 
