@@ -1,8 +1,8 @@
 use crate::core::{Event, Key, MouseButton};
 
 use glium::glutin::event::{
-    ElementState, KeyboardInput, MouseButton as GlutinMouseButton, MouseScrollDelta,
-    VirtualKeyCode, WindowEvent,
+    ElementState, KeyboardInput, MouseButton as GlutinMouseButton, MouseScrollDelta, Touch,
+    TouchPhase, VirtualKeyCode, WindowEvent,
 };
 
 pub struct Input;
@@ -213,6 +213,15 @@ impl Input {
                     ElementState::Released => button.map(Event::MouseButtonReleased),
                 }
             }
+            WindowEvent::Touch(Touch {
+                phase, location, ..
+            }) => match phase {
+                TouchPhase::Started => Some(Event::MouseButtonPressed(MouseButton::Touch)),
+                TouchPhase::Moved => Some(Event::MouseMoved(location.x as f32, location.y as f32)),
+                TouchPhase::Ended | TouchPhase::Cancelled => {
+                    Some(Event::MouseButtonReleased(MouseButton::Touch))
+                }
+            },
             _ => None,
         }
     }

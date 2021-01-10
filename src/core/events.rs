@@ -7,6 +7,7 @@ pub enum MouseButton {
     Left,
     Middle,
     Right,
+    Touch,
     // TODO: add other buttons
 }
 
