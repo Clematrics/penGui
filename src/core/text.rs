@@ -3,6 +3,9 @@ use std::rc::Rc;
 
 use crate::core::*;
 
+/// A helper function returning
+/// the `DrawCommand` drawing the given text with the given font,
+/// color and transformation
 pub fn draw_text(
     text: &str,
     font: Rc<RefCell<dyn FontAtlas>>,

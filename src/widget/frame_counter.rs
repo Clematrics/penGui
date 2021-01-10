@@ -1,5 +1,7 @@
 use crate::core::*;
 
+/// A widget used mainly to test the correctness of the library's algorithms
+/// or to serve as a placeholder. It does not draw anything nor react to any event.
 pub struct FrameCounter {
     count: u32,
     count_next_frame: bool,

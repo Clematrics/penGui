@@ -3,6 +3,7 @@ use std::rc::Weak;
 
 use crate::core::*;
 
+/// A basic widget that can display a text given a font
 pub struct Text {
     text: String,
     font: Weak<RefCell<dyn FontAtlas>>,

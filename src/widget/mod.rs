@@ -1,3 +1,5 @@
+//! Module containing the default and basic widgets offered by penGui
+
 pub use self::button::*;
 pub use self::checkbox::*;
 pub use self::frame_counter::*;

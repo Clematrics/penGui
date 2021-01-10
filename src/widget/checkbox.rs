@@ -5,6 +5,7 @@ use nalgebra::{Point3, Translation3};
 
 use crate::core::*;
 
+/// A basic checkbox widget, with a label
 pub struct CheckBox {
     label: String,
     background_color: (f32, f32, f32, f32),

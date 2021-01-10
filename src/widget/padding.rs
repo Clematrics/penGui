@@ -4,6 +4,8 @@ use std::rc::Rc;
 use crate::core::*;
 use crate::loc;
 
+/// A widget that can contain another one, but adjusting its layout with a small padding
+/// on each side. An outline is displayed to show it
 pub struct PaddingBuilder<T: WidgetBuilder> {
     padding: (f32, f32),
     content: Option<T>,

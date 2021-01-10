@@ -3,6 +3,8 @@ use std::rc::Rc;
 
 use crate::core::*;
 
+/// The builder for a window, that can hold an unlimited number of widgets.
+/// Display them in a finite space from top to bottom.
 pub struct WindowBuilder {
     title: String,
     size: (f32, f32),
@@ -81,6 +83,7 @@ impl WidgetBuilder for WindowBuilder {
     }
 }
 
+/// Internal window structure
 pub struct Window {
     title: String,
     size: (f32, f32),

@@ -1,3 +1,8 @@
+//! The main module of this library
+//!
+//! Contains all core components, structures and traits
+//! necessary to build a user-interface or create a new widget
+
 pub use self::component_id::*;
 pub use self::draw_commands::*;
 pub use self::events::*;

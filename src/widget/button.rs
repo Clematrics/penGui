@@ -5,6 +5,8 @@ use nalgebra::{Point3, Translation3};
 
 use crate::core::*;
 
+/// A basic, clickable, button, which can be customised with a label, a color and a texture
+/// at the same time
 pub struct Button {
     label: String,
     color: (f32, f32, f32, f32),

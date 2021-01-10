@@ -1,3 +1,6 @@
+//! A wrapper around `rusttype`'s fonts that implements the `FontAtlas` trait.
+//! Can only be used with a `glium` backend.
+
 extern crate rusttype;
 
 use std::borrow::Cow;

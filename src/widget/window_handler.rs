@@ -4,6 +4,7 @@ use nalgebra::*;
 
 use crate::core::*;
 
+/// A handler able to place windows in space
 pub struct WindowHandler {
     windows: Vec<NodeReference>,
 }
