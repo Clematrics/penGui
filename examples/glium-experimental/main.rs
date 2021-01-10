@@ -2,7 +2,6 @@ use std::cell::RefCell;
 use std::f32::consts::PI;
 
 use glium::Surface;
-use nalgebra::*;
 extern crate image;
 
 use pengui::{
@@ -73,17 +72,6 @@ fn main() {
 
         let text = text.clone();
 
-        let delta_t = main_window.get_delta_time();
-        if delta_t < setup::main_window::MAX_FRAME_DELAY_NS {
-            return;
-        }
-        let time = main_window.new_frame_time();
-
-        let mut target = backend.new_frame();
-        let blue = (1. + f32::sin(time + PI)) / 2.;
-        let red = (1. + f32::sin(time)) / 2.;
-        target.clear_color_and_depth((red, 0.0, blue, 1.0), 1.0);
-
         ui.new_frame();
         WindowBuilder::new(move |ui| {
             let text = text.clone();
@@ -111,10 +99,12 @@ fn main() {
         ui.end_frame();
         ui.generate_layout();
         if let Event::WindowEvent { event, .. } = event {
+            println!("Event détecté: {:?}", event);
             if let Some(event) = Input::from(event) {
                 let ray = match event {
-                    pgEvent::MouseButtonPressed(..) => {
+                    pgEvent::MouseButtonPressed(_) => {
                         let (x, y) = main_window.mouse_pos;
+                        println!("Clic détécté en {}, {}", x, y);
                         Some(camera.ray_from(x, y).into_inner())
                     }
                     _ => None,
@@ -122,6 +112,17 @@ fn main() {
                 ui.register_event(event, ray.as_ref(), &camera.position());
             }
         }
+
+        let delta_t = main_window.get_delta_time();
+        if delta_t < setup::main_window::MAX_FRAME_DELAY_NS {
+            return;
+        }
+        let time = main_window.new_frame_time();
+
+        let mut target = backend.new_frame();
+        let blue = (1. + f32::sin(time + PI)) / 2.;
+        let red = (1. + f32::sin(time)) / 2.;
+        target.clear_color_and_depth((red, 0.0, blue, 1.0), 1.0);
 
         let (width, height) = target.get_dimensions();
         camera.set_dimensions(width, height);
