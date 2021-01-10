@@ -90,12 +90,12 @@ impl Node {
 
     pub fn interaction_distance(
         &self,
-        ray: &Vector3<f32>,
-        origin: &Point3<f32>,
+        ray: &(Vector3<f32>, Point3<f32>),
+        // origin: &Point3<f32>,
         self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
         self.content
-            .interaction_distance(&self.metadata, ray, origin, self_node)
+            .interaction_distance(&self.metadata, ray, /* origin, */ self_node)
     }
 
     pub fn send_event(&mut self, event: &Event) -> EventResponse {

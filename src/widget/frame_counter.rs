@@ -48,7 +48,7 @@ impl WidgetLogic for FrameCounter {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::*;
+    use crate::{loc, widget};
     use widget::*;
     #[test]
     fn frame_counter_1() {

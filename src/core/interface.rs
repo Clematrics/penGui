@@ -131,18 +131,28 @@ impl Interface {
     pub fn register_event(
         &self,
         event: Event,
-        ray: Option<&Vector3<f32>>,
-        origin: &Point3<f32>,
+        ray: Option<&(Vector3<f32>, Point3<f32>)>,
+        // origin: &Point3<f32>,
     ) -> EventResponse {
         // TODO: change the InputState of the interface accordingly
         if let Some(ray) = ray {
-            let mut distances =
-                self.root
-                    .borrow()
-                    .interaction_distance(ray, origin, self.root.clone());
+            let mut distances = self
+                .root
+                .borrow()
+                .interaction_distance(ray, /* origin, */ self.root.clone());
             distances.sort_unstable_by(|(d1, _), (d2, _)| d1.partial_cmp(d2).unwrap());
+
+            if distances.is_empty() {
+                println!("No intersection caught")
+            } else {
+                println!("Intersections in order");
+                for (d, _) in &distances {
+                    println!("{}", d);
+                }
+            }
+
             let mut passively_registered = false;
-            for (_distance, widget) in distances {
+            for (_distance, widget) in &distances {
                 let response = widget.borrow_mut().send_event(&event);
                 match response {
                     EventResponse::Registered => return EventResponse::Registered,

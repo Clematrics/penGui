@@ -164,8 +164,8 @@ pub trait WidgetLogic {
     fn interaction_distance(
         &self,
         _metadata: &NodeMetadata,
-        _ray: &Vector3<f32>,
-        _origin: &Point3<f32>,
+        _ray: &(Vector3<f32>, Point3<f32>),
+        // _origin: &Point3<f32>,
         _self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
         vec![]

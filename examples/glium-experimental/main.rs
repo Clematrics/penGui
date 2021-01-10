@@ -99,17 +99,17 @@ fn main() {
         ui.end_frame();
         ui.generate_layout();
         if let Event::WindowEvent { event, .. } = event {
-            println!("Event détecté: {:?}", event);
             if let Some(event) = Input::from(event) {
                 let ray = match event {
                     pgEvent::MouseButtonPressed(_) => {
                         let (x, y) = main_window.mouse_pos;
-                        println!("Clic détécté en {}, {}", x, y);
-                        Some(camera.ray_from(x, y).into_inner())
+                        let res = Some(camera.ray_from(x, y));
+                        println!("Ray lancé: {:?}", res);
+                        res
                     }
                     _ => None,
                 };
-                ui.register_event(event, ray.as_ref(), &camera.position());
+                ui.register_event(event, ray.as_ref() /* , &camera.position() */);
             }
         }
 
