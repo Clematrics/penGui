@@ -209,10 +209,10 @@ impl WidgetLogic for Button {
         ]
         .iter()
         .map(|triangle| intersection(&ray.0, &new_origin, triangle))
+        .filter_map(|opt| opt)
         .inspect(|dist| println!("dist {:?}", dist))
         .min_by(|d1, d2| d1.partial_cmp(d2).unwrap())
-        .flatten()
-        .map(|d| vec![(d, self_node)])
+        .map(|d| {println!("propagate"); vec![(d, self_node)]})
         .unwrap_or(vec![])
     }
 

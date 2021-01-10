@@ -192,6 +192,7 @@ impl WidgetLogic for Padding {
                     .interaction_distance(&(ray.0, new_origin), /*  origin, */ content.clone())
             })
             .flatten()
+            .inspect(|(d, _)| println!("dist from padding {}", d))
             .collect()
     }
 }
