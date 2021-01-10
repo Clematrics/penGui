@@ -1,7 +1,8 @@
 use crate::core::{Event, Key, MouseButton};
 
 use glium::glutin::event::{
-    ElementState, KeyboardInput, MouseButton as GlutinMouseButton, VirtualKeyCode, WindowEvent,
+    ElementState, KeyboardInput, MouseButton as GlutinMouseButton, MouseScrollDelta,
+    VirtualKeyCode, WindowEvent,
 };
 
 pub struct Input;
@@ -190,8 +191,16 @@ impl Input {
                 ElementState::Pressed => Self::key_from(key).map(Event::KeyPressed),
                 ElementState::Released => Self::key_from(key).map(Event::KeyReleased),
             },
-            WindowEvent::CursorMoved { position: _, .. } => None, // TODO:
-            WindowEvent::MouseWheel { delta: _, .. } => None,     // TODO:
+            WindowEvent::CursorMoved { position, .. } => {
+                Some(Event::MouseMoved(position.x as f32, position.y as f32))
+            }
+            WindowEvent::MouseWheel { delta, .. } => {
+                let delta = match delta {
+                    MouseScrollDelta::LineDelta(delta, _) => delta,
+                    MouseScrollDelta::PixelDelta(pos) => pos.x as f32,
+                };
+                Some(Event::MouseScrolled(delta))
+            }
             WindowEvent::MouseInput { state, button, .. } => {
                 let button = match button {
                     GlutinMouseButton::Left => Some(MouseButton::Left),

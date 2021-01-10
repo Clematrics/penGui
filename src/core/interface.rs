@@ -8,7 +8,7 @@ pub struct GlobalProperties {
     // no events, but input state, stats, ...
     global_transformation: Mat4x4,
     input_state: InputState,
-    _focus: NodeWeakReference,
+    focus: NodeWeakReference,
 }
 
 /// A structure holding an interface during its buildind process
@@ -74,13 +74,13 @@ pub struct Interface {
 impl Interface {
     /// Creates a new interface
     /// The root of the widget tree is a `WindowHandler`, so only windows can be built.
-    /// TODO: ensure that only windows can indeed be built below the root
+    /// TODO: ensure that only windows can indeed be built below the root using the type system
     pub fn new() -> Interface {
         Interface {
             properties: GlobalProperties {
                 global_transformation: Mat4x4::identity(),
                 input_state: Default::default(),
-                _focus: Weak::new(),
+                focus: Weak::new(),
             },
             root: Node::new_reference_from(
                 ComponentId::new_custom::<WindowHandler>(0),
@@ -126,8 +126,9 @@ impl Interface {
     }
 
     /// Registers an event in the interface, propagating it to the right widget
-    pub fn register_event(&self, event: Event, ray: Option<&Ray>) -> EventResponse {
-        // TODO: change the InputState of the interface accordingly
+    pub fn register_event(&mut self, event: Event, ray: Option<&Ray>) -> EventResponse {
+        self.properties.input_state.event(&event);
+
         if let Some(ray) = ray {
             let mut distances = self
                 .root
@@ -146,11 +147,16 @@ impl Interface {
             }
             if passively_registered {
                 return EventResponse::PassivelyRegistered;
+            } else {
+                return EventResponse::Pass;
             }
+        } else {
+            self.properties
+                .focus
+                .upgrade()
+                .and_then(|node| Some(node.borrow_mut().send_event(&event)))
+                .unwrap_or(EventResponse::Pass)
         }
-        EventResponse::Pass
-        // TODO: if no ray, send to focused widget
-        // self.root.borrow_mut().send_event(&event, ray, origin);
     }
 }
 
