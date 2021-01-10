@@ -12,11 +12,11 @@ macro_rules! container_of_one {
 }
 pub struct PaddingBuilder {
     padding: (f32, f32),
-    generator: Option<Box<dyn Fn(NodeReference)>>,
+    generator: Option<Box<dyn FnMut(NodeReference)>>,
 }
 
 impl PaddingBuilder {
-    pub fn new<F: 'static + Fn(NodeReference)>(padding: (f32, f32), generator: F) -> Self {
+    pub fn new<F: 'static + FnMut(NodeReference)>(padding: (f32, f32), generator: F) -> Self {
         PaddingBuilder {
             padding,
             generator: Some(Box::new(generator)),

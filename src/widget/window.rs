@@ -6,11 +6,11 @@ use crate::core::*;
 pub struct WindowBuilder {
     title: String,
     size: (f32, f32),
-    generator: Option<Box<dyn Fn(NodeReference)>>,
+    generator: Option<Box<dyn FnMut(NodeReference)>>,
 }
 
 impl WindowBuilder {
-    pub fn new<F: 'static + Fn(NodeReference)>(generator: F) -> Self {
+    pub fn new<F: 'static + FnMut(NodeReference)>(generator: F) -> Self {
         WindowBuilder {
             title: "".to_string(),
             size: (5., 5.),
@@ -47,7 +47,7 @@ impl WidgetBuilder for WindowBuilder {
 
     fn build(mut self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
-        let generator = self.generator.take().unwrap_or_else(|| Box::new(|_| ()));
+        let mut generator = self.generator.take().unwrap_or_else(|| Box::new(|_| ()));
         let node_ref = parent
             .borrow_mut()
             .query::<Self::AchievedType>(id)

@@ -1,7 +1,8 @@
+use glium::Surface;
 use std::cell::RefCell;
 use std::f32::consts::PI;
-
-use glium::Surface;
+use std::thread::sleep;
+use std::time::{Duration, SystemTime};
 extern crate image;
 
 use pengui::{
@@ -73,6 +74,9 @@ fn main() {
         let text = text.clone();
 
         ui.new_frame();
+        let time_anchor = SystemTime::now();
+
+        let mut time = time_anchor.elapsed().unwrap();
         WindowBuilder::new(move |ui| {
             let text = text.clone();
             let font = font.clone();
@@ -84,8 +88,21 @@ fn main() {
             {
                 println!("Je suis cliqué dans un padding");
             }
+            if CheckBox::new("vsync".to_string(), font.clone()).build(loc!(), ui.clone()) {
+                sleep(Duration::from_nanos(100_000_000 / 60))
+            }
             let frame_number = FrameCounter::new().build(loc!(), ui.clone());
             Text::new(text.clone().into_inner(), font.clone()).build(loc!(), ui.clone());
+            Text::new(
+                format!("FPS : {:#?}", {
+                    let now = time_anchor.elapsed().unwrap();
+                    let n = (now.as_nanos() - time.as_nanos()) as f64;
+                    time = now;
+                    (1. / (10e-9 * n)) as u64
+                }),
+                font.clone(),
+            )
+            .build(loc!(), ui.clone());
             if Button::new("button 2".to_string(), font.clone())
                 .color((1., 0., 0., 0.5))
                 .color((1., 1., 1., 1.))
