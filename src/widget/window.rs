@@ -249,7 +249,7 @@ mod tests {
                 FrameCounter::new().build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
             })
-            .size((1., 1.))
+            .size((1., 2.))
             .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();
@@ -267,7 +267,7 @@ mod tests {
                 FrameCounter::new().build(loc!(), ui.clone());
                 FrameCounter::new().build(loc!(), ui.clone());
             })
-            .size((1., 1.))
+            .size((1., 2.))
             .build(loc!(), ui.root.clone());
             let response = ui.generate_layout();
             ui.end_frame();
