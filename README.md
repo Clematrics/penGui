@@ -16,3 +16,15 @@ Inside the example:
 - use `alt+D` to select the display mode: fill, lines or points. The first gives the normal result, the two others are used to debug the geometry.
 - press `ctrl+w` to quit the application.
 - The two rectangles at the middle are buttons, but they are not clickable yet. Buttons support colors and textures.
+
+## Tests
+
+To run the test suite, run `cargo test`.
+
+If you want to get a coverage report on the test suite, run the following commands :
+
+```sh
+rustup install nightly
+cargo +nightly cov test
+cargo +nightly cov report --open
+```
