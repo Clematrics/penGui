@@ -87,8 +87,14 @@ fn main() {
             {
                 println!("Button inside the padding clicked");
             }
-            let frame_number = FrameCounter::new().count_next(delta_t >= setup::main_window::MAX_FRAME_DELAY_NS).build(loc!(), ui.clone());
-            Text::new(format!("Frames since beginning : {}", frame_number), font.clone()).build(loc!(), ui.clone());
+            let frame_number = FrameCounter::new()
+                .count_next(delta_t >= setup::main_window::MAX_FRAME_DELAY_NS)
+                .build(loc!(), ui.clone());
+            Text::new(
+                format!("Frames since beginning : {}", frame_number),
+                font.clone(),
+            )
+            .build(loc!(), ui.clone());
             Text::new(text.clone().into_inner(), font.clone()).build(loc!(), ui.clone());
             if Button::new("               ".to_string(), font.clone())
                 .color((1., 0., 0., 0.5))

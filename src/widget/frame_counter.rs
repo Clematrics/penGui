@@ -6,7 +6,10 @@ pub struct FrameCounter {
 }
 impl FrameCounter {
     pub fn new() -> Self {
-        Self { count: 0, count_next_frame: true }
+        Self {
+            count: 0,
+            count_next_frame: true,
+        }
     }
     pub fn count_next(mut self, cond: bool) -> Self {
         self.count_next_frame = cond;
