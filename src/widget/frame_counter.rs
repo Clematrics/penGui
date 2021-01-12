@@ -14,7 +14,10 @@ impl FrameCounter {
         }
     }
     pub fn count_next(self, cond: bool) -> Self {
-        Self { count_next_frame: cond, .. self }
+        Self {
+            count_next_frame: cond,
+            ..self
+        }
     }
 }
 impl Default for FrameCounter {

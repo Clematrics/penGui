@@ -34,19 +34,31 @@ impl CheckBox {
     }
 
     pub fn background_color(self, background_color: (f32, f32, f32, f32)) -> Self {
-        Self { background_color, .. self }
+        Self {
+            background_color,
+            ..self
+        }
     }
 
     pub fn checked_color(self, checked_color: (f32, f32, f32, f32)) -> Self {
-        Self { checked_color, .. self }
+        Self {
+            checked_color,
+            ..self
+        }
     }
 
     pub fn unchecked_color(self, unchecked_color: (f32, f32, f32, f32)) -> Self {
-        Self { unchecked_color, .. self }
+        Self {
+            unchecked_color,
+            ..self
+        }
     }
 
     pub fn texture(self, texture_id: TextureId) -> Self {
-        Self { texture: Some(texture_id), .. self }
+        Self {
+            texture: Some(texture_id),
+            ..self
+        }
     }
 }
 

@@ -20,7 +20,7 @@ impl Text {
     }
 
     pub fn color(self, color: (f32, f32, f32, f32)) -> Self {
-        Self { color, .. self }
+        Self { color, ..self }
     }
 }
 

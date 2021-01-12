@@ -27,11 +27,14 @@ impl Button {
     }
 
     pub fn color(self, color: (f32, f32, f32, f32)) -> Self {
-        Self { color, .. self }
+        Self { color, ..self }
     }
 
     pub fn texture(self, texture_id: TextureId) -> Self {
-        Self { texture: Some(texture_id), .. self }
+        Self {
+            texture: Some(texture_id),
+            ..self
+        }
     }
 }
 

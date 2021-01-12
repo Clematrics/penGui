@@ -20,7 +20,7 @@ impl<T: WidgetBuilder> PaddingBuilder<T> {
     }
 
     pub fn padding(self, padding: (f32, f32)) -> Self {
-        Self { padding, .. self }
+        Self { padding, ..self }
     }
 }
 

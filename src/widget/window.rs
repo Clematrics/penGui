@@ -21,11 +21,11 @@ impl WindowBuilder {
     }
 
     pub fn title(self, title: String) -> Self {
-        Self { title, .. self }
+        Self { title, ..self }
     }
 
     pub fn size(self, size: (f32, f32)) -> Self {
-        Self { size, .. self }
+        Self { size, ..self }
     }
 }
 
