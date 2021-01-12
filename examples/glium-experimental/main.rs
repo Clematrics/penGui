@@ -71,8 +71,26 @@ fn main() {
             _ => (),
         }
 
-        let text = text.clone();
+        if let Event::WindowEvent { event, .. } = event {
+            if let Some(event) = Input::from(event) {
+                let ray = match event {
+                    pgEvent::MouseButtonPressed(_) => {
+                        let (x, y) = main_window.mouse_pos;
+                        Some(camera.ray_from(x, y))
+                    }
+                    _ => None,
+                };
+                ui.register_event(event, ray.as_ref());
+            }
+        }
+
         let delta_t = main_window.get_delta_time();
+        if delta_t < setup::main_window::MAX_FRAME_DELAY_NS {
+            return;
+        }
+        let time = main_window.new_frame_time();
+
+        let text = text.clone();
 
         ui.new_frame();
 
@@ -87,9 +105,7 @@ fn main() {
             {
                 println!("Button inside the padding clicked");
             }
-            let frame_number = FrameCounter::new()
-                .count_next(delta_t >= setup::main_window::MAX_FRAME_DELAY_NS)
-                .build(loc!(), ui.clone());
+            let frame_number = FrameCounter::new().build(loc!(), ui.clone());
             if CheckBox::new("A checkbox".to_string(), font.clone()).build(loc!(), ui.clone()) {
                 Text::new(
                     format!("Frames since beginning : {}", frame_number),
@@ -113,24 +129,6 @@ fn main() {
 
         ui.end_frame();
         ui.generate_layout();
-        if let Event::WindowEvent { event, .. } = event {
-            if let Some(event) = Input::from(event) {
-                let ray = match event {
-                    pgEvent::MouseButtonPressed(_) => {
-                        let (x, y) = main_window.mouse_pos;
-                        Some(camera.ray_from(x, y))
-                    }
-                    _ => None,
-                };
-                ui.register_event(event, ray.as_ref());
-            }
-        }
-
-        let delta_t = main_window.get_delta_time();
-        if delta_t < setup::main_window::MAX_FRAME_DELAY_NS {
-            return;
-        }
-        let time = main_window.new_frame_time();
 
         let mut target = backend.new_frame();
         let blue = (1. + f32::sin(time + PI)) / 2.;
