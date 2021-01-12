@@ -19,9 +19,8 @@ impl Text {
         }
     }
 
-    pub fn color(mut self, color: (f32, f32, f32, f32)) -> Self {
-        self.color = color;
-        self
+    pub fn color(self, color: (f32, f32, f32, f32)) -> Self {
+        Self { color, .. self }
     }
 }
 

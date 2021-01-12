@@ -30,9 +30,7 @@ impl WidgetBuilder for WindowHandler {
     fn update(self, _metadata: &NodeMetadata, _old: &mut Self::AchievedType) {}
 
     fn create(self) -> Self::AchievedType {
-        Self::AchievedType {
-            windows: self.windows,
-        }
+        self
     }
 
     fn build(self, _loc: CodeLocation, _parent: NodeReference) -> Self::BuildFeedback {}

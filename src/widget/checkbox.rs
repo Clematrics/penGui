@@ -33,24 +33,20 @@ impl CheckBox {
         }
     }
 
-    pub fn background_color(mut self, color: (f32, f32, f32, f32)) -> Self {
-        self.background_color = color;
-        self
+    pub fn background_color(self, background_color: (f32, f32, f32, f32)) -> Self {
+        Self { background_color, .. self }
     }
 
-    pub fn checked_color(mut self, color: (f32, f32, f32, f32)) -> Self {
-        self.checked_color = color;
-        self
+    pub fn checked_color(self, checked_color: (f32, f32, f32, f32)) -> Self {
+        Self { checked_color, .. self }
     }
 
-    pub fn unchecked_color(mut self, color: (f32, f32, f32, f32)) -> Self {
-        self.unchecked_color = color;
-        self
+    pub fn unchecked_color(self, unchecked_color: (f32, f32, f32, f32)) -> Self {
+        Self { unchecked_color, .. self }
     }
 
-    pub fn texture(mut self, texture_id: TextureId) -> Self {
-        self.texture = Some(texture_id);
-        self
+    pub fn texture(self, texture_id: TextureId) -> Self {
+        Self { texture: Some(texture_id), .. self }
     }
 }
 

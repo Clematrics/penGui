@@ -20,14 +20,12 @@ impl WindowBuilder {
         }
     }
 
-    pub fn title(mut self, title: String) -> Self {
-        self.title = title;
-        self
+    pub fn title(self, title: String) -> Self {
+        Self { title, .. self }
     }
 
-    pub fn size(mut self, size: (f32, f32)) -> Self {
-        self.size = size;
-        self
+    pub fn size(self, size: (f32, f32)) -> Self {
+        Self { size, .. self }
     }
 }
 

@@ -26,14 +26,12 @@ impl Button {
         }
     }
 
-    pub fn color(mut self, color: (f32, f32, f32, f32)) -> Self {
-        self.color = color;
-        self
+    pub fn color(self, color: (f32, f32, f32, f32)) -> Self {
+        Self { color, .. self }
     }
 
-    pub fn texture(mut self, texture_id: TextureId) -> Self {
-        self.texture = Some(texture_id);
-        self
+    pub fn texture(self, texture_id: TextureId) -> Self {
+        Self { texture: Some(texture_id), .. self }
     }
 }
 
