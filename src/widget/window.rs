@@ -44,6 +44,7 @@ impl WidgetBuilder for WindowBuilder {
             title: self.title,
             size: self.size,
             content: Vec::new(),
+            valid_index: 0,
         }
     }
 
@@ -67,6 +68,7 @@ impl WidgetBuilder for WindowBuilder {
                 .content
                 .iter()
                 .for_each(|node_ref| node_ref.borrow_mut().metadata.invalid = true);
+            window.valid_index = 0;
         }
         (generator)(node_ref.clone());
         {
@@ -88,6 +90,7 @@ pub struct Window {
     title: String,
     size: (f32, f32),
     content: Vec<NodeReference>,
+    valid_index: usize,
 }
 
 const WIDGET_SEPARATOR: f32 = 0.5;
@@ -139,16 +142,23 @@ impl WidgetLogic for Window {
         let child = self
             .content
             .iter()
-            .find(|&other| (*other).borrow().metadata.id == id)
-            .map(Rc::clone);
-        match child {
-            Some(node_ref) => WidgetQueryResult::Initialized(node_ref),
+            .enumerate()
+            .find(|(_, other)| (*other).borrow().metadata.id == id)
+            .map(|(index, other)| (index, Rc::clone(other)));
+        let (index, result) = match child {
+            Some((index, node_ref)) => (index, WidgetQueryResult::Initialized(node_ref)),
             None => {
                 let node_ref = Node::new_reference(id);
                 self.content.push(node_ref.clone());
-                WidgetQueryResult::Uninitialized(node_ref)
+                (
+                    self.content.len() - 1,
+                    WidgetQueryResult::Uninitialized(node_ref),
+                )
             }
-        }
+        };
+        self.content.swap(self.valid_index, index);
+        self.valid_index += 1;
+        result
     }
 
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {

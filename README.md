@@ -1,7 +1,7 @@
 # penGui
 
 An immediate-mode library written in Rust, still in early development.
-While the library API is inspired from the [Dear Imgui](https://github.com/ocornut/imgui) C++ library, it aims to provide an easier customisation, more safety, and a fully 3D-capable user-interface.
+While the library API is inspired from the [Dear Imgui](https://github.com/ocornut/imgui) C++ library, it aims at providing an easier customisation, more safety, and a fully 3D-capable user-interface.
 
 ![current capabilities](resources/demo.png)
 
