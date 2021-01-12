@@ -7,6 +7,7 @@ use crate::core::*;
 pub struct Text {
     text: String,
     font: Weak<RefCell<dyn FontAtlas>>,
+    size: f32,
     color: (f32, f32, f32, f32),
 }
 
@@ -15,12 +16,17 @@ impl Text {
         Self {
             text,
             font,
+            size: 1.0,
             color: (1.0, 1.0, 1.0, 1.0),
         }
     }
 
     pub fn color(self, color: (f32, f32, f32, f32)) -> Self {
         Self { color, ..self }
+    }
+
+    pub fn size(self, size: f32) -> Self {
+        Self { size, ..self }
     }
 }
 
@@ -54,10 +60,10 @@ impl WidgetLogic for Text {
             .upgrade()
             .expect("A font is not owned anymore by the backend");
 
-        let (width, _height) = font.borrow().size_of(self.text.as_str());
+        let (width, height) = font.borrow().size_of(self.text.as_str(), self.size);
 
         if let Some(available_height) = query.available_space.1 {
-            if available_height <= 1. {
+            if available_height <= height {
                 return LayoutResponse {
                     size: (0., 0.),
                     status: (LayoutStatus::Ok, LayoutStatus::WontDisplay),
@@ -65,29 +71,8 @@ impl WidgetLogic for Text {
             }
         }
 
-        // let font_height = {
-        //     let metrics = font.borrow().get_vertical_metrics();
-        //     metrics.ascent + metrics.descent
-        // };
-
-        // let (height, factor) = match query.available_space.1 {
-        //     None => (font_height, 1.),
-        //     Some(height) => (height, height / font_height),
-        // };
-
-        // let mut width = 0.0;
-        // let mut last_char = None;
-        // self.text.chars().for_each(|c| {
-        //     let mut font = font.borrow_mut();
-
-        //     let CharacterInfo { advance_width, .. } = font.char_info(c, last_char);
-
-        //     width += advance_width * factor;
-        //     last_char = Some(c);
-        // });
-
         LayoutResponse {
-            size: (width, 1.),
+            size: (width, height),
             status: (
                 if width > query.available_space.0.unwrap_or(std::f32::INFINITY) {
                     LayoutStatus::Inconsistencies
@@ -110,6 +95,7 @@ impl WidgetLogic for Text {
             self.font
                 .upgrade()
                 .expect("A font is not owned anymore by the backend"),
+            self.size,
             color,
             nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous(),
         );

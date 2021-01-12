@@ -19,11 +19,7 @@ pub struct CheckBox {
 impl CheckBox {
     pub fn new(label: String, font: Weak<RefCell<dyn FontAtlas>>) -> Self {
         Self {
-            label: {
-                let mut new_label = "      ".to_string();
-                new_label.push_str(&label);
-                new_label
-            },
+            label,
             background_color: (0., 0.4, 1., 1.),
             checked_color: (0., 1., 0.4, 1.),
             unchecked_color: (0.4, 0., 1., 1.),
@@ -101,15 +97,16 @@ const PADDING: f32 = 0.2;
 
 impl WidgetLogic for CheckBox {
     fn layout(&mut self, query: &LayoutQuery) -> LayoutResponse {
-        let (label_width, _label_height) = self
+        let (label_width, label_height) = self
             .font
             .upgrade()
             .expect("A font is not owned anymore by the backend")
             .borrow()
-            .size_of(self.label.as_str());
+            .size_of(self.label.as_str(), 1.);
 
-        let mut width = label_width + 2. * PADDING;
-        let mut height = 1. + 2. * PADDING;
+        let box_size = label_height;
+        let mut width = box_size + PADDING + label_width + 2. * PADDING;
+        let mut height = label_height + 2. * PADDING;
 
         let (available_width, available_height) = (
             query.available_space.0.unwrap_or(width),
@@ -180,6 +177,8 @@ impl WidgetLogic for CheckBox {
         let size = metadata.size;
         let (x, y, z) = metadata.position;
 
+        let box_size = size.1 - 2. * PADDING;
+
         let background_command = {
             let mut uniforms = Uniforms::new();
             uniforms.model_matrix =
@@ -209,22 +208,22 @@ impl WidgetLogic for CheckBox {
                         tex_uv: [1., 1.],
                     },
                     Vertex {
-                        position: [size.1 / 10., size.1 / 10., 0.001],
+                        position: [PADDING, PADDING, 0.001],
                         color,
                         tex_uv: [0., 0.],
                     },
                     Vertex {
-                        position: [size.1 - size.1 / 10., size.1 / 10., 0.001],
+                        position: [PADDING + box_size, PADDING, 0.001],
                         color,
                         tex_uv: [1., 0.],
                     },
                     Vertex {
-                        position: [size.1 / 10., size.1 - size.1 / 10., 0.001],
+                        position: [PADDING, PADDING + box_size, 0.001],
                         color,
                         tex_uv: [0., 1.],
                     },
                     Vertex {
-                        position: [size.1 - size.1 / 10., size.1 - size.1 / 10., 0.001],
+                        position: [PADDING + box_size, PADDING + box_size, 0.001],
                         color,
                         tex_uv: [1., 1.],
                     },
@@ -240,8 +239,14 @@ impl WidgetLogic for CheckBox {
             self.font
                 .upgrade()
                 .expect("A font is not owned anymore by the backend"),
+            1.,
             color,
-            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z + 0.001)).to_homogeneous(),
+            nalgebra::Translation3::from(nalgebra::Vector3::new(
+                x + box_size + 2. * PADDING,
+                y + PADDING,
+                z + 0.001,
+            ))
+            .to_homogeneous(),
         );
 
         let mut list = DrawList::new();
@@ -254,7 +259,6 @@ impl WidgetLogic for CheckBox {
         &self,
         metadata: &NodeMetadata,
         ray: &Ray,
-        // origin: &Point3<f32>,
         self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
         let (x, y, z) = metadata.position;

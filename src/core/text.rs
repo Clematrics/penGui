@@ -9,6 +9,7 @@ use crate::core::*;
 pub fn draw_text(
     text: &str,
     font: Rc<RefCell<dyn FontAtlas>>,
+    size: f32,
     color: [f32; 4],
     transformation: Mat4x4,
 ) -> DrawCommand {
@@ -33,7 +34,7 @@ pub fn draw_text(
             top_left: (tx, ty),
             bottom_right: (bx, by),
             kerning,
-        } = font.char_info(c, last_char);
+        } = font.char_info(c, last_char, size);
 
         let ax = cursor + tx + kerning;
         let ay = ty;

@@ -113,9 +113,10 @@ fn main() {
                 )
                 .build(loc!(), ui.clone());
             }
-            Text::new(text.clone().into_inner(), font.clone()).build(loc!(), ui.clone());
+            Text::new(text.clone().into_inner(), font.clone())
+                .size(0.75)
+                .build(loc!(), ui.clone());
             if Button::new("               ".to_string(), font.clone())
-                .color((1., 0., 0., 0.5))
                 .color((1., 1., 1., 1.))
                 .texture(ensps_tex)
                 .build(loc!(), ui.clone())

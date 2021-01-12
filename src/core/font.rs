@@ -29,6 +29,9 @@ pub struct VerticalMetrics {
 /// A trait describing an atlas of characters tied to a font.
 pub trait FontAtlas {
     /// Returns the vertical metrics of the font behind this atlas
+    ///
+    /// The returned metrics must be normalized on `ascent - descent`,
+    /// that is, `ascent - descent` must be equal to 1.0
     fn get_vertical_metrics(&self) -> VerticalMetrics;
 
     /// Returns the texture ID having all necessary characters
@@ -38,9 +41,14 @@ pub trait FontAtlas {
     ///
     /// The previous character can be given to get more accurate information,
     /// especially for the kerning between the two characters
-    fn char_info(&mut self, character: char, previous_char: Option<char>) -> CharacterInfo;
+    fn char_info(
+        &mut self,
+        character: char,
+        previous_char: Option<char>,
+        size: f32,
+    ) -> CharacterInfo;
 
     /// Special function which returns the width and height a single-line
     /// string would take if rendered with this atlas.
-    fn size_of(&self, string: &str) -> (f32, f32);
+    fn size_of(&self, string: &str, size: f32) -> (f32, f32);
 }
