@@ -164,42 +164,18 @@ impl WidgetLogic for Window {
         self.content.iter().for_each(|node| {
             list.list.push(node.borrow_mut().draw());
         });
-        let color = [42. / 256., 60. / 256., 101. / 256., 1.];
-        let tex_uv = [0., 0.];
+        let color = (42. / 256., 60. / 256., 101. / 256., 1.);
         let (x, y, z) = metadata.position;
         list.list_transform =
             nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z + 0.001)).to_homogeneous();
-        let mut uniforms = Uniforms::new();
-        uniforms.model_matrix =
-            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous();
 
-        list.commands.push(DrawCommand {
-            vertex_buffer: vec![
-                Vertex {
-                    position: [0., 0., 0.],
-                    color,
-                    tex_uv,
-                },
-                Vertex {
-                    position: [self.size.0, 0., 0.],
-                    color,
-                    tex_uv,
-                },
-                Vertex {
-                    position: [0., self.size.1, 0.],
-                    color,
-                    tex_uv,
-                },
-                Vertex {
-                    position: [self.size.0, self.size.1, 0.],
-                    color,
-                    tex_uv,
-                },
-            ],
-            index_buffer: vec![0, 1, 2, 1, 2, 3],
-            draw_mode: DrawMode::Lines,
-            uniforms,
-        });
+        list.commands.push(debug_quad(
+            self.size.0,
+            self.size.1,
+            color,
+            metadata.position,
+        ));
+
         list
     }
 

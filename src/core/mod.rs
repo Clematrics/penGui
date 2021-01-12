@@ -4,6 +4,7 @@
 //! necessary to build a user-interface or create a new widget
 
 pub use self::component_id::*;
+pub use self::draw::*;
 pub use self::draw_commands::*;
 pub use self::events::*;
 pub use self::font::*;
@@ -15,6 +16,7 @@ pub use self::text::*;
 pub use self::widget::*;
 
 mod component_id;
+mod draw;
 mod draw_commands;
 mod events;
 mod font;

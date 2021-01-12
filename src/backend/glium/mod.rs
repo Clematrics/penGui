@@ -115,9 +115,14 @@ impl GliumBackend {
         let vertex_buffer =
             glium::VertexBuffer::immutable(&self.display, &command.vertex_buffer.as_slice())
                 .unwrap();
+        let primitve_type = match command.draw_mode {
+            DrawMode::Triangles => glium::index::PrimitiveType::TrianglesList,
+            DrawMode::Lines => glium::index::PrimitiveType::LinesList,
+            DrawMode::Points => glium::index::PrimitiveType::Points,
+        };
         let index_buffer = glium::IndexBuffer::immutable(
             &self.display,
-            glium::index::PrimitiveType::TrianglesList,
+            primitve_type,
             &command.index_buffer.as_slice(),
         )
         .unwrap();

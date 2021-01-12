@@ -133,40 +133,17 @@ impl WidgetLogic for Padding {
         let mut list = DrawList::new();
         list.list
             .push(self.content.as_ref().unwrap().borrow().draw());
-        let color = [1., 0., 0., 1.];
-        let tex_uv = [0., 0.];
-        let mut uniforms = Uniforms::new();
         let (x, y, z) = metadata.position;
         list.list_transform =
             nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous();
-        uniforms.model_matrix = list.list_transform;
-        list.commands.push(DrawCommand {
-            vertex_buffer: vec![
-                Vertex {
-                    position: [0., 0., 0.],
-                    color,
-                    tex_uv,
-                },
-                Vertex {
-                    position: [metadata.size.0, 0., 0.],
-                    color,
-                    tex_uv,
-                },
-                Vertex {
-                    position: [0., metadata.size.1, 0.],
-                    color,
-                    tex_uv,
-                },
-                Vertex {
-                    position: [metadata.size.0, metadata.size.1, 0.],
-                    color,
-                    tex_uv,
-                },
-            ],
-            index_buffer: vec![0, 1, 2, 1, 2, 3],
-            draw_mode: DrawMode::Lines,
-            uniforms,
-        });
+        let debug_color = (1., 0., 0., 1.);
+        let debug_command = debug_quad(
+            metadata.size.0,
+            metadata.size.1,
+            debug_color,
+            metadata.position,
+        );
+        list.commands.push(debug_command);
         list
     }
 
