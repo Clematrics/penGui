@@ -67,7 +67,7 @@ impl GliumBackend {
         }
     }
 
-    fn draw_parameters() -> glium::DrawParameters<'static> {
+    fn draw_parameters<'a>() -> glium::DrawParameters<'a> {
         glium::DrawParameters {
             depth: glium::Depth {
                 test: glium::draw_parameters::DepthTest::IfLess,
@@ -259,7 +259,7 @@ impl GliumBackend {
 // Useful type abbreviations
 type DrawResult = Result<(), glium::DrawError>;
 type Frame = glium::Frame;
-type RawTexture = glium::texture::RawImage2d<'static, u8>;
+type RawTexture<'a> = glium::texture::RawImage2d<'a, u8>;
 type Texture = glium::Texture2d;
 
 // creation of the vertex structure for `glium` from the penGui one

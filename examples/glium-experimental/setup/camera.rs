@@ -14,6 +14,12 @@ pub struct Camera {
     ratio: f32,
 }
 
+impl Default for Camera {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Camera {
     /// Create a new arc-ball camera looking at the origin toward the -z axis,
     /// at a distance of 1.5 by default. The initial ratio is 1.

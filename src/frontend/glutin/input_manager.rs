@@ -176,9 +176,9 @@ impl Input {
         }
     }
 
-    pub fn from(event: WindowEvent) -> Option<Event> {
+    pub fn from(event: &WindowEvent) -> Option<Event> {
         match event {
-            WindowEvent::ReceivedCharacter(c) => Some(Event::Character(c)),
+            WindowEvent::ReceivedCharacter(c) => Some(Event::Character(*c)),
             WindowEvent::KeyboardInput {
                 input:
                     KeyboardInput {
@@ -188,15 +188,15 @@ impl Input {
                     },
                 ..
             } => match state {
-                ElementState::Pressed => Self::key_from(key).map(Event::KeyPressed),
-                ElementState::Released => Self::key_from(key).map(Event::KeyReleased),
+                ElementState::Pressed => Self::key_from(*key).map(Event::KeyPressed),
+                ElementState::Released => Self::key_from(*key).map(Event::KeyReleased),
             },
             WindowEvent::CursorMoved { position, .. } => {
                 Some(Event::MouseMoved(position.x as f32, position.y as f32))
             }
             WindowEvent::MouseWheel { delta, .. } => {
                 let delta = match delta {
-                    MouseScrollDelta::LineDelta(delta, _) => delta,
+                    MouseScrollDelta::LineDelta(delta, _) => *delta,
                     MouseScrollDelta::PixelDelta(pos) => pos.x as f32,
                 };
                 Some(Event::MouseScrolled(delta))
