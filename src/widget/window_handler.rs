@@ -33,7 +33,7 @@ impl WidgetBuilder for WindowHandler {
         self
     }
 
-    fn build(self, _loc: CodeLocation, _parent: NodeReference) -> Self::BuildFeedback {}
+    fn build(self, _loc: CodeLocation, _parent: &NodeReference) -> Self::BuildFeedback {}
 }
 
 impl WidgetLogic for WindowHandler {

@@ -127,7 +127,7 @@ pub trait WidgetBuilder {
     /// ```
     ///
     /// TODO: implement macros to help this kind of implementation
-    fn build(self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback;
+    fn build(self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback;
 }
 
 /// Trait that defines the core logic of a widget in the interface

@@ -36,7 +36,7 @@ fn main() {
 
     let mut ui = Interface::new();
 
-    let font = backend.get_font(0);
+    let font: std::rc::Rc<RefCell<dyn pengui::core::FontAtlas>> = backend.get_font(0);
     let text = RefCell::new(String::from(
         "Editable text, japanese characters: 色は匂へど散",
     ));
@@ -90,43 +90,36 @@ fn main() {
         }
         let time = main_window.new_frame_time();
 
-        let text = text.clone();
-
         ui.new_frame();
 
-        WindowBuilder::new(move |ui| {
-            let text = text.clone();
-            let font = font.clone();
+        WindowBuilder::new(|ui| {
             if PaddingBuilder::new(
                 (0.2, 0.2),
-                Button::new("Clickable button".to_string(), font.clone()),
+                Button::new("Clickable button".to_string(), &font),
             )
-            .build(loc!(), ui.clone())
+            .build(loc!(), &ui)
             {
                 println!("Button inside the padding clicked");
             }
-            let frame_number = FrameCounter::new().build(loc!(), ui.clone());
-            if CheckBox::new("A checkbox".to_string(), font.clone()).build(loc!(), ui.clone()) {
-                Text::new(
-                    format!("Frames since beginning : {}", frame_number),
-                    font.clone(),
-                )
-                .build(loc!(), ui.clone());
+            let frame_number = FrameCounter::new().build(loc!(), &ui);
+            if CheckBox::new("A checkbox".to_string(), &font).build(loc!(), &ui) {
+                Text::new(format!("Frames since beginning : {}", frame_number), &font)
+                    .build(loc!(), &ui);
             }
-            Text::new(text.clone().into_inner(), font.clone())
+            Text::new(text.clone().into_inner(), &font)
                 .size(0.75)
-                .build(loc!(), ui.clone());
-            if Button::new("               ".to_string(), font.clone())
+                .build(loc!(), &ui);
+            if Button::new("               ".to_string(), &font)
                 .color((1., 1., 1., 1.))
                 .texture(ensps_tex)
-                .build(loc!(), ui.clone())
+                .build(loc!(), &ui)
             {
                 println!("Button with texture clicked")
             }
-            Text::new("↑ Textured button".to_string(), font).build(loc!(), ui.clone());
+            Text::new("↑ Textured button".to_string(), &font).build(loc!(), &ui);
         })
         .size((20., 12.))
-        .build(loc!(), ui.root.clone());
+        .build(loc!(), &ui.root);
 
         ui.end_frame();
         ui.generate_layout();

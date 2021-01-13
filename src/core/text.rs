@@ -8,7 +8,7 @@ use crate::core::*;
 /// color and transformation
 pub fn draw_text(
     text: &str,
-    font: Rc<RefCell<dyn FontAtlas>>,
+    font: &Rc<RefCell<dyn FontAtlas>>,
     size: f32,
     color: [f32; 4],
     transformation: Mat4x4,

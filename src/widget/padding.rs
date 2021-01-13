@@ -39,7 +39,7 @@ impl<T: WidgetBuilder> WidgetBuilder for PaddingBuilder<T> {
         }
     }
 
-    fn build(mut self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
+    fn build(mut self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
         let content = self.content.take().unwrap();
         let node_ref = parent
@@ -47,7 +47,7 @@ impl<T: WidgetBuilder> WidgetBuilder for PaddingBuilder<T> {
             .query::<Self::AchievedType>(id)
             .update(self);
 
-        content.build(loc!(), node_ref)
+        content.build(loc!(), &node_ref)
     }
 }
 

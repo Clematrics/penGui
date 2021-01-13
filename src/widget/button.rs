@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::rc::Weak;
+use std::rc::Rc;
 
 use nalgebra::{Point3, Translation3};
 
@@ -10,17 +10,17 @@ use crate::core::*;
 pub struct Button {
     label: String,
     color: (f32, f32, f32, f32),
-    font: Weak<RefCell<dyn FontAtlas>>,
+    font: Rc<RefCell<dyn FontAtlas>>,
     pressed: bool,
     texture: Option<TextureId>,
 }
 
 impl Button {
-    pub fn new(label: String, font: Weak<RefCell<dyn FontAtlas>>) -> Self {
+    pub fn new(label: String, font: &Rc<RefCell<dyn FontAtlas>>) -> Self {
         Self {
             label,
             color: (0., 0.4, 1., 1.),
-            font,
+            font: font.clone(),
             pressed: false,
             texture: None,
         }
@@ -51,7 +51,7 @@ impl WidgetBuilder for Button {
         self
     }
 
-    fn build(self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
+    fn build(self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
 
         let node = parent
@@ -77,12 +77,7 @@ const PADDING: f32 = 0.2;
 
 impl WidgetLogic for Button {
     fn layout(&mut self, query: &LayoutQuery) -> LayoutResponse {
-        let (label_width, label_height) = self
-            .font
-            .upgrade()
-            .expect("A font is not owned anymore by the backend")
-            .borrow()
-            .size_of(self.label.as_str(), 1.);
+        let (label_width, label_height) = self.font.borrow().size_of(self.label.as_str(), 1.);
 
         let mut width = label_width + 2. * PADDING;
         let mut height = label_height + 2. * PADDING;
@@ -141,9 +136,7 @@ impl WidgetLogic for Button {
 
         let text_command = draw_text(
             self.label.as_str(),
-            self.font
-                .upgrade()
-                .expect("A font is not owned anymore by the backend"),
+            &self.font,
             1.,
             text_color,
             nalgebra::Translation3::from(nalgebra::Vector3::new(

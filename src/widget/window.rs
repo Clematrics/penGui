@@ -5,14 +5,14 @@ use crate::core::*;
 
 /// The builder for a window, that can hold an unlimited number of widgets.
 /// Display them in a finite space from top to bottom.
-pub struct WindowBuilder {
+pub struct WindowBuilder<'a> {
     title: String,
     size: (f32, f32),
-    generator: Option<Box<dyn FnMut(NodeReference)>>,
+    generator: Option<Box<dyn 'a + FnMut(NodeReference)>>,
 }
 
-impl WindowBuilder {
-    pub fn new<F: 'static + FnMut(NodeReference)>(generator: F) -> Self {
+impl<'a> WindowBuilder<'a> {
+    pub fn new<F: 'a + FnMut(NodeReference)>(generator: F) -> Self {
         WindowBuilder {
             title: "".to_string(),
             size: (5., 5.),
@@ -29,7 +29,7 @@ impl WindowBuilder {
     }
 }
 
-impl WidgetBuilder for WindowBuilder {
+impl<'a> WidgetBuilder for WindowBuilder<'a> {
     type AchievedType = Window;
     type BuildFeedback = ();
 
@@ -46,7 +46,7 @@ impl WidgetBuilder for WindowBuilder {
         }
     }
 
-    fn build(mut self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
+    fn build(mut self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
         let mut generator = self.generator.take().unwrap_or_else(|| Box::new(|_| ()));
         let node_ref = parent
@@ -211,12 +211,12 @@ mod tests {
         for _ in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
-                PaddingBuilder::new((0.2, 100.2), FrameCounter::new()).build(loc!(), ui.clone());
-                FrameCounter::new().build(loc!(), ui.clone());
-                FrameCounter::new().build(loc!(), ui.clone());
+                PaddingBuilder::new((0.2, 100.2), FrameCounter::new()).build(loc!(), &ui);
+                FrameCounter::new().build(loc!(), &ui);
+                FrameCounter::new().build(loc!(), &ui);
             })
             .size((1., 1.))
-            .build(loc!(), ui.root.clone());
+            .build(loc!(), &ui.root);
             let response = ui.generate_layout();
             ui.end_frame();
             assert_eq!(response.status.0, LayoutStatus::Ok);
@@ -229,12 +229,12 @@ mod tests {
         for _ in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
-                PaddingBuilder::new((100.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
-                FrameCounter::new().build(loc!(), ui.clone());
-                FrameCounter::new().build(loc!(), ui.clone());
+                PaddingBuilder::new((100.2, 0.2), FrameCounter::new()).build(loc!(), &ui);
+                FrameCounter::new().build(loc!(), &ui);
+                FrameCounter::new().build(loc!(), &ui);
             })
             .size((1., 2.))
-            .build(loc!(), ui.root.clone());
+            .build(loc!(), &ui.root);
             let response = ui.generate_layout();
             ui.end_frame();
             assert_eq!(response.status.0, LayoutStatus::Inconsistencies);
@@ -247,12 +247,12 @@ mod tests {
         for _ in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
-                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
-                FrameCounter::new().build(loc!(), ui.clone());
-                FrameCounter::new().build(loc!(), ui.clone());
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), &ui);
+                FrameCounter::new().build(loc!(), &ui);
+                FrameCounter::new().build(loc!(), &ui);
             })
             .size((1., 2.))
-            .build(loc!(), ui.root.clone());
+            .build(loc!(), &ui.root);
             let response = ui.generate_layout();
             ui.end_frame();
             assert_eq!(response.status.0, LayoutStatus::Ok);
@@ -265,12 +265,12 @@ mod tests {
         for _ in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
-                PaddingBuilder::new((10.2, 10.2), FrameCounter::new()).build(loc!(), ui.clone());
-                FrameCounter::new().build(loc!(), ui.clone());
-                FrameCounter::new().build(loc!(), ui.clone());
+                PaddingBuilder::new((10.2, 10.2), FrameCounter::new()).build(loc!(), &ui);
+                FrameCounter::new().build(loc!(), &ui);
+                FrameCounter::new().build(loc!(), &ui);
             })
             .size((1., 1.))
-            .build(loc!(), ui.root.clone());
+            .build(loc!(), &ui.root);
             let response = ui.generate_layout();
             ui.end_frame();
             assert_eq!(response.status.0, LayoutStatus::Inconsistencies);
@@ -283,17 +283,17 @@ mod tests {
         for _ in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
-                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
-                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
-                FrameCounter::new().build(loc!(), ui.clone());
-                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
-                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
-                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
-                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
-                FrameCounter::new().build(loc!(), ui.clone());
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), &ui);
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), &ui);
+                FrameCounter::new().build(loc!(), &ui);
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), &ui);
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), &ui);
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), &ui);
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), &ui);
+                FrameCounter::new().build(loc!(), &ui);
             })
             .size((1., 1.))
-            .build(loc!(), ui.root.clone());
+            .build(loc!(), &ui.root);
             let response = ui.generate_layout();
             ui.end_frame();
             assert_eq!(response.status.0, LayoutStatus::Ok);

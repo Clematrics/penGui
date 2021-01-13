@@ -3,7 +3,7 @@
 //! Check the `glium-experimental` example to see how the backend is used.
 
 use std::cell::RefCell;
-use std::rc::*;
+use std::rc::Rc;
 
 use crate::core::{DrawCommand, DrawList, DrawMode, Mat4x4, TextureId, Vertex};
 
@@ -251,8 +251,8 @@ impl GliumBackend {
     }
 
     /// Get a font from its id
-    pub fn get_font(&mut self, id: usize) -> Weak<RefCell<FontWrapper>> {
-        Rc::downgrade(&self.fonts[id])
+    pub fn get_font(&mut self, id: usize) -> Rc<RefCell<FontWrapper>> {
+        self.fonts[id].clone()
     }
 }
 

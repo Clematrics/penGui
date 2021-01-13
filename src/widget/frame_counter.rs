@@ -36,7 +36,7 @@ impl WidgetBuilder for FrameCounter {
     fn create(self) -> Self::AchievedType {
         self
     }
-    fn build(self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
+    fn build(self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
         let node_ref = parent
             .borrow_mut()
@@ -66,12 +66,12 @@ mod tests {
         for i in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
-                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
-                FrameCounter::new().build(loc!(), ui.clone());
-                assert_eq!(i, FrameCounter::new().build(loc!(), ui.clone()));
-                FrameCounter::new().build(loc!(), ui.clone());
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), &ui);
+                FrameCounter::new().build(loc!(), &ui);
+                assert_eq!(i, FrameCounter::new().build(loc!(), &ui));
+                FrameCounter::new().build(loc!(), &ui);
             })
-            .build(loc!(), ui.root.clone());
+            .build(loc!(), &ui.root);
             ui.end_frame();
             ui.generate_layout();
         }
@@ -82,14 +82,14 @@ mod tests {
         for i in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
-                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), &ui);
                 FrameCounter::new();
                 let mut fake_loc = loc!();
                 fake_loc = CodeLocation(fake_loc.0, fake_loc.1 * i, fake_loc.2 + i);
-                assert_eq!(0, FrameCounter::new().build(fake_loc, ui.clone()));
-                FrameCounter::new().build(loc!(), ui.clone());
+                assert_eq!(0, FrameCounter::new().build(fake_loc, &ui));
+                FrameCounter::new().build(loc!(), &ui);
             })
-            .build(loc!(), ui.root.clone());
+            .build(loc!(), &ui.root);
             ui.end_frame();
             ui.generate_layout();
         }
@@ -101,15 +101,15 @@ mod tests {
         for i in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
-                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
-                FrameCounter::new().build(loc!(), ui.clone());
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), &ui);
+                FrameCounter::new().build(loc!(), &ui);
                 assert_eq!(
                     i,
-                    PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone())
+                    PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), &ui)
                 );
-                FrameCounter::new().build(loc!(), ui.clone());
+                FrameCounter::new().build(loc!(), &ui);
             })
-            .build(loc!(), ui.root.clone());
+            .build(loc!(), &ui.root);
             ui.end_frame();
             ui.generate_layout();
         }
@@ -120,18 +120,17 @@ mod tests {
         for i in 0..12 {
             ui.new_frame();
             WindowBuilder::new(move |ui| {
-                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), ui.clone());
+                PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(loc!(), &ui);
                 FrameCounter::new();
                 let mut fake_loc = loc!();
                 fake_loc = CodeLocation(fake_loc.0, fake_loc.1 * i, fake_loc.2 + i);
                 assert_eq!(
                     0,
-                    PaddingBuilder::new((0.2, 0.2), FrameCounter::new())
-                        .build(fake_loc, ui.clone())
+                    PaddingBuilder::new((0.2, 0.2), FrameCounter::new()).build(fake_loc, &ui)
                 );
-                FrameCounter::new().build(loc!(), ui.clone());
+                FrameCounter::new().build(loc!(), &ui);
             })
-            .build(loc!(), ui.root.clone());
+            .build(loc!(), &ui.root);
             ui.end_frame();
             ui.generate_layout();
         }

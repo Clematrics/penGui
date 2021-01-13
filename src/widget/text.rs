@@ -1,21 +1,21 @@
 use std::cell::RefCell;
-use std::rc::Weak;
+use std::rc::Rc;
 
 use crate::core::*;
 
 /// A basic widget that can display a text given a font
 pub struct Text {
     text: String,
-    font: Weak<RefCell<dyn FontAtlas>>,
+    font: Rc<RefCell<dyn FontAtlas>>,
     size: f32,
     color: (f32, f32, f32, f32),
 }
 
 impl Text {
-    pub fn new(text: String, font: Weak<RefCell<dyn FontAtlas>>) -> Self {
+    pub fn new(text: String, font: &Rc<RefCell<dyn FontAtlas>>) -> Self {
         Self {
             text,
-            font,
+            font: font.clone(),
             size: 1.0,
             color: (1.0, 1.0, 1.0, 1.0),
         }
@@ -43,7 +43,7 @@ impl WidgetBuilder for Text {
         self
     }
 
-    fn build(self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
+    fn build(self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
 
         parent
@@ -55,12 +55,7 @@ impl WidgetBuilder for Text {
 
 impl WidgetLogic for Text {
     fn layout(&mut self, query: &LayoutQuery) -> LayoutResponse {
-        let font = self
-            .font
-            .upgrade()
-            .expect("A font is not owned anymore by the backend");
-
-        let (width, height) = font.borrow().size_of(self.text.as_str(), self.size);
+        let (width, height) = self.font.borrow().size_of(self.text.as_str(), self.size);
 
         if let Some(available_height) = query.available_space.1 {
             if available_height <= height {
@@ -92,9 +87,7 @@ impl WidgetLogic for Text {
 
         let text_command = draw_text(
             self.text.as_str(),
-            self.font
-                .upgrade()
-                .expect("A font is not owned anymore by the backend"),
+            &self.font,
             self.size,
             color,
             nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous(),

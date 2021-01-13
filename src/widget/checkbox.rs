@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::rc::Weak;
+use std::rc::Rc;
 
 use nalgebra::{Point3, Translation3};
 
@@ -11,19 +11,19 @@ pub struct CheckBox {
     background_color: (f32, f32, f32, f32),
     checked_color: (f32, f32, f32, f32),
     unchecked_color: (f32, f32, f32, f32),
-    font: Weak<RefCell<dyn FontAtlas>>,
+    font: Rc<RefCell<dyn FontAtlas>>,
     checked: bool,
     texture: Option<TextureId>,
 }
 
 impl CheckBox {
-    pub fn new(label: String, font: Weak<RefCell<dyn FontAtlas>>) -> Self {
+    pub fn new(label: String, font: &Rc<RefCell<dyn FontAtlas>>) -> Self {
         Self {
             label,
             background_color: (0., 0.4, 1., 1.),
             checked_color: (0., 1., 0.4, 1.),
             unchecked_color: (0.4, 0., 1., 1.),
-            font,
+            font: font.clone(),
             checked: false,
             texture: None,
         }
@@ -73,7 +73,7 @@ impl WidgetBuilder for CheckBox {
         self
     }
 
-    fn build(self, loc: CodeLocation, parent: NodeReference) -> Self::BuildFeedback {
+    fn build(self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
 
         let node = parent
@@ -97,12 +97,7 @@ const PADDING: f32 = 0.2;
 
 impl WidgetLogic for CheckBox {
     fn layout(&mut self, query: &LayoutQuery) -> LayoutResponse {
-        let (label_width, label_height) = self
-            .font
-            .upgrade()
-            .expect("A font is not owned anymore by the backend")
-            .borrow()
-            .size_of(self.label.as_str(), 1.);
+        let (label_width, label_height) = self.font.borrow().size_of(self.label.as_str(), 1.);
 
         let box_size = label_height;
         let mut width = box_size + PADDING + label_width + 2. * PADDING;
@@ -236,9 +231,7 @@ impl WidgetLogic for CheckBox {
 
         let text_command = crate::core::draw_text(
             self.label.as_str(),
-            self.font
-                .upgrade()
-                .expect("A font is not owned anymore by the backend"),
+            &self.font,
             1.,
             color,
             nalgebra::Translation3::from(nalgebra::Vector3::new(
