@@ -7,7 +7,7 @@ While the library API is inspired from the [Dear Imgui](https://github.com/ocorn
 
 To install everything needed and run the example :
 
-- Install rust. Instructions can be found [here](https://www.rust-lang.org/tools/install))
+- Install rust. Instructions can be found [here](https://www.rust-lang.org/tools/install)
 - If rust is already installed, make sure that your toolchain version is `>=1.47.0`
 - Clone this repository
 - To run the example, use the command `cargo run --example glium-experimental`

@@ -7,6 +7,7 @@ pub fn quad(
     color: (f32, f32, f32, f32),
     position: (f32, f32, f32),
 ) -> DrawCommand {
+    #![allow(clippy::many_single_char_names)]
     let (r, g, b, a) = color;
     let color = [r, g, b, a];
 
@@ -50,6 +51,7 @@ pub fn debug_quad(
     color: (f32, f32, f32, f32),
     position: (f32, f32, f32),
 ) -> DrawCommand {
+    #![allow(clippy::many_single_char_names)]
     let (r, g, b, a) = color;
     let color = [r, g, b, a];
 

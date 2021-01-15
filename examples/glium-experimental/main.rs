@@ -1,19 +1,6 @@
-use glium::Surface;
-use std::cell::RefCell;
-use std::f32::consts::PI;
-extern crate image;
-
-use pengui::{
-    backend::glium::GliumBackend,
-    core::{CodeLocation, DrawCommand, Event as pgEvent, Mat4x4, Uniforms, Vertex, WidgetBuilder},
-    frontend::glutin::Input,
-    loc,
-    widget::*,
-    Interface,
-};
+use pengui::backend::glium::GliumBackend;
 
 mod setup;
-use setup::camera::Camera;
 use setup::main_window::MainWindow;
 
 mod mesh;
@@ -21,8 +8,6 @@ mod meshes;
 mod scene;
 use scene::Scene;
 mod ui;
-
-use mesh::Mesh;
 
 fn main() {
     let (mut main_window, event_loop, display) = MainWindow::new();
