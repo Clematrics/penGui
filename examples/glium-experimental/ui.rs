@@ -54,13 +54,14 @@ impl Ui {
             }
             let frame_number = FrameCounter::new().build(loc!(), &ui);
             if CheckBox::new("A checkbox".to_string(), &self.font).build(loc!(), &ui) {
-                Text::new(
-                    format!("Frames since beginning : {}", frame_number),
+                LabelBuilder::new(
+                    format!("Frames since beginning : {}", frame_number).as_str(),
                     &self.font,
                 )
                 .build(loc!(), &ui);
             }
-            Text::new(self.editable_text.clone(), &self.font)
+            // FIXME: for the moment, must clone otherwise borrow error
+            TextBuilder::new(&mut self.editable_text.clone(), &self.font)
                 .size(0.75)
                 .build(loc!(), &ui);
             if Button::new("               ".to_string(), &self.font)
@@ -70,7 +71,7 @@ impl Ui {
             {
                 println!("Button with texture clicked")
             }
-            Text::new("↑ Textured button".to_string(), &self.font).build(loc!(), &ui);
+            LabelBuilder::new("↑ Textured button", &self.font).build(loc!(), &ui);
         })
         .size((20., 12.))
         .build(loc!(), &self.ui.root);

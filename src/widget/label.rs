@@ -6,15 +6,15 @@ use crate::core::*;
 use nalgebra::{Point3, Translation3};
 
 /// An editable text
-pub struct TextBuilder<'a> {
-    text: &'a mut String,
+pub struct LabelBuilder<'a> {
+    text: &'a str,
     font: Rc<RefCell<dyn FontAtlas>>,
     size: f32,
     color: (f32, f32, f32, f32),
 }
 
-impl<'a> TextBuilder<'a> {
-    pub fn new(text: &'a mut String, font: &Rc<RefCell<dyn FontAtlas>>) -> Self {
+impl<'a> LabelBuilder<'a> {
+    pub fn new(text: &'a str, font: &Rc<RefCell<dyn FontAtlas>>) -> Self {
         Self {
             text,
             font: font.clone(),
@@ -32,19 +32,19 @@ impl<'a> TextBuilder<'a> {
     }
 }
 
-impl<'a> WidgetBuilder for TextBuilder<'a> {
-    type AchievedType = Text;
+impl<'a> WidgetBuilder for LabelBuilder<'a> {
+    type AchievedType = Label;
     type BuildFeedback = ();
 
     fn update(self, _metadata: &NodeMetadata, widget: &mut Self::AchievedType) {
-        self.text.clone_from(&widget.text);
+        widget.text = self.text.to_string();
         widget.size = self.size;
         widget.color = self.color;
     }
 
     fn create(self) -> Self::AchievedType {
-        Text {
-            text: self.text.clone(),
+        Label {
+            text: self.text.to_string(),
             font: self.font,
             size: self.size,
             color: self.color,
@@ -62,14 +62,14 @@ impl<'a> WidgetBuilder for TextBuilder<'a> {
 }
 
 /// A basic widget that can display a text given a font
-pub struct Text {
+pub struct Label {
     text: String,
     font: Rc<RefCell<dyn FontAtlas>>,
     size: f32,
     color: (f32, f32, f32, f32),
 }
 
-impl WidgetLogic for Text {
+impl WidgetLogic for Label {
     fn layout(&mut self, query: &LayoutQuery) -> LayoutResponse {
         let (width, height) = self.font.borrow().size_of(self.text.as_str(), self.size);
 
@@ -112,59 +112,5 @@ impl WidgetLogic for Text {
         let mut list = DrawList::new();
         list.commands.push(text_command);
         list
-    }
-
-    fn interaction_distance(
-        &self,
-        metadata: &NodeMetadata,
-        ray: &Ray,
-        self_node: NodeReference,
-    ) -> Vec<(f32, NodeReference)> {
-        let (x, y, z) = metadata.position;
-        let transformation = Translation3::new(x, y, z).inverse();
-        let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
-        let size = metadata.size;
-        let points = [
-            Point3::new(0., 0., 0.),
-            Point3::new(size.0, 0., 0.),
-            Point3::new(0., size.1, 0.),
-            Point3::new(size.0, size.1, 0.),
-        ];
-        [
-            [points[0], points[1], points[2]],
-            [points[1], points[2], points[3]],
-        ]
-        .iter()
-        .map(|triangle| intersection(&new_ray, triangle))
-        .filter_map(|opt| opt)
-        .min_by(|d1, d2| d1.partial_cmp(d2).unwrap())
-        .map(|d| vec![(d, self_node)])
-        .unwrap_or_default()
-    }
-
-    fn send_event(&mut self, metadata: &mut NodeMetadata, event: &Event) -> EventResponse {
-        println!("Received event");
-        match event {
-            Event::MouseButtonPressed(MouseButton::Left)
-            | Event::MouseButtonPressed(MouseButton::Touch) => {
-                println!("Taking focus");
-                metadata
-                    .global_properties
-                    .upgrade()
-                    .map(|p| p.borrow_mut().request_focus(&metadata.myself));
-                EventResponse::Registered
-            }
-            Event::Character(c) => {
-                match c {
-                    '\u{8}' => {
-                        self.text.pop();
-                    }
-                    _ if *c != '\u{7f}' => self.text.push(*c),
-                    _ => {}
-                }
-                EventResponse::Registered
-            }
-            _ => EventResponse::Pass,
-        }
     }
 }

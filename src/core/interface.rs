@@ -1,4 +1,5 @@
-use std::rc::Weak;
+use std::cell::RefCell;
+use std::rc::{Rc, Weak};
 
 use crate::core::*;
 use crate::widget::WindowHandler;
@@ -11,9 +12,15 @@ pub struct GlobalProperties {
     focus: NodeWeakReference,
 }
 
+impl GlobalProperties {
+    pub fn request_focus(&mut self, node: &NodeWeakReference) {
+        self.focus = node.clone();
+    }
+}
+
 /// A structure holding an interface during its buildind process
 pub struct Interface {
-    properties: GlobalProperties,
+    properties: Rc<RefCell<GlobalProperties>>,
     pub root: NodeReference,
 }
 
@@ -76,14 +83,16 @@ impl Interface {
     /// The root of the widget tree is a `WindowHandler`, so only windows can be built.
     /// TODO: ensure that only windows can indeed be built below the root using the type system
     pub fn new() -> Interface {
+        let properties = Rc::new(RefCell::new(GlobalProperties {
+            global_transformation: Mat4x4::identity(),
+            input_state: Default::default(),
+            focus: Weak::new(),
+        }));
         Interface {
-            properties: GlobalProperties {
-                global_transformation: Mat4x4::identity(),
-                input_state: Default::default(),
-                focus: Weak::new(),
-            },
+            properties: properties.clone(),
             root: Node::new_reference_from(
                 ComponentId::new_custom::<WindowHandler>(0),
+                &Rc::downgrade(&properties),
                 Box::new(WindowHandler::new()),
             ),
         }
@@ -93,7 +102,7 @@ impl Interface {
     /// The transformation is the last one applied. It is especially useful to set
     /// the projection and the view matrix
     pub fn global_transformation(&mut self, transform: Mat4x4) {
-        self.properties.global_transformation = transform;
+        self.properties.borrow_mut().global_transformation = transform;
     }
 
     /// Ends the frame. After this, no changes to the interface can be applied
@@ -127,7 +136,7 @@ impl Interface {
 
     /// Registers an event in the interface, propagating it to the right widget
     pub fn register_event(&mut self, event: Event, ray: Option<&Ray>) -> EventResponse {
-        self.properties.input_state.event(&event);
+        self.properties.borrow_mut().input_state.event(&event);
 
         if let Some(ray) = ray {
             let mut distances = self
@@ -151,10 +160,15 @@ impl Interface {
                 EventResponse::Pass
             }
         } else {
+            println!("Launched event to focused widget");
             self.properties
+                .borrow()
                 .focus
                 .upgrade()
-                .map(|node| node.borrow_mut().send_event(&event))
+                .map(|node| {
+                    println!("There is a focused widget");
+                    node.borrow_mut().send_event(&event)
+                })
                 .unwrap_or(EventResponse::Pass)
         }
     }

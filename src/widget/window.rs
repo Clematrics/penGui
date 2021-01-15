@@ -136,7 +136,7 @@ impl WidgetLogic for Window {
         }
     }
 
-    fn query(&mut self, id: ComponentId) -> WidgetQueryResult {
+    fn query(&mut self, metadata: &NodeMetadata, id: ComponentId) -> WidgetQueryResult {
         let child = self
             .content
             .iter()
@@ -146,7 +146,7 @@ impl WidgetLogic for Window {
         let (index, result) = match child {
             Some((index, node_ref)) => (index, WidgetQueryResult::Initialized(node_ref)),
             None => {
-                let node_ref = Node::new_reference(id);
+                let node_ref = Node::new_reference(id, &metadata.global_properties);
                 self.content.push(node_ref.clone());
                 (
                     self.content.len() - 1,

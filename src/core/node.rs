@@ -21,15 +21,23 @@ pub struct NodeMetadata {
     pub invalid: bool,
     pub size: (f32, f32),
     pub position: (f32, f32, f32),
+    pub global_properties: Weak<RefCell<GlobalProperties>>,
+    pub myself: NodeWeakReference,
 }
 
 impl NodeMetadata {
-    pub fn new(id: ComponentId) -> Self {
+    pub fn new(
+        id: ComponentId,
+        myself: &NodeWeakReference,
+        properties: &Weak<RefCell<GlobalProperties>>,
+    ) -> Self {
         NodeMetadata {
             id,
             invalid: false,
             size: (0., 0.),
             position: (0., 0., 0.),
+            global_properties: properties.clone(),
+            myself: myself.clone(),
         }
     }
 }
@@ -44,26 +52,41 @@ pub struct Node {
 impl Node {
     /// Creates a new valid `NodeReference` from the given `ComponentId`,
     /// with a `DummyWidget` inside
-    pub fn new_reference(id: ComponentId) -> NodeReference {
-        Rc::new(RefCell::new(Node {
-            metadata: NodeMetadata::new(id),
+    pub fn new_reference(
+        id: ComponentId,
+        properties: &Weak<RefCell<GlobalProperties>>,
+    ) -> NodeReference {
+        // Note: should use new_cyclic as soon as it is stabilized. See #75861
+        let cell = RefCell::new(Node {
+            metadata: NodeMetadata::new(id, &Weak::new(), properties),
             content: Box::new(DummyWidget),
-        }))
+        });
+        let rc = Rc::new(cell);
+        rc.borrow_mut().metadata.myself = Rc::downgrade(&rc);
+        rc
     }
 
     /// Creates a new valid `NodeReference` from the given `ComponentId`
     /// and the provided boxed widget
-    pub fn new_reference_from(id: ComponentId, widget: Box<dyn Widget>) -> NodeReference {
-        Rc::new(RefCell::new(Node {
-            metadata: NodeMetadata::new(id),
+    pub fn new_reference_from(
+        id: ComponentId,
+        properties: &Weak<RefCell<GlobalProperties>>,
+        widget: Box<dyn Widget>,
+    ) -> NodeReference {
+        // Note: should use new_cyclic as soon as it is stabilized. See #75861
+        let cell = RefCell::new(Node {
+            metadata: NodeMetadata::new(id, &Weak::new(), properties),
             content: widget,
-        }))
+        });
+        let rc = Rc::new(cell);
+        rc.borrow_mut().metadata.myself = Rc::downgrade(&rc);
+        rc
     }
 
     /// Forwards the query to the contained widget and
     /// annotates the result with the type requested
     pub fn query<T: Widget>(&mut self, id: ComponentId) -> NodeQueryResult<T> {
-        match self.content.query(id) {
+        match self.content.query(&self.metadata, id) {
             WidgetQueryResult::Uninitialized(node) => {
                 NodeQueryResult::<T>::UninitializedNode(node, PhantomData)
             }

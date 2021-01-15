@@ -136,7 +136,7 @@ pub trait WidgetLogic {
     /// NodeReference (or a new one if it did not exist) in a WidgetQueryResult.
     ///
     /// Panics by default since there is no contained widget yet.
-    fn query(&mut self, _id: ComponentId) -> WidgetQueryResult {
+    fn query(&mut self, _metadata: &NodeMetadata, _id: ComponentId) -> WidgetQueryResult {
         panic!("Trying to query a widget from another one which does not contains one (or has not implemented the 'query' function")
     }
 
@@ -206,7 +206,7 @@ pub struct DummyWidget;
 
 impl WidgetLogic for DummyWidget {
     /// Should never be called
-    fn query(&mut self, _id: ComponentId) -> WidgetQueryResult {
+    fn query(&mut self, _metadata: &NodeMetadata, _id: ComponentId) -> WidgetQueryResult {
         panic!("Attempting to query a child of a DummyWidget")
     }
 }

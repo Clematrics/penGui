@@ -35,13 +35,6 @@ impl Scene {
 
         match &event {
             GlutinEvent::WindowEvent { event, .. } => match event {
-                WindowEvent::ReceivedCharacter(c) => match c {
-                    '\u{8}' => {
-                        self.ui.editable_text.pop();
-                    }
-                    _ if *c != '\u{7f}' => self.ui.editable_text.push(*c),
-                    _ => {}
-                },
                 WindowEvent::KeyboardInput { input, .. } => {
                     if let Some(glium::glutin::event::VirtualKeyCode::D) = input.virtual_keycode {
                         if let glium::glutin::event::ElementState::Released = input.state {
@@ -49,6 +42,9 @@ impl Scene {
                                 self.backend.switch_debug_rendering();
                             }
                         }
+                    }
+                    if let Some(event) = Input::from(event) {
+                        self.ui.register_event(event, None);
                     }
                 }
                 WindowEvent::Touch(_)
@@ -63,7 +59,11 @@ impl Scene {
                         self.ui.register_event(event, ray.as_ref());
                     }
                 }
-                _ => (),
+                event => {
+                    if let Some(event) = Input::from(event) {
+                        self.ui.register_event(event, None);
+                    }
+                }
             },
             _ => (),
         }
