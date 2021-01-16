@@ -52,6 +52,12 @@ impl Ui {
             {
                 println!("Button inside the padding clicked");
             }
+            if Button3D::new("3D !!!".to_string(), &self.font)
+                .extrude(0.2)
+                .build(loc!(), &ui)
+            {
+                println!("Hello from 3D !");
+            }
             let frame_number = FrameCounter::new().build(loc!(), &ui);
             if CheckBox::new("A checkbox".to_string(), &self.font).build(loc!(), &ui) {
                 LabelBuilder::new(

@@ -1,6 +1,7 @@
 //! Module containing the default and basic widgets offered by penGui
 
 pub use self::button::*;
+pub use self::button_3d::*;
 pub use self::checkbox::*;
 pub use self::frame_counter::*;
 pub use self::label::*;
@@ -10,6 +11,7 @@ pub use self::window::*;
 pub use self::window_handler::*;
 
 pub mod button;
+pub mod button_3d;
 pub mod checkbox;
 pub mod frame_counter;
 pub mod label;
