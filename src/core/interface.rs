@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::rc::{Rc, Weak};
+use std::rc::Rc;
 
 use crate::core::*;
 use crate::widget::WindowHandler;
@@ -14,7 +14,7 @@ pub struct GlobalProperties {
 
 impl GlobalProperties {
     pub fn is_focused(&self, other: &NodeWeakReference) -> bool {
-        self.focus.upgrade() == other.upgrade()
+        self.focus == *other
     }
 
     pub fn request_focus(&mut self, node: &NodeWeakReference) {
@@ -90,7 +90,7 @@ impl Interface {
         let properties = Rc::new(RefCell::new(GlobalProperties {
             global_transformation: Mat4x4::identity(),
             input_state: Default::default(),
-            focus: Weak::new(),
+            focus: Default::default(),
         }));
         Interface {
             properties: properties.clone(),
@@ -119,12 +119,12 @@ impl Interface {
     /// Widgets reconstructed are updated properly.
     pub fn new_frame(&mut self) {
         // Invalidate all windows
-        self.root.borrow_mut().metadata.invalid = true;
+        self.root.invalidate();
     }
 
     /// Computes the layout, trying to satisfy all constraints provided by each widget.
     pub fn generate_layout(&self) -> LayoutResponse {
-        self.root.borrow_mut().layout(&LayoutQuery {
+        self.root.layout(&LayoutQuery {
             available_space: (Some(0.), Some(0.)),
             objectives: (Objective::None, Objective::None),
         })
@@ -134,8 +134,8 @@ impl Interface {
     /// necessary to draw the interface. This does not draw anything on the screen: the result of this function
     /// has to be passed to a backend, in charge of drawing.
     /// TODO: change the name?
-    pub fn draw(&self /*, position: Point3<f32>, size: (f32, f32)*/) -> DrawList {
-        self.root.borrow_mut().draw(/*position, size*/)
+    pub fn draw(&self) -> DrawList {
+        self.root.draw()
     }
 
     /// Registers an event in the interface, propagating it to the right widget
@@ -143,15 +143,12 @@ impl Interface {
         self.properties.borrow_mut().input_state.event(&event);
 
         if let Some(ray) = ray {
-            let mut distances = self
-                .root
-                .borrow()
-                .interaction_distance(ray, self.root.clone());
+            let mut distances = self.root.interaction_distance(ray, self.root.clone());
             distances.sort_unstable_by(|(d1, _), (d2, _)| d1.partial_cmp(d2).unwrap());
 
             let mut passively_registered = false;
             for (_distance, widget) in &distances {
-                let response = widget.borrow_mut().send_event(&event);
+                let response = widget.send_event(&event);
                 match response {
                     EventResponse::Registered => return EventResponse::Registered,
                     EventResponse::PassivelyRegistered => passively_registered = true,
@@ -163,7 +160,7 @@ impl Interface {
             } else {
                 // No widget found, if left click, resetting focus
                 if let Event::MouseButtonPressed(MouseButton::Left) = event {
-                    self.properties.borrow_mut().focus = Weak::new();
+                    self.properties.borrow_mut().focus = Default::default();
                 }
                 EventResponse::Pass
             }
@@ -171,8 +168,7 @@ impl Interface {
             self.properties
                 .borrow()
                 .focus
-                .upgrade()
-                .map(|node| node.borrow_mut().send_event(&event))
+                .send_event(&event)
                 .unwrap_or(EventResponse::Pass)
         }
     }

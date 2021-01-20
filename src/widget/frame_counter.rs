@@ -27,31 +27,26 @@ impl Default for FrameCounter {
 }
 impl WidgetBuilder for FrameCounter {
     type AchievedType = FrameCounter;
+    type UpdateFeedback = u32;
     type BuildFeedback = u32;
-    fn update(self, _metadata: &NodeMetadata, widget: &mut Self::AchievedType) {
+
+    fn update(
+        self,
+        _metadata: &NodeMetadata,
+        widget: &mut Self::AchievedType,
+    ) -> Self::UpdateFeedback {
         if self.count_next_frame {
             widget.count += 1;
         }
+        widget.count
     }
     fn create(self) -> Self::AchievedType {
         self
     }
     fn build(self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
-        let node_ref = parent
-            .borrow_mut()
-            .query::<Self::AchievedType>(id)
-            .update(self);
-        {
-            let node_bis = node_ref;
-            let mut node = node_bis.borrow_mut();
-            let (_, content) = node.borrow_parts();
-            let window = content
-                .as_any_mut()
-                .downcast_mut::<Self::AchievedType>()
-                .unwrap();
-            window.count
-        }
+        let (_, feedback) = parent.query::<Self::AchievedType>(id).update(self);
+        feedback
     }
 }
 impl WidgetLogic for FrameCounter {}

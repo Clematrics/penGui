@@ -40,11 +40,19 @@ impl Button {
 
 impl WidgetBuilder for Button {
     type AchievedType = Button;
+    type UpdateFeedback = bool;
     type BuildFeedback = bool;
 
-    fn update(self, _metadata: &NodeMetadata, old: &mut Self::AchievedType) {
-        old.label = self.label;
-        old.color = self.color;
+    fn update(
+        self,
+        _metadata: &NodeMetadata,
+        widget: &mut Self::AchievedType,
+    ) -> Self::UpdateFeedback {
+        let pressed = widget.pressed;
+        widget.pressed = false;
+        widget.label = self.label;
+        widget.color = self.color;
+        pressed
     }
 
     fn create(self) -> Self::AchievedType {
@@ -53,23 +61,8 @@ impl WidgetBuilder for Button {
 
     fn build(self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
-
-        let node = parent
-            .borrow_mut()
-            .query::<Self::AchievedType>(id)
-            .update(self);
-
-        {
-            let mut node = node.borrow_mut();
-            let (_, button) = node.borrow_parts();
-            let button = button
-                .as_any_mut()
-                .downcast_mut::<Self::AchievedType>()
-                .unwrap();
-            let pressed = button.pressed;
-            button.pressed = false;
-            pressed
-        }
+        let (_, feedback) = parent.query::<Self::AchievedType>(id).update(self);
+        feedback
     }
 }
 

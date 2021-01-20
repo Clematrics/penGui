@@ -3,8 +3,6 @@ use std::rc::Rc;
 
 use crate::core::*;
 
-use nalgebra::{Point3, Translation3};
-
 /// An editable text
 pub struct LabelBuilder<'a> {
     text: &'a str,
@@ -34,9 +32,14 @@ impl<'a> LabelBuilder<'a> {
 
 impl<'a> WidgetBuilder for LabelBuilder<'a> {
     type AchievedType = Label;
+    type UpdateFeedback = ();
     type BuildFeedback = ();
 
-    fn update(self, _metadata: &NodeMetadata, widget: &mut Self::AchievedType) {
+    fn update(
+        self,
+        _metadata: &NodeMetadata,
+        widget: &mut Self::AchievedType,
+    ) -> Self::UpdateFeedback {
         widget.text = self.text.to_string();
         widget.size = self.size;
         widget.color = self.color;
@@ -54,10 +57,7 @@ impl<'a> WidgetBuilder for LabelBuilder<'a> {
     fn build(self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
 
-        parent
-            .borrow_mut()
-            .query::<Self::AchievedType>(id)
-            .update(self);
+        parent.query::<Self::AchievedType>(id).update(self);
     }
 }
 

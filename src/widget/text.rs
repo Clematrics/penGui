@@ -34,9 +34,14 @@ impl<'a> TextBuilder<'a> {
 
 impl<'a> WidgetBuilder for TextBuilder<'a> {
     type AchievedType = Text;
+    type UpdateFeedback = ();
     type BuildFeedback = ();
 
-    fn update(self, _metadata: &NodeMetadata, widget: &mut Self::AchievedType) {
+    fn update(
+        self,
+        _metadata: &NodeMetadata,
+        widget: &mut Self::AchievedType,
+    ) -> Self::UpdateFeedback {
         self.text.clone_from(&widget.text);
         widget.size = self.size;
         widget.color = self.color;
@@ -54,10 +59,7 @@ impl<'a> WidgetBuilder for TextBuilder<'a> {
     fn build(self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
 
-        parent
-            .borrow_mut()
-            .query::<Self::AchievedType>(id)
-            .update(self);
+        parent.query::<Self::AchievedType>(id).update(self);
     }
 }
 

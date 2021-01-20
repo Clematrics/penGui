@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 use nalgebra::*;
 
 use crate::core::*;
@@ -25,9 +23,15 @@ impl Default for WindowHandler {
 
 impl WidgetBuilder for WindowHandler {
     type AchievedType = WindowHandler;
+    type UpdateFeedback = ();
     type BuildFeedback = ();
 
-    fn update(self, _metadata: &NodeMetadata, _old: &mut Self::AchievedType) {}
+    fn update(
+        self,
+        _metadata: &NodeMetadata,
+        _widget: &mut Self::AchievedType,
+    ) -> Self::UpdateFeedback {
+    }
 
     fn create(self) -> Self::AchievedType {
         self
@@ -41,8 +45,8 @@ impl WidgetLogic for WindowHandler {
         let child = self
             .windows
             .iter()
-            .find(|&other| (*other).borrow().metadata.id == id)
-            .map(Rc::clone);
+            .find(|&other| other.has_id(id))
+            .map(NodeReference::clone);
         match child {
             Some(node_ref) => WidgetQueryResult::Initialized(node_ref),
             None => {
@@ -59,15 +63,14 @@ impl WidgetLogic for WindowHandler {
         // window, as they manage this themselves
         let mut status = (LayoutStatus::Ok, LayoutStatus::Ok);
         for node in &self.windows {
-            let response = node.borrow_mut().layout(&LayoutQuery {
+            let response = node.layout(&LayoutQuery {
                 available_space: (None, None),
                 objectives: (Objective::Minimize, Objective::Minimize),
             });
             status.0 = LayoutStatus::and(status.0, response.status.0);
             status.1 = LayoutStatus::and(status.1, response.status.1);
 
-            node.borrow_mut().metadata.position =
-                (-response.size.0 / 2., -response.size.1 / 2., 3.);
+            node.set_position((-response.size.0 / 2., -response.size.1 / 2., 3.));
         }
         // The response is irrelevant here
         LayoutResponse {
@@ -79,7 +82,7 @@ impl WidgetLogic for WindowHandler {
     fn draw(&self, _metadata: &NodeMetadata) -> DrawList {
         let mut list = DrawList::new();
         self.windows.iter().for_each(|node| {
-            list.list.push(node.borrow_mut().draw());
+            list.list.push(node.draw());
         });
         list
     }
@@ -95,11 +98,7 @@ impl WidgetLogic for WindowHandler {
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         self.windows
             .iter()
-            .map(|window| {
-                window
-                    .borrow()
-                    .interaction_distance(&new_ray, window.clone())
-            })
+            .map(|window| window.interaction_distance(&new_ray, window.clone()))
             .flatten()
             .collect()
     }

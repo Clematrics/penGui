@@ -34,6 +34,8 @@ use crate::core::*;
 pub trait WidgetBuilder {
     /// The type of the widget built and added to the interface
     type AchievedType: Widget + 'static;
+    /// The type returned from the `update` function. If the widget is just constructed, Default is returned
+    type UpdateFeedback;
     /// The type returned from the `build` function
     type BuildFeedback;
 
@@ -41,7 +43,7 @@ pub trait WidgetBuilder {
     /// provided during this frame.
     ///
     /// This function should not be called outside of the `build` function
-    fn update(self, metadata: &NodeMetadata, old: &mut Self::AchievedType);
+    fn update(self, metadata: &NodeMetadata, old: &mut Self::AchievedType) -> Self::UpdateFeedback;
 
     /// This function should create a new instance of a widget, based on the information the
     /// builder has. This will be used to create a new node if the widget was inexistant during

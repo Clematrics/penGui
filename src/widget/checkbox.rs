@@ -60,13 +60,19 @@ impl CheckBox {
 
 impl WidgetBuilder for CheckBox {
     type AchievedType = CheckBox;
+    type UpdateFeedback = bool;
     type BuildFeedback = bool;
 
-    fn update(self, _metadata: &NodeMetadata, old: &mut Self::AchievedType) {
-        old.label = self.label;
-        old.background_color = self.background_color;
-        old.checked_color = self.checked_color;
-        old.unchecked_color = self.unchecked_color;
+    fn update(
+        self,
+        _metadata: &NodeMetadata,
+        widget: &mut Self::AchievedType,
+    ) -> Self::UpdateFeedback {
+        widget.label = self.label;
+        widget.background_color = self.background_color;
+        widget.checked_color = self.checked_color;
+        widget.unchecked_color = self.unchecked_color;
+        widget.checked
     }
 
     fn create(self) -> Self::AchievedType {
@@ -75,21 +81,8 @@ impl WidgetBuilder for CheckBox {
 
     fn build(self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
-
-        let node = parent
-            .borrow_mut()
-            .query::<Self::AchievedType>(id)
-            .update(self);
-
-        {
-            let mut node = node.borrow_mut();
-            let (_, checkbox) = node.borrow_parts();
-            let checkbox = checkbox
-                .as_any_mut()
-                .downcast_mut::<Self::AchievedType>()
-                .unwrap();
-            checkbox.checked
-        }
+        let (_, feedback) = parent.query::<Self::AchievedType>(id).update(self);
+        feedback
     }
 }
 

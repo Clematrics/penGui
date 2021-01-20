@@ -1,5 +1,4 @@
 use nalgebra::*;
-use std::rc::Rc;
 
 use crate::core::*;
 use crate::loc;
@@ -26,10 +25,15 @@ impl<T: WidgetBuilder> PaddingBuilder<T> {
 
 impl<T: WidgetBuilder> WidgetBuilder for PaddingBuilder<T> {
     type AchievedType = Padding;
+    type UpdateFeedback = ();
     type BuildFeedback = T::BuildFeedback;
 
-    fn update(self, _metadata: &NodeMetadata, old: &mut Self::AchievedType) {
-        old.padding = self.padding;
+    fn update(
+        self,
+        _metadata: &NodeMetadata,
+        widget: &mut Self::AchievedType,
+    ) -> Self::UpdateFeedback {
+        widget.padding = self.padding;
     }
 
     fn create(self) -> Self::AchievedType {
@@ -42,10 +46,7 @@ impl<T: WidgetBuilder> WidgetBuilder for PaddingBuilder<T> {
     fn build(mut self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
         let content = self.content.take().unwrap();
-        let node_ref = parent
-            .borrow_mut()
-            .query::<Self::AchievedType>(id)
-            .update(self);
+        let (node_ref, _) = parent.query::<Self::AchievedType>(id).update(self);
 
         content.build(loc!(), &node_ref)
     }
@@ -61,8 +62,8 @@ impl WidgetLogic for Padding {
         let child = {
             match &self.content {
                 Some(other) => {
-                    if other.borrow().metadata.id == id {
-                        Some(Rc::clone(&other))
+                    if other.has_id(id) {
+                        Some(other.clone())
                     } else {
                         None
                     }
@@ -101,21 +102,14 @@ impl WidgetLogic for Padding {
             }),
         );
 
-        let response = self
-            .content
-            .as_ref()
-            .unwrap()
-            .borrow_mut()
-            .layout(&LayoutQuery {
-                available_space: inner_space,
-                objectives: query.objectives,
-            });
+        let response = self.content.as_ref().unwrap().layout(&LayoutQuery {
+            available_space: inner_space,
+            objectives: query.objectives,
+        });
 
-        {
-            let metadata = &mut self.content.as_ref().unwrap().borrow_mut().metadata;
-            metadata.size = response.size;
-            metadata.position = (self.padding.0, self.padding.1, 0.);
-        }
+        let node = self.content.as_ref().unwrap();
+        node.set_size(response.size);
+        node.set_position((self.padding.0, self.padding.1, 0.));
 
         let width = response.size.0 + 2. * self.padding.0;
         let height = response.size.1 + 2. * self.padding.1;
@@ -131,8 +125,7 @@ impl WidgetLogic for Padding {
 
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {
         let mut list = DrawList::new();
-        list.list
-            .push(self.content.as_ref().unwrap().borrow().draw());
+        list.list.push(self.content.as_ref().unwrap().draw());
         let (x, y, z) = metadata.position;
         list.list_transform =
             nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous();
@@ -158,11 +151,7 @@ impl WidgetLogic for Padding {
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         self.content
             .iter()
-            .map(|content| {
-                content
-                    .borrow()
-                    .interaction_distance(&new_ray, content.clone())
-            })
+            .map(|content| content.interaction_distance(&new_ray, content.clone()))
             .flatten()
             .collect()
     }

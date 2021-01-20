@@ -6,9 +6,145 @@ use std::rc::{Rc, Weak};
 use crate::core::*;
 
 /// Type describing a shared, mutable reference to a `Node`
-pub type NodeReference = Rc<RefCell<Node>>;
+#[derive(Clone, PartialEq, Eq)]
+pub struct NodeReference {
+    inner: Rc<RefCell<Node>>,
+}
+
 /// Type describing a weak, mutable reference to a `Node`
-pub type NodeWeakReference = Weak<RefCell<Node>>;
+#[derive(Clone)]
+pub struct NodeWeakReference {
+    inner: Weak<RefCell<Node>>,
+}
+
+impl NodeReference {
+    pub fn new(inner: Rc<RefCell<Node>>) -> Self {
+        Self { inner }
+    }
+
+    pub fn has_id(&self, id: ComponentId) -> bool {
+        self.inner.borrow().metadata.id == id
+    }
+
+    pub fn is_valid(&self) -> bool {
+        !self.inner.borrow().metadata.invalid
+    }
+
+    pub fn validate(&self) {
+        self.inner.borrow_mut().metadata.invalid = false;
+    }
+
+    pub fn invalidate(&self) {
+        self.inner.borrow_mut().metadata.invalid = true;
+    }
+
+    pub fn set_size(&self, size: (f32, f32)) {
+        self.inner.borrow_mut().metadata.size = size;
+    }
+
+    pub fn set_position(&self, position: (f32, f32, f32)) {
+        self.inner.borrow_mut().metadata.position = position;
+    }
+
+    /// Wraps the `query` function of the contained node.
+    pub fn query<T: Widget>(&self, id: ComponentId) -> NodeQueryResult<T> {
+        self.inner.borrow_mut().query(id)
+    }
+
+    /// Wraps the `layout` function of the contained node.
+    pub fn layout(&self, query: &LayoutQuery) -> LayoutResponse {
+        self.inner.borrow_mut().layout(query)
+    }
+
+    /// Wraps the `draw` function of the contained node.
+    pub fn draw(&self) -> DrawList {
+        self.inner.borrow().draw()
+    }
+
+    /// Wraps the `interaction_distance` function of the contained node.
+    pub fn interaction_distance(
+        &self,
+        ray: &Ray,
+        self_node: NodeReference,
+    ) -> Vec<(f32, NodeReference)> {
+        self.inner.borrow().interaction_distance(ray, self_node)
+    }
+
+    /// Wraps the `send_event` function of the contained node.
+    pub fn send_event(&self, event: &Event) -> EventResponse {
+        self.inner.borrow_mut().send_event(event)
+    }
+
+    pub fn set_content(&self, content: Box<dyn Widget + 'static>) {
+        self.inner.borrow_mut().content = content;
+    }
+
+    pub fn update<
+        T: Widget + 'static,
+        U,
+        V: WidgetBuilder<AchievedType = T, UpdateFeedback = U>,
+    >(
+        &self,
+        builder: V,
+    ) -> U {
+        self.validate();
+        let mut node = self.inner.borrow_mut();
+        let (metadata, content) = node.borrow_parts();
+        let downcast_res = content.as_any_mut().downcast_mut::<T>();
+
+        match downcast_res {
+            Some(content_ref) => builder.update(&metadata, content_ref),
+            None => panic!("Could not downcast content to concrete type requested"),
+        }
+    }
+
+    pub fn apply_to_widget<T: Widget + 'static, F>(&self, f: F)
+    where
+        F: FnOnce(&NodeMetadata, &mut T),
+    {
+        let mut node = self.inner.borrow_mut();
+        let (metadata, content) = node.borrow_parts();
+        let downcast_res = content.as_any_mut().downcast_mut::<T>();
+
+        match downcast_res {
+            Some(content_ref) => (f)(metadata, content_ref),
+            None => panic!("Could not downcast content to concrete type requested"),
+        }
+    }
+}
+
+impl NodeWeakReference {
+    pub fn new() -> Self {
+        Self { inner: Weak::new() }
+    }
+
+    pub fn from(other: &Rc<RefCell<Node>>) -> Self {
+        Self {
+            inner: Rc::downgrade(other),
+        }
+    }
+
+    /// Wraps the `send_event` function of the contained node.
+    pub fn send_event(&self, event: &Event) -> Option<EventResponse> {
+        self.inner
+            .upgrade()
+            .map(|node| node.borrow_mut().send_event(event))
+    }
+}
+
+impl Default for NodeWeakReference {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl PartialEq for NodeWeakReference {
+    fn eq(&self, other: &Self) -> bool {
+        self.inner.upgrade() == other.inner.upgrade()
+    }
+}
+
+impl Eq for NodeWeakReference {}
 
 /// A structure holding contextual information about a widget:
 /// - the `ComponentId` with respect to the parent
@@ -71,12 +207,12 @@ impl Node {
     ) -> NodeReference {
         // Note: should use new_cyclic as soon as it is stabilized. See #75861
         let cell = RefCell::new(Node {
-            metadata: NodeMetadata::new(id, &Weak::new(), properties),
+            metadata: NodeMetadata::new(id, &Default::default(), properties),
             content: Box::new(DummyWidget),
         });
         let rc = Rc::new(cell);
-        rc.borrow_mut().metadata.myself = Rc::downgrade(&rc);
-        rc
+        rc.borrow_mut().metadata.myself = NodeWeakReference::from(&rc);
+        NodeReference::new(rc)
     }
 
     /// Creates a new valid `NodeReference` from the given `ComponentId`
@@ -88,12 +224,12 @@ impl Node {
     ) -> NodeReference {
         // Note: should use new_cyclic as soon as it is stabilized. See #75861
         let cell = RefCell::new(Node {
-            metadata: NodeMetadata::new(id, &Weak::new(), properties),
+            metadata: NodeMetadata::new(id, &Default::default(), properties),
             content: widget,
         });
         let rc = Rc::new(cell);
-        rc.borrow_mut().metadata.myself = Rc::downgrade(&rc);
-        rc
+        rc.borrow_mut().metadata.myself = NodeWeakReference::from(&rc);
+        NodeReference::new(rc)
     }
 
     /// Forwards the query to the contained widget and
@@ -192,24 +328,18 @@ impl<T: Widget + 'static> NodeQueryResult<T> {
     /// custom widget builder which is not implemented correctly.
     ///
     /// TODO: test this properly. Is it possible to test this on all types that implement the `Widget` trait?
-    pub fn update<U: WidgetBuilder<AchievedType = T>>(self, builder: U) -> NodeReference {
+    pub fn update<U: Default, V: WidgetBuilder<AchievedType = T, UpdateFeedback = U>>(
+        self,
+        builder: V,
+    ) -> (NodeReference, U) {
         match self {
             Self::UninitializedNode(node_ref, _) => {
-                node_ref.borrow_mut().content = Box::new(builder.create());
-                node_ref
+                node_ref.set_content(Box::new(builder.create()));
+                (node_ref, Default::default())
             }
             Self::InitializedNode(node_ref, _) => {
-                {
-                    let mut node = node_ref.borrow_mut();
-                    let (metadata, content) = node.borrow_parts();
-                    metadata.invalid = false;
-                    let downcast_res = content.as_any_mut().downcast_mut::<T>();
-                    match downcast_res {
-                        Some(content_ref) => builder.update(metadata, content_ref),
-                        None => panic!("Could not downcast content to concrete type requested"),
-                    };
-                }
-                node_ref
+                let feedback = node_ref.update(builder);
+                (node_ref, feedback)
             }
         }
     }

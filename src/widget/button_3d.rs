@@ -46,12 +46,22 @@ impl Button3D {
 
 impl WidgetBuilder for Button3D {
     type AchievedType = Button3D;
+    type UpdateFeedback = bool;
     type BuildFeedback = bool;
 
-    fn update(self, _metadata: &NodeMetadata, old: &mut Self::AchievedType) {
-        old.label = self.label;
-        old.extrude = self.extrude;
-        old.color = self.color;
+    fn update(
+        self,
+        _metadata: &NodeMetadata,
+        widget: &mut Self::AchievedType,
+    ) -> Self::UpdateFeedback {
+        let pressed = widget.pressed;
+
+        widget.pressed = false;
+        widget.label = self.label;
+        widget.extrude = self.extrude;
+        widget.color = self.color;
+
+        pressed
     }
 
     fn create(self) -> Self::AchievedType {
@@ -61,22 +71,8 @@ impl WidgetBuilder for Button3D {
     fn build(self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
 
-        let node = parent
-            .borrow_mut()
-            .query::<Self::AchievedType>(id)
-            .update(self);
-
-        {
-            let mut node = node.borrow_mut();
-            let (_, button) = node.borrow_parts();
-            let button = button
-                .as_any_mut()
-                .downcast_mut::<Self::AchievedType>()
-                .unwrap();
-            let pressed = button.pressed;
-            button.pressed = false;
-            pressed
-        }
+        let (node, feedback) = parent.query::<Self::AchievedType>(id).update(self);
+        feedback
     }
 }
 

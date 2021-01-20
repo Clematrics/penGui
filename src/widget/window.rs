@@ -1,5 +1,4 @@
 use nalgebra::*;
-use std::rc::Rc;
 
 use crate::core::*;
 
@@ -8,11 +7,11 @@ use crate::core::*;
 pub struct WindowBuilder<'a> {
     title: String,
     size: (f32, f32),
-    generator: Option<Box<dyn 'a + FnMut(NodeReference)>>,
+    generator: Option<Box<dyn 'a + FnMut(&NodeReference)>>,
 }
 
 impl<'a> WindowBuilder<'a> {
-    pub fn new<F: 'a + FnMut(NodeReference)>(generator: F) -> Self {
+    pub fn new<F: 'a + FnMut(&NodeReference)>(generator: F) -> Self {
         WindowBuilder {
             title: "".to_string(),
             size: (5., 5.),
@@ -31,10 +30,18 @@ impl<'a> WindowBuilder<'a> {
 
 impl<'a> WidgetBuilder for WindowBuilder<'a> {
     type AchievedType = Window;
+    type UpdateFeedback = ();
     type BuildFeedback = ();
 
-    fn update(self, _metadata: &NodeMetadata, old: &mut Self::AchievedType) {
-        old.title = self.title;
+    fn update(
+        self,
+        _metadata: &NodeMetadata,
+        widget: &mut Self::AchievedType,
+    ) -> Self::UpdateFeedback {
+        widget.title = self.title;
+
+        widget.content.iter().for_each(|child| child.invalidate());
+        widget.valid_index = 0;
     }
 
     fn create(self) -> Self::AchievedType {
@@ -48,38 +55,13 @@ impl<'a> WidgetBuilder for WindowBuilder<'a> {
 
     fn build(mut self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
-        let mut generator = self.generator.take().unwrap_or_else(|| Box::new(|_| ()));
-        let node_ref = parent
-            .borrow_mut()
-            .query::<Self::AchievedType>(id)
-            .update(self);
+        let mut generator = self.generator.take().unwrap();
+        let (node_ref, _) = parent.query::<Self::AchievedType>(id).update(self);
 
-        {
-            let node_bis = node_ref.clone();
-            let mut node = node_bis.borrow_mut();
-            let (_, content) = node.borrow_parts();
-            let window = content
-                .as_any_mut()
-                .downcast_mut::<Self::AchievedType>()
-                .unwrap();
-            window
-                .content
-                .iter()
-                .for_each(|node_ref| node_ref.borrow_mut().metadata.invalid = true);
-            window.valid_index = 0;
-        }
-        (generator)(node_ref.clone());
-        {
-            let mut node = node_ref.borrow_mut();
-            let (_, content) = node.borrow_parts();
-            let window = content
-                .as_any_mut()
-                .downcast_mut::<Self::AchievedType>()
-                .unwrap();
-            window
-                .content
-                .retain(|node_ref| !node_ref.borrow_mut().metadata.invalid);
-        }
+        (generator)(&node_ref);
+        node_ref.apply_to_widget::<Self::AchievedType, _>(|_, widget| {
+            widget.content.retain(|child| child.is_valid())
+        });
     }
 }
 
@@ -102,17 +84,14 @@ impl WidgetLogic for Window {
         // substracted from the remaining space
         for node in &mut self.content {
             let response = {
-                node.borrow_mut().layout(&LayoutQuery {
+                node.layout(&LayoutQuery {
                     available_space: (Some(horizontal_space), Some(vertical_space)),
                     objectives: (Objective::Minimize, Objective::Minimize),
                 })
             };
 
-            {
-                let metadata = &mut node.borrow_mut().metadata;
-                metadata.size = response.size;
-                metadata.position = (0., vertical_space - response.size.1, 0.);
-            }
+            node.set_size(response.size);
+            node.set_position((0., vertical_space - response.size.1, 0.));
 
             vertical_space -= response.size.1 + WIDGET_SEPARATOR;
             status.0 = LayoutStatus::and(status.0, response.status.0);
@@ -141,8 +120,8 @@ impl WidgetLogic for Window {
             .content
             .iter()
             .enumerate()
-            .find(|(_, other)| (*other).borrow().metadata.id == id)
-            .map(|(index, other)| (index, Rc::clone(other)));
+            .find(|(_, other)| other.has_id(id))
+            .map(|(index, other)| (index, other.clone()));
         let (index, result) = match child {
             Some((index, node_ref)) => (index, WidgetQueryResult::Initialized(node_ref)),
             None => {
@@ -162,7 +141,7 @@ impl WidgetLogic for Window {
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {
         let mut list = DrawList::new();
         self.content.iter().for_each(|node| {
-            list.list.push(node.borrow_mut().draw());
+            list.list.push(node.draw());
         });
         let color = (42. / 256., 60. / 256., 101. / 256., 1.);
         let (x, y, z) = metadata.position;
@@ -190,11 +169,7 @@ impl WidgetLogic for Window {
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         self.content
             .iter()
-            .map(|content| {
-                content
-                    .borrow()
-                    .interaction_distance(&new_ray, content.clone())
-            })
+            .map(|content| content.interaction_distance(&new_ray, content.clone()))
             .flatten()
             .collect()
     }
