@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use nalgebra::{Point3, Translation3};
+use nalgebra::{Point3, Translation3, Vector2, Vector3};
 
 use crate::core::*;
 
@@ -140,80 +140,66 @@ impl WidgetLogic for CheckBox {
     }
 
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {
-        #![allow(clippy::many_single_char_names)]
-
-        let background_color = {
-            let (r, g, b, a) = self.background_color;
-            [r, g, b, a]
-        };
+        let background_color = self.background_color;
 
         let color = {
-            let checked_color = {
-                let (r, g, b, a) = self.checked_color;
-                [r, g, b, a]
-            };
-            let unchecked_color = {
-                let (r, g, b, a) = self.unchecked_color;
-                [r, g, b, a]
-            };
             if self.checked {
-                checked_color
+                self.checked_color
             } else {
-                unchecked_color
+                self.unchecked_color
             }
         };
         let size = metadata.size;
-        let (x, y, z) = metadata.position;
 
         let box_size = size.1 - 2. * PADDING;
 
         let background_command = {
             let mut uniforms = Uniforms::new();
             uniforms.model_matrix =
-                nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous();
+                nalgebra::Translation3::from(metadata.position).to_homogeneous();
             uniforms.texture = self.texture;
 
             DrawCommand {
                 vertex_buffer: vec![
                     Vertex {
-                        position: [0., 0., 0.],
+                        position: Vector3::new(0., 0., 0.),
                         color: background_color,
-                        tex_uv: [0., 0.],
+                        tex_uv: Vector2::new(0., 0.),
                     },
                     Vertex {
-                        position: [size.0, 0., 0.],
+                        position: Vector3::new(size.0, 0., 0.),
                         color: background_color,
-                        tex_uv: [1., 0.],
+                        tex_uv: Vector2::new(1., 0.),
                     },
                     Vertex {
-                        position: [0., size.1, 0.],
+                        position: Vector3::new(0., size.1, 0.),
                         color: background_color,
-                        tex_uv: [0., 1.],
+                        tex_uv: Vector2::new(0., 1.),
                     },
                     Vertex {
-                        position: [size.0, size.1, 0.],
+                        position: Vector3::new(size.0, size.1, 0.),
                         color: background_color,
-                        tex_uv: [1., 1.],
+                        tex_uv: Vector2::new(1., 1.),
                     },
                     Vertex {
-                        position: [PADDING, PADDING, 0.001],
+                        position: Vector3::new(PADDING, PADDING, 0.001),
                         color,
-                        tex_uv: [0., 0.],
+                        tex_uv: Vector2::new(0., 0.),
                     },
                     Vertex {
-                        position: [PADDING + box_size, PADDING, 0.001],
+                        position: Vector3::new(PADDING + box_size, PADDING, 0.001),
                         color,
-                        tex_uv: [1., 0.],
+                        tex_uv: Vector2::new(1., 0.),
                     },
                     Vertex {
-                        position: [PADDING, PADDING + box_size, 0.001],
+                        position: Vector3::new(PADDING, PADDING + box_size, 0.001),
                         color,
-                        tex_uv: [0., 1.],
+                        tex_uv: Vector2::new(0., 1.),
                     },
                     Vertex {
-                        position: [PADDING + box_size, PADDING + box_size, 0.001],
+                        position: Vector3::new(PADDING + box_size, PADDING + box_size, 0.001),
                         color,
-                        tex_uv: [1., 1.],
+                        tex_uv: Vector2::new(1., 1.),
                     },
                 ],
                 index_buffer: vec![0, 1, 2, 1, 2, 3, 4, 5, 6, 5, 6, 7],
@@ -227,11 +213,9 @@ impl WidgetLogic for CheckBox {
             &self.font,
             1.,
             color,
-            nalgebra::Translation3::from(nalgebra::Vector3::new(
-                x + box_size + 2. * PADDING,
-                y + PADDING,
-                z + 0.001,
-            ))
+            nalgebra::Translation3::from(
+                metadata.position + Vector3::new(box_size + 2. * PADDING, PADDING, 0.001),
+            )
             .to_homogeneous(),
         );
 
@@ -247,8 +231,7 @@ impl WidgetLogic for CheckBox {
         ray: &Ray,
         self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
-        let (x, y, z) = metadata.position;
-        let transformation = Translation3::new(x, y, z).inverse();
+        let transformation = Translation3::from(metadata.position).inverse();
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         let size = metadata.size;
         let points = [

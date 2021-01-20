@@ -2,6 +2,8 @@ use crate::mesh::Mesh;
 
 use pengui::core::{DrawCommand, DrawList, DrawMode, Mat4x4, Uniforms, Vertex};
 
+use nalgebra::{Vector2, Vector3};
+
 pub struct TestCube {
     draw_list: DrawList,
 }
@@ -17,46 +19,46 @@ impl TestCube {
         let cube_vertices: Vec<Vertex> = vec![
             // Front face
             Vertex {
-                position: [-0.5, 0.5, -0.5],
-                color: [1., 0., 0., 0.],
-                tex_uv: [0., 0.],
+                position: Vector3::new(-0.5, 0.5, -0.5),
+                color: (1., 0., 0., 0.),
+                tex_uv: Vector2::new(0., 0.),
             },
             Vertex {
-                position: [0.5, 0.5, -0.5],
-                color: [0., 0., 1., 0.],
-                tex_uv: [0., 0.],
+                position: Vector3::new(0.5, 0.5, -0.5),
+                color: (0., 0., 1., 0.),
+                tex_uv: Vector2::new(0., 0.),
             },
             Vertex {
-                position: [-0.5, -0.5, -0.5],
-                color: [0., 1., 0., 0.],
-                tex_uv: [0., 0.],
+                position: Vector3::new(-0.5, -0.5, -0.5),
+                color: (0., 1., 0., 0.),
+                tex_uv: Vector2::new(0., 0.),
             },
             Vertex {
-                position: [0.5, -0.5, -0.5],
-                color: [0., 0., 0., 0.],
-                tex_uv: [0., 0.],
+                position: Vector3::new(0.5, -0.5, -0.5),
+                color: (0., 0., 0., 0.),
+                tex_uv: Vector2::new(0., 0.),
             },
             // Right face
             Vertex {
-                position: [0.5, -0.5, 0.5],
-                color: [1., 1., 0., 0.],
-                tex_uv: [0., 0.],
+                position: Vector3::new(0.5, -0.5, 0.5),
+                color: (1., 1., 0., 0.),
+                tex_uv: Vector2::new(0., 0.),
             },
             Vertex {
-                position: [0.5, 0.5, 0.5],
-                color: [1., 0., 1., 0.],
-                tex_uv: [0., 0.],
+                position: Vector3::new(0.5, 0.5, 0.5),
+                color: (1., 0., 1., 0.),
+                tex_uv: Vector2::new(0., 0.),
             },
             // Left face
             Vertex {
-                position: [-0.5, -0.5, 0.5],
-                color: [0., 1., 1., 0.],
-                tex_uv: [0., 0.],
+                position: Vector3::new(-0.5, -0.5, 0.5),
+                color: (0., 1., 1., 0.),
+                tex_uv: Vector2::new(0., 0.),
             },
             Vertex {
-                position: [-0.5, 0.5, 0.5],
-                color: [1., 1., 1., 0.],
-                tex_uv: [0., 0.],
+                position: Vector3::new(-0.5, 0.5, 0.5),
+                color: (1., 1., 1., 0.),
+                tex_uv: Vector2::new(0., 0.),
             },
         ];
 

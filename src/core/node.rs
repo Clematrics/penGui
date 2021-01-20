@@ -5,6 +5,8 @@ use std::rc::{Rc, Weak};
 
 use crate::core::*;
 
+use nalgebra::Vector3;
+
 /// Type describing a shared, mutable reference to a `Node`
 #[derive(Clone, PartialEq, Eq)]
 pub struct NodeReference {
@@ -42,7 +44,7 @@ impl NodeReference {
         self.inner.borrow_mut().metadata.size = size;
     }
 
-    pub fn set_position(&self, position: (f32, f32, f32)) {
+    pub fn set_position(&self, position: Vector3<f32>) {
         self.inner.borrow_mut().metadata.position = position;
     }
 
@@ -156,7 +158,7 @@ pub struct NodeMetadata {
     pub id: ComponentId,
     pub invalid: bool,
     pub size: (f32, f32),
-    pub position: (f32, f32, f32),
+    pub position: Vector3<f32>,
     pub ui_properties: Weak<RefCell<GlobalProperties>>,
     pub myself: NodeWeakReference,
 }
@@ -171,7 +173,7 @@ impl NodeMetadata {
             id,
             invalid: false,
             size: (0., 0.),
-            position: (0., 0., 0.),
+            position: Vector3::new(0., 0., 0.),
             ui_properties: properties.clone(),
             myself: myself.clone(),
         }

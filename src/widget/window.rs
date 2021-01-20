@@ -91,7 +91,7 @@ impl WidgetLogic for Window {
             };
 
             node.set_size(response.size);
-            node.set_position((0., vertical_space - response.size.1, 0.));
+            node.set_position(Vector3::new(0., vertical_space - response.size.1, 0.));
 
             vertical_space -= response.size.1 + WIDGET_SEPARATOR;
             status.0 = LayoutStatus::and(status.0, response.status.0);
@@ -144,9 +144,10 @@ impl WidgetLogic for Window {
             list.list.push(node.draw());
         });
         let color = (42. / 256., 60. / 256., 101. / 256., 1.);
-        let (x, y, z) = metadata.position;
-        list.list_transform =
-            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z + 0.001)).to_homogeneous();
+        list.list_transform = nalgebra::Translation3::from(
+            metadata.position + 0.001 * Vector3::<f32>::z_axis().into_inner(),
+        )
+        .to_homogeneous();
 
         list.commands.push(debug_quad(
             self.size.0,
@@ -164,8 +165,7 @@ impl WidgetLogic for Window {
         ray: &Ray,
         _self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
-        let (x, y, z) = metadata.position;
-        let transformation = Translation3::new(x, y, z).inverse();
+        let transformation = Translation3::from(metadata.position).inverse();
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         self.content
             .iter()

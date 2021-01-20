@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use nalgebra::{Point3, Translation3};
+use nalgebra::{Point3, Translation3, Vector3};
 
 use crate::core::*;
 
@@ -120,10 +120,13 @@ impl WidgetLogic for Button {
 
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {
         #![allow(clippy::many_single_char_names)]
-        let (r, g, b, a) = self.color;
-        let text_color = [r / 1.5, g / 1.5, b / 1.5, a];
+        let text_color = (
+            self.color.0 / 1.5,
+            self.color.1 / 1.5,
+            self.color.2 / 1.5,
+            self.color.3,
+        );
         let size = metadata.size;
-        let (x, y, z) = metadata.position;
 
         let background_command = quad(size.0, size.1, self.texture, self.color, metadata.position);
 
@@ -132,12 +135,8 @@ impl WidgetLogic for Button {
             &self.font,
             1.,
             text_color,
-            nalgebra::Translation3::from(nalgebra::Vector3::new(
-                x + PADDING,
-                y + PADDING,
-                z + 0.001,
-            ))
-            .to_homogeneous(),
+            nalgebra::Translation3::from(metadata.position + Vector3::new(PADDING, PADDING, 0.001))
+                .to_homogeneous(),
         );
 
         let mut list = DrawList::new();
@@ -152,8 +151,7 @@ impl WidgetLogic for Button {
         ray: &Ray,
         self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
-        let (x, y, z) = metadata.position;
-        let transformation = Translation3::new(x, y, z).inverse();
+        let transformation = Translation3::from(metadata.position).inverse();
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         let size = metadata.size;
         let points = [

@@ -1,42 +1,38 @@
 use crate::core::*;
+use nalgebra::{Vector2, Vector3};
 
 pub fn quad(
     width: f32,
     height: f32,
     texture: Option<TextureId>,
     color: (f32, f32, f32, f32),
-    position: (f32, f32, f32),
+    position: Vector3<f32>,
 ) -> DrawCommand {
-    #![allow(clippy::many_single_char_names)]
-    let (r, g, b, a) = color;
-    let color = [r, g, b, a];
-
-    let (x, y, z) = position;
     let mut uniforms = Uniforms::new();
-    uniforms.model_matrix = nalgebra::Translation3::new(x, y, z).to_homogeneous();
+    uniforms.model_matrix = nalgebra::Translation3::from(position).to_homogeneous();
     uniforms.texture = texture;
 
     DrawCommand {
         vertex_buffer: vec![
             Vertex {
-                position: [0., 0., 0.],
+                position: Vector3::new(0., 0., 0.),
                 color,
-                tex_uv: [0., 0.],
+                tex_uv: Vector2::new(0., 0.),
             },
             Vertex {
-                position: [width, 0., 0.],
+                position: Vector3::new(width, 0., 0.),
                 color,
-                tex_uv: [1., 0.],
+                tex_uv: Vector2::new(1., 0.),
             },
             Vertex {
-                position: [0., height, 0.],
+                position: Vector3::new(0., height, 0.),
                 color,
-                tex_uv: [0., 1.],
+                tex_uv: Vector2::new(0., 1.),
             },
             Vertex {
-                position: [width, height, 0.],
+                position: Vector3::new(width, height, 0.),
                 color,
-                tex_uv: [1., 1.],
+                tex_uv: Vector2::new(1., 1.),
             },
         ],
         index_buffer: vec![0, 1, 2, 1, 2, 3],
@@ -49,37 +45,32 @@ pub fn debug_quad(
     width: f32,
     height: f32,
     color: (f32, f32, f32, f32),
-    position: (f32, f32, f32),
+    position: Vector3<f32>,
 ) -> DrawCommand {
-    #![allow(clippy::many_single_char_names)]
-    let (r, g, b, a) = color;
-    let color = [r, g, b, a];
+    let tex_uv = Vector2::new(0., 0.);
 
-    let tex_uv = [0., 0.];
-
-    let (x, y, z) = position;
     let mut uniforms = Uniforms::new();
-    uniforms.model_matrix = nalgebra::Translation3::new(x, y, z).to_homogeneous();
+    uniforms.model_matrix = nalgebra::Translation3::from(position).to_homogeneous();
 
     DrawCommand {
         vertex_buffer: vec![
             Vertex {
-                position: [0., 0., 0.],
+                position: Vector3::new(0., 0., 0.),
                 color,
                 tex_uv,
             },
             Vertex {
-                position: [width, 0., 0.],
+                position: Vector3::new(width, 0., 0.),
                 color,
                 tex_uv,
             },
             Vertex {
-                position: [0., height, 0.],
+                position: Vector3::new(0., height, 0.),
                 color,
                 tex_uv,
             },
             Vertex {
-                position: [width, height, 0.],
+                position: Vector3::new(width, height, 0.),
                 color,
                 tex_uv,
             },

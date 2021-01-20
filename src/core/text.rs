@@ -1,6 +1,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use nalgebra::{Vector2, Vector3};
+
 use crate::core::*;
 
 /// A helper function returning
@@ -9,8 +11,8 @@ use crate::core::*;
 pub fn draw_text(
     text: &str,
     font: &Rc<RefCell<dyn FontAtlas>>,
-    size: f32,
-    color: [f32; 4],
+    font_size: f32,
+    color: (f32, f32, f32, f32),
     transformation: Mat4x4,
 ) -> DrawCommand {
     let mut font = font.borrow_mut();
@@ -34,7 +36,7 @@ pub fn draw_text(
             top_left: (tx, ty),
             bottom_right: (bx, by),
             kerning,
-        } = font.char_info(c, last_char, size);
+        } = font.char_info(c, last_char, font_size);
 
         let ax = cursor + tx + kerning;
         let ay = ty;
@@ -42,24 +44,24 @@ pub fn draw_text(
         let by = by;
 
         vertex_buffer.push(Vertex {
-            position: [ax, ay, 0.],
+            position: Vector3::new(ax, ay, 0.),
             color,
-            tex_uv: [u, v],
+            tex_uv: Vector2::new(u, v),
         });
         vertex_buffer.push(Vertex {
-            position: [bx, ay, 0.],
+            position: Vector3::new(bx, ay, 0.),
             color,
-            tex_uv: [u + w, v],
+            tex_uv: Vector2::new(u + w, v),
         });
         vertex_buffer.push(Vertex {
-            position: [ax, by, 0.],
+            position: Vector3::new(ax, by, 0.),
             color,
-            tex_uv: [u, v + h],
+            tex_uv: Vector2::new(u, v + h),
         });
         vertex_buffer.push(Vertex {
-            position: [bx, by, 0.],
+            position: Vector3::new(bx, by, 0.),
             color,
-            tex_uv: [u + w, v + h],
+            tex_uv: Vector2::new(u + w, v + h),
         });
 
         index_buffer.push(base as u32);

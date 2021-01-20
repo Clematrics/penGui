@@ -70,7 +70,11 @@ impl WidgetLogic for WindowHandler {
             status.0 = LayoutStatus::and(status.0, response.status.0);
             status.1 = LayoutStatus::and(status.1, response.status.1);
 
-            node.set_position((-response.size.0 / 2., -response.size.1 / 2., 3.));
+            node.set_position(Vector3::new(
+                -response.size.0 / 2.,
+                -response.size.1 / 2.,
+                3.,
+            ));
         }
         // The response is irrelevant here
         LayoutResponse {
@@ -93,8 +97,7 @@ impl WidgetLogic for WindowHandler {
         ray: &Ray,
         _self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
-        let (x, y, z) = metadata.position;
-        let transformation = Translation3::new(x, y, z).inverse();
+        let transformation = Translation3::from(metadata.position).inverse();
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         self.windows
             .iter()

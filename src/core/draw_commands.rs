@@ -1,3 +1,5 @@
+use nalgebra::{Vector2, Vector3};
+
 /// Structure used to store all the information about vertices.
 /// It holds:
 /// - a position in the 3D space
@@ -5,9 +7,9 @@
 /// - UV coordinates in case there is a texture
 #[derive(Copy, Clone)]
 pub struct Vertex {
-    pub position: [f32; 3],
-    pub color: [f32; 4],
-    pub tex_uv: [f32; 2],
+    pub position: Vector3<f32>,
+    pub color: (f32, f32, f32, f32),
+    pub tex_uv: Vector2<f32>,
 }
 
 /// Internal type for a 4x4 matrix

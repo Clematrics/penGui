@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use crate::core::*;
 
-use nalgebra::{Point3, Translation3};
+use nalgebra::{Point3, Translation3, Vector3};
 
 /// An editable text
 pub struct TextBuilder<'a> {
@@ -98,11 +98,6 @@ impl WidgetLogic for Text {
     }
 
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {
-        #![allow(clippy::many_single_char_names)]
-        let (r, g, b, a) = self.color;
-        let color = [r, g, b, a];
-        let (x, y, z) = metadata.position;
-
         let background_command = debug_quad(
             metadata.size.0,
             metadata.size.1,
@@ -118,8 +113,11 @@ impl WidgetLogic for Text {
             self.text.as_str(),
             &self.font,
             self.size,
-            color,
-            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z + 0.001)).to_homogeneous(),
+            self.color,
+            nalgebra::Translation3::from(
+                metadata.position + 0.001 * Vector3::<f32>::z_axis().into_inner(),
+            )
+            .to_homogeneous(),
         );
 
         let mut list = DrawList::new();
@@ -134,8 +132,7 @@ impl WidgetLogic for Text {
         ray: &Ray,
         self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
-        let (x, y, z) = metadata.position;
-        let transformation = Translation3::new(x, y, z).inverse();
+        let transformation = Translation3::from(metadata.position).inverse();
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         let size = metadata.size;
         let points = [

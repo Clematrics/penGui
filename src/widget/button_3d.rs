@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use nalgebra::{Point3, Translation3};
+use nalgebra::{Point3, Translation3, Vector2, Vector3};
 
 use crate::core::*;
 
@@ -128,40 +128,45 @@ impl WidgetLogic for Button3D {
     }
 
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {
-        #![allow(clippy::many_single_char_names)]
-        let (r, g, b, a) = self.color;
-        let text_color = [r / 1.5, g / 1.5, b / 1.5, a];
+        let text_color = (
+            self.color.0 / 1.5,
+            self.color.1 / 1.5,
+            self.color.2 / 1.5,
+            self.color.3,
+        );
         let size = metadata.size;
-        let (x, y, z) = metadata.position;
 
         let mesh_command = {
             let top_points = [
-                [0., 0., self.extrude],
-                [size.0, 0., self.extrude],
-                [0., size.1, self.extrude],
-                [size.0, size.1, self.extrude],
+                Vector3::new(0., 0., self.extrude),
+                Vector3::new(size.0, 0., self.extrude),
+                Vector3::new(0., size.1, self.extrude),
+                Vector3::new(size.0, size.1, self.extrude),
             ];
             let bottom_points = [
-                [0., 0., 0.],
-                [size.0, 0., 0.],
-                [0., size.1, 0.],
-                [size.0, size.1, 0.],
+                Vector3::new(0., 0., 0.),
+                Vector3::new(size.0, 0., 0.),
+                Vector3::new(0., size.1, 0.),
+                Vector3::new(size.0, size.1, 0.),
             ];
-            let uv = [[0., 0.], [1., 0.], [0., 1.], [1., 1.]];
-            let (r, g, b, a) = self.color;
-            let color = [r, g, b, a];
+            let uv = [
+                Vector2::new(0., 0.),
+                Vector2::new(1., 0.),
+                Vector2::new(0., 1.),
+                Vector2::new(1., 1.),
+            ];
             let vertex_buffer: Vec<Vertex> = top_points
                 .iter()
                 .zip(uv.iter())
                 .map(|(&position, &tex_uv)| Vertex {
                     position,
-                    color,
+                    color: self.color,
                     tex_uv,
                 })
                 .chain(bottom_points.iter().zip(uv.iter().skip(1).cycle()).map(
                     |(&position, &tex_uv)| Vertex {
                         position,
-                        color,
+                        color: self.color,
                         tex_uv,
                     },
                 ))
@@ -176,7 +181,8 @@ impl WidgetLogic for Button3D {
             ];
             let mut uniforms = Uniforms::new();
             uniforms.texture = self.texture;
-            uniforms.model_matrix = nalgebra::Translation3::new(x, y, z).to_homogeneous();
+            uniforms.model_matrix =
+                nalgebra::Translation3::from(metadata.position).to_homogeneous();
 
             DrawCommand {
                 vertex_buffer,
@@ -191,11 +197,9 @@ impl WidgetLogic for Button3D {
             &self.font,
             1.,
             text_color,
-            nalgebra::Translation3::from(nalgebra::Vector3::new(
-                x + PADDING,
-                y + PADDING,
-                z + self.extrude + 0.001,
-            ))
+            nalgebra::Translation3::from(
+                metadata.position + Vector3::new(PADDING, PADDING, self.extrude + 0.001),
+            )
             .to_homogeneous(),
         );
 
@@ -211,8 +215,7 @@ impl WidgetLogic for Button3D {
         ray: &Ray,
         self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
-        let (x, y, z) = metadata.position;
-        let transformation = Translation3::new(x, y, z).inverse();
+        let transformation = Translation3::from(metadata.position).inverse();
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         let size = metadata.size;
         let points = [

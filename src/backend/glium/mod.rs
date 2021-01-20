@@ -112,9 +112,17 @@ impl GliumBackend {
         local_transform: Mat4x4,
         command: &DrawCommand,
     ) -> DrawResult {
+        let vertices = command
+            .vertex_buffer
+            .iter()
+            .map(|v| GliumVertex {
+                position: [v.position.x, v.position.y, v.position.z],
+                color: [v.color.0, v.color.1, v.color.2, v.color.3],
+                tex_uv: [v.tex_uv.x, v.tex_uv.y],
+            })
+            .collect::<Vec<GliumVertex>>();
         let vertex_buffer =
-            glium::VertexBuffer::immutable(&self.display, &command.vertex_buffer.as_slice())
-                .unwrap();
+            glium::VertexBuffer::immutable(&self.display, &vertices.as_slice()).unwrap();
         let primitve_type = match command.draw_mode {
             DrawMode::Triangles => glium::index::PrimitiveType::TrianglesList,
             DrawMode::Lines => glium::index::PrimitiveType::LinesList,
@@ -262,8 +270,15 @@ type Frame = glium::Frame;
 type RawTexture<'a> = glium::texture::RawImage2d<'a, u8>;
 type Texture = glium::Texture2d;
 
+#[derive(Copy, Clone)]
+struct GliumVertex {
+    position: [f32; 3],
+    color: [f32; 4],
+    tex_uv: [f32; 2],
+}
+
 // creation of the vertex structure for `glium` from the penGui one
-glium::implement_vertex!(Vertex, position, color, tex_uv);
+glium::implement_vertex!(GliumVertex, position, color, tex_uv);
 
 /// GLSL vertex shader source
 static VERTEX_SHADER_SRC: &str = r#"
