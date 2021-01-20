@@ -70,8 +70,7 @@ impl WidgetBuilder for Button3D {
 
     fn build(self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
-
-        let (node, feedback) = parent.query::<Self::AchievedType>(id).update(self);
+        let (_, feedback) = parent.query::<Self::AchievedType>(id).update(self);
         feedback
     }
 }
@@ -136,27 +135,36 @@ impl WidgetLogic for Button3D {
         let (x, y, z) = metadata.position;
 
         let mesh_command = {
-            let points = [
-                // Top points
+            let top_points = [
                 [0., 0., self.extrude],
                 [size.0, 0., self.extrude],
                 [0., size.1, self.extrude],
                 [size.0, size.1, self.extrude],
-                // Bottom points
+            ];
+            let bottom_points = [
                 [0., 0., 0.],
                 [size.0, 0., 0.],
                 [0., size.1, 0.],
                 [size.0, size.1, 0.],
             ];
+            let uv = [[0., 0.], [1., 0.], [0., 1.], [1., 1.]];
             let (r, g, b, a) = self.color;
             let color = [r, g, b, a];
-            let vertex_buffer: Vec<Vertex> = points
+            let vertex_buffer: Vec<Vertex> = top_points
                 .iter()
-                .map(|&position| Vertex {
+                .zip(uv.iter())
+                .map(|(&position, &tex_uv)| Vertex {
                     position,
-                    color: color,
-                    tex_uv: [0., 0.],
+                    color,
+                    tex_uv,
                 })
+                .chain(bottom_points.iter().zip(uv.iter().skip(1).cycle()).map(
+                    |(&position, &tex_uv)| Vertex {
+                        position,
+                        color,
+                        tex_uv,
+                    },
+                ))
                 .collect();
             let index_buffer = vec![
                 // Front face
@@ -167,6 +175,7 @@ impl WidgetLogic for Button3D {
                 1, 3, 5, 3, 5, 7,
             ];
             let mut uniforms = Uniforms::new();
+            uniforms.texture = self.texture;
             uniforms.model_matrix = nalgebra::Translation3::new(x, y, z).to_homogeneous();
 
             DrawCommand {

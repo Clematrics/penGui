@@ -157,7 +157,7 @@ pub struct NodeMetadata {
     pub invalid: bool,
     pub size: (f32, f32),
     pub position: (f32, f32, f32),
-    pub global_properties: Weak<RefCell<GlobalProperties>>,
+    pub ui_properties: Weak<RefCell<GlobalProperties>>,
     pub myself: NodeWeakReference,
 }
 
@@ -172,20 +172,20 @@ impl NodeMetadata {
             invalid: false,
             size: (0., 0.),
             position: (0., 0., 0.),
-            global_properties: properties.clone(),
+            ui_properties: properties.clone(),
             myself: myself.clone(),
         }
     }
 
     pub fn is_focused(&self) -> bool {
-        self.global_properties
+        self.ui_properties
             .upgrade()
             .map(|prop| prop.borrow_mut().is_focused(&self.myself))
             .unwrap_or(false)
     }
 
     pub fn request_focus(&self) {
-        self.global_properties
+        self.ui_properties
             .upgrade()
             .map(|prop| prop.borrow_mut().request_focus(&self.myself));
     }

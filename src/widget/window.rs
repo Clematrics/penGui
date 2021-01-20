@@ -125,7 +125,7 @@ impl WidgetLogic for Window {
         let (index, result) = match child {
             Some((index, node_ref)) => (index, WidgetQueryResult::Initialized(node_ref)),
             None => {
-                let node_ref = Node::new_reference(id, &metadata.global_properties);
+                let node_ref = Node::new_reference(id, &metadata.ui_properties);
                 self.content.push(node_ref.clone());
                 (
                     self.content.len() - 1,

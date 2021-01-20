@@ -74,7 +74,7 @@ impl WidgetLogic for Padding {
         match child {
             Some(node_ref) => WidgetQueryResult::Initialized(node_ref),
             None => {
-                let node_ref = Node::new_reference(id, &metadata.global_properties);
+                let node_ref = Node::new_reference(id, &metadata.ui_properties);
                 self.content = Some(node_ref.clone());
                 WidgetQueryResult::Uninitialized(node_ref)
             }
