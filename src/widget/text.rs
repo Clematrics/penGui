@@ -101,16 +101,28 @@ impl WidgetLogic for Text {
         let color = [r, g, b, a];
         let (x, y, z) = metadata.position;
 
+        let background_command = debug_quad(
+            metadata.size.0,
+            metadata.size.1,
+            if metadata.is_focused() {
+                (1., 1., 1., 1.)
+            } else {
+                (0.3, 0.3, 0.3, 1.)
+            },
+            metadata.position,
+        );
+
         let text_command = draw_text(
             self.text.as_str(),
             &self.font,
             self.size,
             color,
-            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z)).to_homogeneous(),
+            nalgebra::Translation3::from(nalgebra::Vector3::new(x, y, z + 0.001)).to_homogeneous(),
         );
 
         let mut list = DrawList::new();
         list.commands.push(text_command);
+        list.commands.push(background_command);
         list
     }
 
@@ -143,15 +155,10 @@ impl WidgetLogic for Text {
     }
 
     fn send_event(&mut self, metadata: &mut NodeMetadata, event: &Event) -> EventResponse {
-        println!("Received event");
         match event {
             Event::MouseButtonPressed(MouseButton::Left)
             | Event::MouseButtonPressed(MouseButton::Touch) => {
-                println!("Taking focus");
-                metadata
-                    .global_properties
-                    .upgrade()
-                    .map(|p| p.borrow_mut().request_focus(&metadata.myself));
+                metadata.request_focus();
                 EventResponse::Registered
             }
             Event::Character(c) => {

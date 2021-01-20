@@ -13,6 +13,10 @@ pub struct GlobalProperties {
 }
 
 impl GlobalProperties {
+    pub fn is_focused(&self, other: &NodeWeakReference) -> bool {
+        self.focus.upgrade() == other.upgrade()
+    }
+
     pub fn request_focus(&mut self, node: &NodeWeakReference) {
         self.focus = node.clone();
     }
@@ -157,18 +161,18 @@ impl Interface {
             if passively_registered {
                 EventResponse::PassivelyRegistered
             } else {
+                // No widget found, if left click, resetting focus
+                if let Event::MouseButtonPressed(MouseButton::Left) = event {
+                    self.properties.borrow_mut().focus = Weak::new();
+                }
                 EventResponse::Pass
             }
         } else {
-            println!("Launched event to focused widget");
             self.properties
                 .borrow()
                 .focus
                 .upgrade()
-                .map(|node| {
-                    println!("There is a focused widget");
-                    node.borrow_mut().send_event(&event)
-                })
+                .map(|node| node.borrow_mut().send_event(&event))
                 .unwrap_or(EventResponse::Pass)
         }
     }

@@ -40,6 +40,19 @@ impl NodeMetadata {
             myself: myself.clone(),
         }
     }
+
+    pub fn is_focused(&self) -> bool {
+        self.global_properties
+            .upgrade()
+            .map(|prop| prop.borrow_mut().is_focused(&self.myself))
+            .unwrap_or(false)
+    }
+
+    pub fn request_focus(&self) {
+        self.global_properties
+            .upgrade()
+            .map(|prop| prop.borrow_mut().request_focus(&self.myself));
+    }
 }
 
 /// An node is a wrapper around an object with a `Widget` trait,
