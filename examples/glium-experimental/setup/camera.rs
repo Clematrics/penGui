@@ -1,4 +1,4 @@
-use std::f32::consts::PI;
+use std::f32::consts::{FRAC_PI_2, PI};
 
 use glium::glutin::event::{DeviceEvent, Event, MouseScrollDelta, WindowEvent};
 use nalgebra as na;
@@ -6,7 +6,8 @@ use pengui::core::Ray;
 
 /// An arc-ball camera
 pub struct Camera {
-    distance: f32,
+    position: na::Vector3<f32>,
+    speed: f32,
     yaw: f32,
     pitch: f32,
     width: f32,
@@ -28,8 +29,9 @@ impl Camera {
         let height = super::main_window::DEFAULT_WINDOW_HEIGHT as f32;
 
         Self {
-            distance: 15.,
-            yaw: PI,
+            position: na::Vector3::new(0., 0., 20.),
+            speed: 1.,
+            yaw: 0.,
             pitch: 0.,
             width,
             height,
@@ -47,11 +49,11 @@ impl Camera {
                 DeviceEvent::MouseMotion { delta: (dx, dy) } if should_move => {
                     self.yaw -= *dx as f32 / 800.;
                     self.pitch += *dy as f32 / 800.;
-                    if self.pitch < -(PI / 2.) + 0.1 {
-                        self.pitch = -(PI / 2.) + 0.1;
+                    if self.pitch < -FRAC_PI_2 + 0.1 {
+                        self.pitch = -FRAC_PI_2 + 0.1;
                     }
-                    if self.pitch > (PI / 2.) - 0.1 {
-                        self.pitch = (PI / 2.) - 0.1;
+                    if self.pitch > FRAC_PI_2 - 0.1 {
+                        self.pitch = FRAC_PI_2 - 0.1;
                     }
                 }
                 _ => (),
@@ -61,11 +63,39 @@ impl Camera {
                     delta: MouseScrollDelta::LineDelta(_, dy),
                     ..
                 } => {
-                    self.distance += dy;
-                    if self.distance <= 0.1 {
-                        self.distance = 0.1;
+                    self.speed -= dy;
+                    if self.speed <= 0.1 {
+                        self.speed = 0.1;
+                    }
+                    if self.speed >= 5. {
+                        self.speed = 5.;
                     }
                 }
+                WindowEvent::KeyboardInput { input, .. } => match input.virtual_keycode {
+                    Some(glium::glutin::event::VirtualKeyCode::Up) => {
+                        self.position += self.speed * self.direction()
+                    }
+                    Some(glium::glutin::event::VirtualKeyCode::Down) => {
+                        self.position -= self.speed * self.direction()
+                    }
+                    Some(glium::glutin::event::VirtualKeyCode::Left) => {
+                        let rotation = na::UnitQuaternion::from_axis_angle(
+                            &na::Vector3::<f32>::y_axis(),
+                            FRAC_PI_2,
+                        );
+                        self.position += self.speed *
+                            (rotation * na::Vector3::new(-self.yaw.sin(), 0., -self.yaw.cos()));
+                    }
+                    Some(glium::glutin::event::VirtualKeyCode::Right) => {
+                        let rotation = na::UnitQuaternion::from_axis_angle(
+                            &na::Vector3::<f32>::y_axis(),
+                            FRAC_PI_2,
+                        );
+                        self.position -= self.speed *
+                            (rotation * na::Vector3::new(-self.yaw.sin(), 0., -self.yaw.cos()));
+                    }
+                    _ => (),
+                },
                 _ => (),
             },
             _ => (),
@@ -79,12 +109,12 @@ impl Camera {
         self.ratio = self.width / self.height;
     }
 
-    pub fn position(&self) -> na::Point3<f32> {
-        let x = self.distance * -self.yaw.sin() * self.pitch.cos();
-        let y = self.distance * self.pitch.sin();
-        let z = self.distance * -self.yaw.cos() * self.pitch.cos();
+    pub fn direction(&self) -> na::Vector3<f32> {
+        let x = -self.yaw.sin() * self.pitch.cos();
+        let y = -self.pitch.sin();
+        let z = -self.yaw.cos() * self.pitch.cos();
 
-        na::Point3::new(x, y, z)
+        na::Vector3::new(x, y, z)
     }
 
     /// Returns the perspective matrix of the camera.
@@ -98,8 +128,8 @@ impl Camera {
 
     /// Returns the view matrix of the camera.
     fn view_matrix(&self) -> na::Isometry3<f32> {
-        let target = na::Point3::new(0., 0., 0.);
-        let eye = self.position();
+        let target = na::Point3::from(self.position + self.direction());
+        let eye = na::Point3::from(self.position);
         na::Isometry3::look_at_rh(&eye, &target, &na::Vector3::y())
     }
 
