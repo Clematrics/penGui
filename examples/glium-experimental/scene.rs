@@ -1,5 +1,5 @@
 use super::mesh::Mesh;
-use super::meshes::TestCube;
+use super::meshes::NoiseFloor;
 use super::setup::camera::*;
 use super::setup::main_window::*;
 use super::ui::Ui;
@@ -16,7 +16,7 @@ pub struct Scene {
     camera: Camera,
     pub ui: Ui,
 
-    test_cube: TestCube,
+    noise_floor: NoiseFloor,
 }
 
 impl Scene {
@@ -26,7 +26,7 @@ impl Scene {
             backend,
             camera: Default::default(),
             ui,
-            test_cube: Default::default(),
+            noise_floor: Default::default(),
         }
     }
 
@@ -69,11 +69,13 @@ impl Scene {
         }
     }
 
-    pub fn render(&mut self, time: f32) {
+    pub fn render(&mut self, _time: f32) {
+        if self.ui.radius != self.noise_floor.radius {
+            self.noise_floor.change_radius(self.ui.radius);
+        }
+
         let mut target = self.backend.new_frame();
-        let blue = (1. + f32::sin(time + std::f32::consts::PI)) / 2.;
-        let red = (1. + f32::sin(time)) / 2.;
-        target.clear_color_and_depth((red, 0.0, blue, 1.0), 1.0);
+        target.clear_color_and_depth((0.447, 0.549, 0.6, 1.0), 1.0);
 
         let (width, height) = target.get_dimensions();
         self.camera.set_dimensions(width, height);
@@ -85,7 +87,7 @@ impl Scene {
                 &mut target,
                 view_matrix,
                 Mat4x4::identity(),
-                self.test_cube.draw_list(),
+                self.noise_floor.draw_list(),
             )
             .unwrap();
 

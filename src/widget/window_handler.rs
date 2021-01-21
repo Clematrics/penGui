@@ -71,8 +71,8 @@ impl WidgetLogic for WindowHandler {
             status.1 = LayoutStatus::and(status.1, response.status.1);
 
             node.set_transform(
-                Similarity3::identity()
-                    * Translation3::new(-response.size.0 / 2., -response.size.1 / 2., 3.),
+                node.get_transform()
+                    * Translation3::new(-response.size.0 / 2., -response.size.1 / 2., 0.),
             );
         }
         // The response is irrelevant here

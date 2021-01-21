@@ -129,14 +129,14 @@ impl WidgetLogic for Padding {
         let mut list = DrawList::new();
         list.list.push(self.content.as_ref().unwrap().draw());
         list.list_transform = metadata.transform.to_homogeneous();
-        let debug_color = (1., 0., 0., 1.);
-        let debug_command = debug_quad(
-            metadata.size.0,
-            metadata.size.1,
-            debug_color,
-            metadata.transform,
-        );
-        list.commands.push(debug_command);
+        // let debug_color = (1., 0., 0., 1.);
+        // let debug_command = debug_quad(
+        //     metadata.size.0,
+        //     metadata.size.1,
+        //     debug_color,
+        //     metadata.transform,
+        // );
+        // list.commands.push(debug_command);
         list
     }
 

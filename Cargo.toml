@@ -15,3 +15,4 @@ rustc_version = "0.3.0"
 [dev-dependencies]
 nalgebra = "0.23.1"
 image = "0.23.12"
+rand = "0.8.2"

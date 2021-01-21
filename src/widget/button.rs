@@ -12,6 +12,7 @@ pub struct Button {
     color: (f32, f32, f32, f32),
     text_color: (f32, f32, f32, f32),
     font: Rc<RefCell<dyn FontAtlas>>,
+    font_size: f32,
     pressed: bool,
     texture: Option<TextureId>,
 }
@@ -26,9 +27,14 @@ impl Button {
             color: BACKGROUND,
             text_color: TEXT,
             font: font.clone(),
+            font_size: 1.,
             pressed: false,
             texture: None,
         }
+    }
+
+    pub fn font_size(self, font_size: f32) -> Self {
+        Self { font_size, ..self }
     }
 
     pub fn color(self, color: (f32, f32, f32, f32)) -> Self {
@@ -79,7 +85,10 @@ const PADDING: f32 = 0.2;
 
 impl WidgetLogic for Button {
     fn layout(&mut self, query: &LayoutQuery) -> LayoutResponse {
-        let (label_width, label_height) = self.font.borrow().size_of(self.label.as_str(), 1.);
+        let (label_width, label_height) = self
+            .font
+            .borrow()
+            .size_of(self.label.as_str(), self.font_size);
 
         let mut width = label_width + 2. * PADDING;
         let mut height = label_height + 2. * PADDING;
@@ -135,7 +144,7 @@ impl WidgetLogic for Button {
         let text_command = draw_text(
             self.label.as_str(),
             &self.font,
-            1.,
+            self.font_size,
             self.text_color,
             (metadata.transform * Translation3::new(PADDING, PADDING, 0.001)).to_homogeneous(),
         );

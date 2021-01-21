@@ -48,6 +48,10 @@ impl NodeReference {
         self.inner.borrow_mut().metadata.transform = transform;
     }
 
+    pub fn get_transform(&self) -> Similarity3<f32> {
+        self.inner.borrow().metadata.transform.clone()
+    }
+
     /// Wraps the `query` function of the contained node.
     pub fn query<T: Widget>(&self, id: ComponentId) -> NodeQueryResult<T> {
         self.inner.borrow_mut().query(id)

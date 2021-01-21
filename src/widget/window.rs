@@ -7,6 +7,7 @@ use crate::core::*;
 pub struct WindowBuilder<'a> {
     title: String,
     size: (f32, f32),
+    transform: Similarity3<f32>,
     generator: Option<Box<dyn 'a + FnMut(&NodeReference)>>,
 }
 
@@ -17,6 +18,7 @@ impl<'a> WindowBuilder<'a> {
         WindowBuilder {
             title: "".to_string(),
             size: (5., 5.),
+            transform: Similarity3::identity(),
             generator: Some(Box::new(generator)),
         }
     }
@@ -27,6 +29,10 @@ impl<'a> WindowBuilder<'a> {
 
     pub fn size(self, size: (f32, f32)) -> Self {
         Self { size, ..self }
+    }
+
+    pub fn transform(self, transform: Similarity3<f32>) -> Self {
+        Self { transform, ..self }
     }
 }
 
@@ -58,8 +64,9 @@ impl<'a> WidgetBuilder for WindowBuilder<'a> {
     fn build(mut self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
         let mut generator = self.generator.take().unwrap();
+        let transform = self.transform.clone();
         let (node_ref, _) = parent.query::<Self::AchievedType>(id).update(self);
-
+        node_ref.set_transform(transform);
         (generator)(&node_ref);
         node_ref.apply_to_widget::<Self::AchievedType, _>(|_, widget| {
             widget.content.retain(|child| child.is_valid())

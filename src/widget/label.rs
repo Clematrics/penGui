@@ -73,7 +73,13 @@ pub struct Label {
 
 impl WidgetLogic for Label {
     fn layout(&mut self, query: &LayoutQuery) -> LayoutResponse {
-        let (width, height) = self.font.borrow().size_of(self.text.as_str(), self.size);
+        let (width, height) = if let Some(max_width) = query.available_space.0 {
+            self.font
+                .borrow()
+                .multiline_size_of(self.text.as_str(), self.size, max_width)
+        } else {
+            self.font.borrow().size_of(self.text.as_str(), self.size)
+        };
 
         if let Some(available_height) = query.available_space.1 {
             if available_height <= height {
@@ -98,10 +104,12 @@ impl WidgetLogic for Label {
     }
 
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {
-        let text_command = draw_text(
+        let text_command = draw_multiline_text(
             self.text.as_str(),
             &self.font,
             self.size,
+            metadata.size.0,
+            metadata.size.1,
             self.text_color,
             metadata.transform.to_homogeneous(),
         );

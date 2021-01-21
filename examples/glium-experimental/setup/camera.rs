@@ -29,7 +29,7 @@ impl Camera {
         let height = super::main_window::DEFAULT_WINDOW_HEIGHT as f32;
 
         Self {
-            position: na::Vector3::new(0., 0., 20.),
+            position: na::Vector3::new(0., 0., 0.),
             speed: 0.1,
             yaw: 0.,
             pitch: 0.,
@@ -67,8 +67,8 @@ impl Camera {
                     if self.speed <= 0.1 {
                         self.speed = 0.1;
                     }
-                    if self.speed >= 5. {
-                        self.speed = 5.;
+                    if self.speed >= 2. {
+                        self.speed = 2.;
                     }
                 }
                 WindowEvent::KeyboardInput { input, .. } => match input.virtual_keycode {
