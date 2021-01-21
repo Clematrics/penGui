@@ -10,8 +10,12 @@ pub struct TextBuilder<'a> {
     text: &'a mut String,
     font: Rc<RefCell<dyn FontAtlas>>,
     size: f32,
-    color: (f32, f32, f32, f32),
+    text_color: (f32, f32, f32, f32),
 }
+
+const BACKGROUND_FOCUSED: (f32, f32, f32, f32) = (0.231, 0.294, 0.451, 1.);
+const BACKGROUND: (f32, f32, f32, f32) = (0.161, 0.176, 0.216, 1.);
+const TEXT: (f32, f32, f32, f32) = (1., 1., 1., 1.);
 
 impl<'a> TextBuilder<'a> {
     pub fn new(text: &'a mut String, font: &Rc<RefCell<dyn FontAtlas>>) -> Self {
@@ -19,12 +23,12 @@ impl<'a> TextBuilder<'a> {
             text,
             font: font.clone(),
             size: 1.0,
-            color: (1.0, 1.0, 1.0, 1.0),
+            text_color: TEXT,
         }
     }
 
-    pub fn color(self, color: (f32, f32, f32, f32)) -> Self {
-        Self { color, ..self }
+    pub fn text_color(self, text_color: (f32, f32, f32, f32)) -> Self {
+        Self { text_color, ..self }
     }
 
     pub fn size(self, size: f32) -> Self {
@@ -44,7 +48,7 @@ impl<'a> WidgetBuilder for TextBuilder<'a> {
     ) -> Self::UpdateFeedback {
         self.text.clone_from(&widget.text);
         widget.size = self.size;
-        widget.color = self.color;
+        widget.text_color = self.text_color;
     }
 
     fn create(self) -> Self::AchievedType {
@@ -52,7 +56,7 @@ impl<'a> WidgetBuilder for TextBuilder<'a> {
             text: self.text.clone(),
             font: self.font,
             size: self.size,
-            color: self.color,
+            text_color: self.text_color,
         }
     }
 
@@ -68,7 +72,7 @@ pub struct Text {
     text: String,
     font: Rc<RefCell<dyn FontAtlas>>,
     size: f32,
-    color: (f32, f32, f32, f32),
+    text_color: (f32, f32, f32, f32),
 }
 
 impl WidgetLogic for Text {
@@ -104,13 +108,14 @@ impl WidgetLogic for Text {
     }
 
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {
-        let background_command = debug_quad(
+        let background_command = quad(
             metadata.size.0,
             metadata.size.1,
+            None,
             if metadata.is_focused() {
-                (1., 1., 1., 1.)
+                BACKGROUND_FOCUSED
             } else {
-                (0.3, 0.3, 0.3, 1.)
+                BACKGROUND
             },
             metadata.transform,
         );
@@ -121,13 +126,13 @@ impl WidgetLogic for Text {
             self.size,
             metadata.size.0,
             metadata.size.1,
-            self.color,
+            self.text_color,
             (metadata.transform * Translation3::new(0., 0., 0.001)).to_homogeneous(),
         );
 
         let mut list = DrawList::new();
-        list.commands.push(text_command);
         list.commands.push(background_command);
+        list.commands.push(text_command);
         list
     }
 

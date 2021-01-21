@@ -8,8 +8,10 @@ pub struct LabelBuilder<'a> {
     text: &'a str,
     font: Rc<RefCell<dyn FontAtlas>>,
     size: f32,
-    color: (f32, f32, f32, f32),
+    text_color: (f32, f32, f32, f32),
 }
+
+const TEXT: (f32, f32, f32, f32) = (1., 1., 1., 1.);
 
 impl<'a> LabelBuilder<'a> {
     pub fn new(text: &'a str, font: &Rc<RefCell<dyn FontAtlas>>) -> Self {
@@ -17,12 +19,12 @@ impl<'a> LabelBuilder<'a> {
             text,
             font: font.clone(),
             size: 1.0,
-            color: (1.0, 1.0, 1.0, 1.0),
+            text_color: TEXT,
         }
     }
 
-    pub fn color(self, color: (f32, f32, f32, f32)) -> Self {
-        Self { color, ..self }
+    pub fn text_color(self, text_color: (f32, f32, f32, f32)) -> Self {
+        Self { text_color, ..self }
     }
 
     pub fn size(self, size: f32) -> Self {
@@ -42,7 +44,7 @@ impl<'a> WidgetBuilder for LabelBuilder<'a> {
     ) -> Self::UpdateFeedback {
         widget.text = self.text.to_string();
         widget.size = self.size;
-        widget.color = self.color;
+        widget.text_color = self.text_color;
     }
 
     fn create(self) -> Self::AchievedType {
@@ -50,7 +52,7 @@ impl<'a> WidgetBuilder for LabelBuilder<'a> {
             text: self.text.to_string(),
             font: self.font,
             size: self.size,
-            color: self.color,
+            text_color: self.text_color,
         }
     }
 
@@ -66,7 +68,7 @@ pub struct Label {
     text: String,
     font: Rc<RefCell<dyn FontAtlas>>,
     size: f32,
-    color: (f32, f32, f32, f32),
+    text_color: (f32, f32, f32, f32),
 }
 
 impl WidgetLogic for Label {
@@ -100,7 +102,7 @@ impl WidgetLogic for Label {
             self.text.as_str(),
             &self.font,
             self.size,
-            self.color,
+            self.text_color,
             metadata.transform.to_homogeneous(),
         );
 

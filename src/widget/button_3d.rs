@@ -11,17 +11,22 @@ pub struct Button3D {
     label: String,
     extrude: f32,
     color: (f32, f32, f32, f32),
+    text_color: (f32, f32, f32, f32),
     font: Rc<RefCell<dyn FontAtlas>>,
     pressed: bool,
     texture: Option<TextureId>,
 }
+
+const BACKGROUND: (f32, f32, f32, f32) = (0.231, 0.294, 0.451, 1.);
+const TEXT: (f32, f32, f32, f32) = (1., 1., 1., 1.);
 
 impl Button3D {
     pub fn new(label: String, font: &Rc<RefCell<dyn FontAtlas>>) -> Self {
         Self {
             label,
             extrude: 0.,
-            color: (0., 0.4, 1., 1.),
+            color: BACKGROUND,
+            text_color: TEXT,
             font: font.clone(),
             pressed: false,
             texture: None,
@@ -34,6 +39,10 @@ impl Button3D {
 
     pub fn color(self, color: (f32, f32, f32, f32)) -> Self {
         Self { color, ..self }
+    }
+
+    pub fn text_color(self, text_color: (f32, f32, f32, f32)) -> Self {
+        Self { text_color, ..self }
     }
 
     pub fn texture(self, texture_id: TextureId) -> Self {
@@ -128,12 +137,6 @@ impl WidgetLogic for Button3D {
     }
 
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {
-        let text_color = (
-            self.color.0 / 1.5,
-            self.color.1 / 1.5,
-            self.color.2 / 1.5,
-            self.color.3,
-        );
         let size = metadata.size;
 
         let mesh_command = {
@@ -195,7 +198,7 @@ impl WidgetLogic for Button3D {
             self.label.as_str(),
             &self.font,
             1.,
-            text_color,
+            self.text_color,
             (metadata.transform * Translation3::new(PADDING, PADDING, self.extrude + 0.001))
                 .to_homogeneous(),
         );

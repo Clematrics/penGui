@@ -71,7 +71,6 @@ impl Ui {
                 .size(0.75)
                 .build(loc!(), &ui);
             if Button::new("               ".to_string(), &self.font)
-                .color((1., 1., 1., 1.))
                 .texture(self.ensps_texture)
                 .build(loc!(), &ui)
             {

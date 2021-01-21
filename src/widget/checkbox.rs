@@ -8,31 +8,28 @@ use crate::core::*;
 /// A basic checkbox widget, with a label
 pub struct CheckBox {
     label: String,
-    background_color: (f32, f32, f32, f32),
     checked_color: (f32, f32, f32, f32),
     unchecked_color: (f32, f32, f32, f32),
+    text_color: (f32, f32, f32, f32),
     font: Rc<RefCell<dyn FontAtlas>>,
     checked: bool,
     texture: Option<TextureId>,
 }
 
+const UNCHECKED: (f32, f32, f32, f32) = (0.161, 0.176, 0.216, 1.);
+const CHECKED: (f32, f32, f32, f32) = (0.231, 0.294, 0.451, 1.);
+const TEXT: (f32, f32, f32, f32) = (1., 1., 1., 1.);
+
 impl CheckBox {
     pub fn new(label: String, font: &Rc<RefCell<dyn FontAtlas>>) -> Self {
         Self {
             label,
-            background_color: (0., 0.4, 1., 1.),
-            checked_color: (0., 1., 0.4, 1.),
-            unchecked_color: (0.4, 0., 1., 1.),
+            checked_color: CHECKED,
+            unchecked_color: UNCHECKED,
+            text_color: TEXT,
             font: font.clone(),
             checked: false,
             texture: None,
-        }
-    }
-
-    pub fn background_color(self, background_color: (f32, f32, f32, f32)) -> Self {
-        Self {
-            background_color,
-            ..self
         }
     }
 
@@ -48,6 +45,10 @@ impl CheckBox {
             unchecked_color,
             ..self
         }
+    }
+
+    pub fn text_color(self, text_color: (f32, f32, f32, f32)) -> Self {
+        Self { text_color, ..self }
     }
 
     pub fn texture(self, texture_id: TextureId) -> Self {
@@ -69,9 +70,9 @@ impl WidgetBuilder for CheckBox {
         widget: &mut Self::AchievedType,
     ) -> Self::UpdateFeedback {
         widget.label = self.label;
-        widget.background_color = self.background_color;
         widget.checked_color = self.checked_color;
         widget.unchecked_color = self.unchecked_color;
+        widget.text_color = self.text_color;
         widget.checked
     }
 
@@ -140,8 +141,6 @@ impl WidgetLogic for CheckBox {
     }
 
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {
-        let background_color = self.background_color;
-
         let color = {
             if self.checked {
                 self.checked_color
@@ -151,7 +150,7 @@ impl WidgetLogic for CheckBox {
         };
         let size = metadata.size;
 
-        let box_size = size.1 - 2. * PADDING;
+        let border = size.1 - PADDING;
 
         let background_command = {
             let mut uniforms = Uniforms::new();
@@ -161,47 +160,27 @@ impl WidgetLogic for CheckBox {
             DrawCommand {
                 vertex_buffer: vec![
                     Vertex {
-                        position: Vector3::new(0., 0., 0.),
-                        color: background_color,
-                        tex_uv: Vector2::new(0., 0.),
-                    },
-                    Vertex {
-                        position: Vector3::new(size.0, 0., 0.),
-                        color: background_color,
-                        tex_uv: Vector2::new(1., 0.),
-                    },
-                    Vertex {
-                        position: Vector3::new(0., size.1, 0.),
-                        color: background_color,
-                        tex_uv: Vector2::new(0., 1.),
-                    },
-                    Vertex {
-                        position: Vector3::new(size.0, size.1, 0.),
-                        color: background_color,
-                        tex_uv: Vector2::new(1., 1.),
-                    },
-                    Vertex {
                         position: Vector3::new(PADDING, PADDING, 0.001),
                         color,
                         tex_uv: Vector2::new(0., 0.),
                     },
                     Vertex {
-                        position: Vector3::new(PADDING + box_size, PADDING, 0.001),
+                        position: Vector3::new(border, PADDING, 0.001),
                         color,
                         tex_uv: Vector2::new(1., 0.),
                     },
                     Vertex {
-                        position: Vector3::new(PADDING, PADDING + box_size, 0.001),
+                        position: Vector3::new(PADDING, border, 0.001),
                         color,
                         tex_uv: Vector2::new(0., 1.),
                     },
                     Vertex {
-                        position: Vector3::new(PADDING + box_size, PADDING + box_size, 0.001),
+                        position: Vector3::new(border, border, 0.001),
                         color,
                         tex_uv: Vector2::new(1., 1.),
                     },
                 ],
-                index_buffer: vec![0, 1, 2, 1, 2, 3, 4, 5, 6, 5, 6, 7],
+                index_buffer: vec![0, 1, 2, 1, 2, 3],
                 draw_mode: DrawMode::Triangles,
                 uniforms,
             }
@@ -211,9 +190,8 @@ impl WidgetLogic for CheckBox {
             self.label.as_str(),
             &self.font,
             1.,
-            color,
-            (metadata.transform * Translation3::new(box_size + 2. * PADDING, PADDING, 0.001))
-                .to_homogeneous(),
+            self.text_color,
+            (metadata.transform * Translation3::new(size.1, PADDING, 0.001)).to_homogeneous(),
         );
 
         let mut list = DrawList::new();
@@ -230,12 +208,12 @@ impl WidgetLogic for CheckBox {
     ) -> Vec<(f32, NodeReference)> {
         let transformation = metadata.transform.inverse();
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
-        let size = metadata.size;
+        let border = metadata.size.1 - PADDING;
         let points = [
-            Point3::new(0., 0., 0.),
-            Point3::new(size.0, 0., 0.),
-            Point3::new(0., size.1, 0.),
-            Point3::new(size.0, size.1, 0.),
+            Point3::new(PADDING, PADDING, 0.),
+            Point3::new(border, PADDING, 0.),
+            Point3::new(PADDING, border, 0.),
+            Point3::new(border, border, 0.),
         ];
         [
             [points[0], points[1], points[2]],

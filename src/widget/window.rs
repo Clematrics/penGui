@@ -10,6 +10,8 @@ pub struct WindowBuilder<'a> {
     generator: Option<Box<dyn 'a + FnMut(&NodeReference)>>,
 }
 
+const BACKGROUND: (f32, f32, f32, f32) = (0.106, 0.125, 0.173, 1.);
+
 impl<'a> WindowBuilder<'a> {
     pub fn new<F: 'a + FnMut(&NodeReference)>(generator: F) -> Self {
         WindowBuilder {
@@ -146,14 +148,14 @@ impl WidgetLogic for Window {
         self.content.iter().for_each(|node| {
             list.list.push(node.draw());
         });
-        let color = (42. / 256., 60. / 256., 101. / 256., 1.);
         list.list_transform =
             (metadata.transform * Translation3::new(0., 0., 0.001)).to_homogeneous();
 
-        list.commands.push(debug_quad(
+        list.commands.push(quad(
             self.size.0,
             self.size.1,
-            color,
+            None,
+            BACKGROUND,
             metadata.transform,
         ));
 
