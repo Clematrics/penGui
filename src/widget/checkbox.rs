@@ -155,8 +155,7 @@ impl WidgetLogic for CheckBox {
 
         let background_command = {
             let mut uniforms = Uniforms::new();
-            uniforms.model_matrix =
-                nalgebra::Translation3::from(metadata.position).to_homogeneous();
+            uniforms.model_matrix = metadata.transform.to_homogeneous();
             uniforms.texture = self.texture;
 
             DrawCommand {
@@ -213,10 +212,8 @@ impl WidgetLogic for CheckBox {
             &self.font,
             1.,
             color,
-            nalgebra::Translation3::from(
-                metadata.position + Vector3::new(box_size + 2. * PADDING, PADDING, 0.001),
-            )
-            .to_homogeneous(),
+            (metadata.transform * Translation3::new(box_size + 2. * PADDING, PADDING, 0.001))
+                .to_homogeneous(),
         );
 
         let mut list = DrawList::new();
@@ -231,7 +228,7 @@ impl WidgetLogic for CheckBox {
         ray: &Ray,
         self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
-        let transformation = Translation3::from(metadata.position).inverse();
+        let transformation = metadata.transform.inverse();
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         let size = metadata.size;
         let points = [

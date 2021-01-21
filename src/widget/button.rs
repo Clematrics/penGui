@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use nalgebra::{Point3, Translation3, Vector3};
+use nalgebra::{Point3, Translation3};
 
 use crate::core::*;
 
@@ -128,15 +128,14 @@ impl WidgetLogic for Button {
         );
         let size = metadata.size;
 
-        let background_command = quad(size.0, size.1, self.texture, self.color, metadata.position);
+        let background_command = quad(size.0, size.1, self.texture, self.color, metadata.transform);
 
         let text_command = draw_text(
             self.label.as_str(),
             &self.font,
             1.,
             text_color,
-            nalgebra::Translation3::from(metadata.position + Vector3::new(PADDING, PADDING, 0.001))
-                .to_homogeneous(),
+            (metadata.transform * Translation3::new(PADDING, PADDING, 0.001)).to_homogeneous(),
         );
 
         let mut list = DrawList::new();
@@ -151,7 +150,7 @@ impl WidgetLogic for Button {
         ray: &Ray,
         self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
-        let transformation = Translation3::from(metadata.position).inverse();
+        let transformation = metadata.transform.inverse();
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         let size = metadata.size;
         let points = [

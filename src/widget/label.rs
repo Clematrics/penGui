@@ -96,14 +96,12 @@ impl WidgetLogic for Label {
     }
 
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {
-        #![allow(clippy::many_single_char_names)]
-
         let text_command = draw_text(
             self.text.as_str(),
             &self.font,
             self.size,
             self.color,
-            nalgebra::Translation3::from(metadata.position).to_homogeneous(),
+            metadata.transform.to_homogeneous(),
         );
 
         let mut list = DrawList::new();

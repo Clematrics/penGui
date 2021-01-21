@@ -109,7 +109,9 @@ impl WidgetLogic for Padding {
 
         let node = self.content.as_ref().unwrap();
         node.set_size(response.size);
-        node.set_position(Vector3::new(self.padding.0, self.padding.1, 0.));
+        node.set_transform(
+            Similarity3::identity() * Translation3::new(self.padding.0, self.padding.1, 0.),
+        );
 
         let width = response.size.0 + 2. * self.padding.0;
         let height = response.size.1 + 2. * self.padding.1;
@@ -126,13 +128,13 @@ impl WidgetLogic for Padding {
     fn draw(&self, metadata: &NodeMetadata) -> DrawList {
         let mut list = DrawList::new();
         list.list.push(self.content.as_ref().unwrap().draw());
-        list.list_transform = nalgebra::Translation3::from(metadata.position).to_homogeneous();
+        list.list_transform = metadata.transform.to_homogeneous();
         let debug_color = (1., 0., 0., 1.);
         let debug_command = debug_quad(
             metadata.size.0,
             metadata.size.1,
             debug_color,
-            metadata.position,
+            metadata.transform,
         );
         list.commands.push(debug_command);
         list
@@ -144,7 +146,7 @@ impl WidgetLogic for Padding {
         ray: &Ray,
         _self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
-        let transformation = Translation3::from(metadata.position).inverse();
+        let transformation = metadata.transform.inverse();
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         self.content
             .iter()

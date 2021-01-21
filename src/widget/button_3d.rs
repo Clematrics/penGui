@@ -181,8 +181,7 @@ impl WidgetLogic for Button3D {
             ];
             let mut uniforms = Uniforms::new();
             uniforms.texture = self.texture;
-            uniforms.model_matrix =
-                nalgebra::Translation3::from(metadata.position).to_homogeneous();
+            uniforms.model_matrix = metadata.transform.to_homogeneous();
 
             DrawCommand {
                 vertex_buffer,
@@ -197,10 +196,8 @@ impl WidgetLogic for Button3D {
             &self.font,
             1.,
             text_color,
-            nalgebra::Translation3::from(
-                metadata.position + Vector3::new(PADDING, PADDING, self.extrude + 0.001),
-            )
-            .to_homogeneous(),
+            (metadata.transform * Translation3::new(PADDING, PADDING, self.extrude + 0.001))
+                .to_homogeneous(),
         );
 
         let mut list = DrawList::new();
@@ -215,7 +212,7 @@ impl WidgetLogic for Button3D {
         ray: &Ray,
         self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
-        let transformation = Translation3::from(metadata.position).inverse();
+        let transformation = metadata.transform.inverse();
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         let size = metadata.size;
         let points = [

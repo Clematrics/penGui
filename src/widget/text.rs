@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use crate::core::*;
 
-use nalgebra::{Point3, Translation3, Vector3};
+use nalgebra::{Point3, Translation3};
 
 /// An editable text
 pub struct TextBuilder<'a> {
@@ -112,7 +112,7 @@ impl WidgetLogic for Text {
             } else {
                 (0.3, 0.3, 0.3, 1.)
             },
-            metadata.position,
+            metadata.transform,
         );
 
         let text_command = draw_multiline_text(
@@ -122,10 +122,7 @@ impl WidgetLogic for Text {
             metadata.size.0,
             metadata.size.1,
             self.color,
-            nalgebra::Translation3::from(
-                metadata.position + 0.001 * Vector3::<f32>::z_axis().into_inner(),
-            )
-            .to_homogeneous(),
+            (metadata.transform * Translation3::new(0., 0., 0.001)).to_homogeneous(),
         );
 
         let mut list = DrawList::new();
@@ -140,7 +137,7 @@ impl WidgetLogic for Text {
         ray: &Ray,
         self_node: NodeReference,
     ) -> Vec<(f32, NodeReference)> {
-        let transformation = Translation3::from(metadata.position).inverse();
+        let transformation = metadata.transform.inverse();
         let new_ray = Ray::new(ray.direction(), transformation * ray.origin());
         let size = metadata.size;
         let points = [

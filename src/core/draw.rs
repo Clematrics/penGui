@@ -1,15 +1,15 @@
 use crate::core::*;
-use nalgebra::{Vector2, Vector3};
+use nalgebra::{Similarity3, Vector2, Vector3};
 
 pub fn quad(
     width: f32,
     height: f32,
     texture: Option<TextureId>,
     color: (f32, f32, f32, f32),
-    position: Vector3<f32>,
+    transform: Similarity3<f32>,
 ) -> DrawCommand {
     let mut uniforms = Uniforms::new();
-    uniforms.model_matrix = nalgebra::Translation3::from(position).to_homogeneous();
+    uniforms.model_matrix = transform.to_homogeneous();
     uniforms.texture = texture;
 
     DrawCommand {
@@ -45,12 +45,12 @@ pub fn debug_quad(
     width: f32,
     height: f32,
     color: (f32, f32, f32, f32),
-    position: Vector3<f32>,
+    transform: Similarity3<f32>,
 ) -> DrawCommand {
     let tex_uv = Vector2::new(0., 0.);
 
     let mut uniforms = Uniforms::new();
-    uniforms.model_matrix = nalgebra::Translation3::from(position).to_homogeneous();
+    uniforms.model_matrix = transform.to_homogeneous();
 
     DrawCommand {
         vertex_buffer: vec![
