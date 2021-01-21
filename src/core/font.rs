@@ -50,5 +50,9 @@ pub trait FontAtlas {
 
     /// Special function which returns the width and height a single-line
     /// string would take if rendered with this atlas.
-    fn size_of(&self, string: &str, size: f32) -> (f32, f32);
+    fn size_of(&self, string: &str, font_size: f32) -> (f32, f32);
+
+    /// Special function which returns the width and height a multi-line
+    /// string would take if rendered with this atlas.
+    fn multiline_size_of(&self, string: &str, font_size: f32, max_width: f32) -> (f32, f32);
 }

@@ -5,7 +5,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::core::{DrawCommand, DrawList, DrawMode, Mat4x4, TextureId, Vertex};
+use crate::core::{DrawCommand, DrawList, DrawMode, Mat4x4, TextureId};
 
 use glium::Surface;
 

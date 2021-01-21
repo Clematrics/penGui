@@ -168,10 +168,10 @@ impl FontAtlas for FontWrapper {
         }
     }
 
-    fn size_of(&self, string: &str, size: f32) -> (f32, f32) {
+    fn size_of(&self, string: &str, font_size: f32) -> (f32, f32) {
         let mut previous_glyph: Option<rusttype::PositionedGlyph> = None;
         let mut width = 0.;
-        let factor = size / self.scale.x;
+        let factor = font_size / self.scale.x;
 
         for c in string.chars() {
             let glyph = self
@@ -191,6 +191,57 @@ impl FontAtlas for FontWrapper {
             previous_glyph = Some(glyph);
         }
 
-        (width, size)
+        (width, font_size)
+    }
+
+    fn multiline_size_of(&self, string: &str, font_size: f32, max_width: f32) -> (f32, f32) {
+        let mut previous_glyph: Option<rusttype::PositionedGlyph> = None;
+        let mut width = 0.0f32;
+        let mut cursor_x = 0.0f32;
+        let mut lines = 1;
+        let factor = font_size / self.scale.x;
+
+        for c in string.chars() {
+            if c == '\r' {
+                lines += 1;
+                width = width.max(cursor_x);
+                cursor_x = 0.;
+
+                previous_glyph = None;
+            } else {
+                let glyph = self
+                    .font
+                    .glyph(c)
+                    .scaled(self.scale)
+                    .positioned(Point { x: 0.0, y: 0.0 });
+                let kerning = previous_glyph
+                    .map(|previous_glyph| {
+                        factor
+                            * self
+                                .font
+                                .pair_kerning(self.scale, previous_glyph.id(), glyph.id())
+                    })
+                    .unwrap_or(0.);
+                let advance_width = factor * glyph.unpositioned().h_metrics().advance_width;
+
+                if cursor_x + advance_width > max_width {
+                    lines += 1;
+                    width = width.max(cursor_x);
+                    cursor_x = advance_width;
+                } else {
+                    cursor_x += advance_width + kerning;
+                }
+                previous_glyph = Some(glyph);
+            }
+        }
+        width = width.max(cursor_x);
+
+        let height = if lines == 0 {
+            0.
+        } else {
+            let lines = lines as f32;
+            font_size * (self.line_gap * (lines - 1.) + lines)
+        };
+        (width, height)
     }
 }
