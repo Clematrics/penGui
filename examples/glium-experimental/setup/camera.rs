@@ -30,7 +30,7 @@ impl Camera {
 
         Self {
             position: na::Vector3::new(0., 0., 20.),
-            speed: 1.,
+            speed: 0.1,
             yaw: 0.,
             pitch: 0.,
             width,
@@ -72,6 +72,12 @@ impl Camera {
                     }
                 }
                 WindowEvent::KeyboardInput { input, .. } => match input.virtual_keycode {
+                    Some(glium::glutin::event::VirtualKeyCode::LShift) => {
+                        self.position += self.speed * na::Vector3::y()
+                    }
+                    Some(glium::glutin::event::VirtualKeyCode::LControl) => {
+                        self.position -= self.speed * na::Vector3::y()
+                    }
                     Some(glium::glutin::event::VirtualKeyCode::Up) => {
                         self.position += self.speed * self.direction()
                     }
@@ -83,16 +89,16 @@ impl Camera {
                             &na::Vector3::<f32>::y_axis(),
                             FRAC_PI_2,
                         );
-                        self.position += self.speed *
-                            (rotation * na::Vector3::new(-self.yaw.sin(), 0., -self.yaw.cos()));
+                        self.position += self.speed
+                            * (rotation * na::Vector3::new(-self.yaw.sin(), 0., -self.yaw.cos()));
                     }
                     Some(glium::glutin::event::VirtualKeyCode::Right) => {
                         let rotation = na::UnitQuaternion::from_axis_angle(
                             &na::Vector3::<f32>::y_axis(),
                             FRAC_PI_2,
                         );
-                        self.position -= self.speed *
-                            (rotation * na::Vector3::new(-self.yaw.sin(), 0., -self.yaw.cos()));
+                        self.position -= self.speed
+                            * (rotation * na::Vector3::new(-self.yaw.sin(), 0., -self.yaw.cos()));
                     }
                     _ => (),
                 },
