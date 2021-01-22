@@ -146,7 +146,7 @@ impl WidgetLogic for Button {
             &self.font,
             self.font_size,
             self.text_color,
-            (metadata.transform * Translation3::new(PADDING, PADDING, 0.001)).to_homogeneous(),
+            (metadata.transform * Translation3::new(PADDING, PADDING, 0.01)).to_homogeneous(),
         );
 
         let mut list = DrawList::new();

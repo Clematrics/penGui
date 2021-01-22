@@ -72,10 +72,10 @@ impl Camera {
                     }
                 }
                 WindowEvent::KeyboardInput { input, .. } => match input.virtual_keycode {
-                    Some(glium::glutin::event::VirtualKeyCode::LShift) => {
+                    Some(glium::glutin::event::VirtualKeyCode::LShift) if should_move => {
                         self.position += self.speed * na::Vector3::y()
                     }
-                    Some(glium::glutin::event::VirtualKeyCode::LControl) => {
+                    Some(glium::glutin::event::VirtualKeyCode::LControl) if should_move => {
                         self.position -= self.speed * na::Vector3::y()
                     }
                     Some(glium::glutin::event::VirtualKeyCode::Up) => {

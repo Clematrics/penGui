@@ -46,6 +46,7 @@ impl<'a> WidgetBuilder for WindowBuilder<'a> {
         _metadata: &NodeMetadata,
         widget: &mut Self::AchievedType,
     ) -> Self::UpdateFeedback {
+        widget.size = self.size;
         widget.title = self.title;
 
         widget.content.iter().for_each(|child| child.invalidate());
@@ -156,7 +157,7 @@ impl WidgetLogic for Window {
             list.list.push(node.draw());
         });
         list.list_transform =
-            (metadata.transform * Translation3::new(0., 0., 0.001)).to_homogeneous();
+            (metadata.transform * Translation3::new(0., 0., 0.01)).to_homogeneous();
 
         list.commands.push(quad(
             self.size.0,

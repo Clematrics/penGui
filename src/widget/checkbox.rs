@@ -160,22 +160,22 @@ impl WidgetLogic for CheckBox {
             DrawCommand {
                 vertex_buffer: vec![
                     Vertex {
-                        position: Vector3::new(PADDING, PADDING, 0.001),
+                        position: Vector3::new(PADDING, PADDING, 0.01),
                         color,
                         tex_uv: Vector2::new(0., 0.),
                     },
                     Vertex {
-                        position: Vector3::new(border, PADDING, 0.001),
+                        position: Vector3::new(border, PADDING, 0.01),
                         color,
                         tex_uv: Vector2::new(1., 0.),
                     },
                     Vertex {
-                        position: Vector3::new(PADDING, border, 0.001),
+                        position: Vector3::new(PADDING, border, 0.01),
                         color,
                         tex_uv: Vector2::new(0., 1.),
                     },
                     Vertex {
-                        position: Vector3::new(border, border, 0.001),
+                        position: Vector3::new(border, border, 0.01),
                         color,
                         tex_uv: Vector2::new(1., 1.),
                     },
@@ -191,7 +191,7 @@ impl WidgetLogic for CheckBox {
             &self.font,
             1.,
             self.text_color,
-            (metadata.transform * Translation3::new(size.1, PADDING, 0.001)).to_homogeneous(),
+            (metadata.transform * Translation3::new(size.1, PADDING, 0.01)).to_homogeneous(),
         );
 
         let mut list = DrawList::new();

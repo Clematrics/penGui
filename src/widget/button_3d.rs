@@ -199,7 +199,7 @@ impl WidgetLogic for Button3D {
             &self.font,
             1.,
             self.text_color,
-            (metadata.transform * Translation3::new(PADDING, PADDING, self.extrude + 0.001))
+            (metadata.transform * Translation3::new(PADDING, PADDING, self.extrude + 0.01))
                 .to_homogeneous(),
         );
 

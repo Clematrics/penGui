@@ -19,6 +19,8 @@ pub struct Ui {
     font: Rc<RefCell<dyn FontAtlas>>,
     ensps_texture: TextureId,
 
+    window_width: f32,
+    window_height: f32,
     random_color: (f32, f32, f32, f32),
     extrude: f32,
     button_active: bool,
@@ -41,6 +43,8 @@ impl Ui {
             ui,
             font,
             ensps_texture,
+            window_width: 25.,
+            window_height: 25.,
             random_color: (0.231, 0.294, 0.451, 1.),
             extrude: 0.2,
             button_active: false,
@@ -54,17 +58,50 @@ impl Ui {
         self.ui.register_event(event, ray);
     }
 
+    fn input_mul<'a>(
+        string: &'a str,
+        var: &'a mut f32,
+        font: &'a Rc<RefCell<dyn FontAtlas>>,
+    ) -> InlineBuilder<'a> {
+        InlineBuilder::new(move |ui| {
+            LabelBuilder::new(string, font).build(loc!(), &ui);
+            if Button::new("◀".to_string(), font).build(loc!(), &ui) {
+                *var /= 1.1;
+            }
+            LabelBuilder::new(format!("{:.2}", var).as_str(), font).build(loc!(), &ui);
+            if Button::new("▶".to_string(), font).build(loc!(), &ui) {
+                *var *= 1.1;
+            }
+        })
+    }
+
+    fn input_add<'a>(
+        string: &'a str,
+        var: &'a mut f32,
+        font: &'a Rc<RefCell<dyn FontAtlas>>,
+    ) -> InlineBuilder<'a> {
+        InlineBuilder::new(move |ui| {
+            LabelBuilder::new(string, font).build(loc!(), &ui);
+            if Button::new("◀".to_string(), font).build(loc!(), &ui) {
+                *var -= 1.0;
+            }
+            LabelBuilder::new(format!("{:.2}", var).as_str(), font).build(loc!(), &ui);
+            if Button::new("▶".to_string(), font).build(loc!(), &ui) {
+                *var += 1.0;
+            }
+        })
+    }
+
     pub fn ui(&mut self) {
         self.ui.new_frame();
         let root = self.ui.root.clone();
+        let window_width = self.window_width;
+        let window_height = self.window_height;
 
         WindowBuilder::new(|ui| {
             let frame_number = FrameCounter::new().build(loc!(), &ui);
-            if PaddingBuilder::new(
-                (0.2, 0.2),
-                Button::new("Clickable button".to_string(), &self.font),
-            )
-            .build(loc!(), &ui)
+            if CenterLayout::new(Button::new("Clickable button".to_string(), &self.font))
+                .build(loc!(), &ui)
             {
                 self.button_active = !self.button_active;
             }
@@ -87,7 +124,7 @@ impl Ui {
             }
 
             if CheckBox::new("A checkbox".to_string(), &self.font).build(loc!(), &ui) {
-                if Button::new("           ".to_string(), &self.font)
+                if Button::new("        ".to_string(), &self.font)
                     .font_size(5.)
                     .color((1., 1., 1., 1.))
                     .texture(self.ensps_texture)
@@ -99,25 +136,19 @@ impl Ui {
                     LabelBuilder::new("Hi!", &self.font).build(loc!(), &ui);
                 }
             }
-            TextBuilder::new(&mut self.editable_text, &self.font)
-                .size(0.75)
+            MaximizeLayout::new(TextBuilder::new(&mut self.editable_text, &self.font).size(0.75))
                 .build(loc!(), &ui);
 
-            if Button::new("▲ increase extrusion".to_string(), &self.font).build(loc!(), &ui) {
-                self.extrude *= 1.1;
-            }
-            if Button::new("▼ decrease extrusion".to_string(), &self.font).build(loc!(), &ui) {
-                self.extrude /= 1.1;
-            }
+            Self::input_mul("Extrusion", &mut self.extrude, &self.font).build(loc!(), &ui);
 
-            if Button::new("▲ increase radius".to_string(), &self.font).build(loc!(), &ui) {
-                self.radius *= 1.1;
-            }
-            if Button::new("▼ decrease radius".to_string(), &self.font).build(loc!(), &ui) {
-                self.radius /= 1.1;
-            }
+            Self::input_mul("Radius", &mut self.radius, &self.font).build(loc!(), &ui);
+
+            Self::input_add("Window width", &mut self.window_width, &self.font).build(loc!(), &ui);
+
+            Self::input_add("Window height", &mut self.window_height, &self.font)
+                .build(loc!(), &ui);
         })
-        .size((30., 30.))
+        .size((window_width, window_height))
         .transform(Similarity3::new(
             Vector3::new(0., 0., -20.),
             Vector3::zeros(),

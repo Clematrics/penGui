@@ -77,7 +77,7 @@ pub struct Text {
 
 impl WidgetLogic for Text {
     fn layout(&mut self, query: &LayoutQuery) -> LayoutResponse {
-        let (width, height) = if let Some(max_width) = query.available_space.0 {
+        let (mut width, height) = if let Some(max_width) = query.available_space.0 {
             self.font
                 .borrow()
                 .multiline_size_of(self.text.as_str(), self.size, max_width)
@@ -91,6 +91,12 @@ impl WidgetLogic for Text {
                     size: (0., 0.),
                     status: (LayoutStatus::Ok, LayoutStatus::WontDisplay),
                 };
+            }
+        }
+
+        if let Objective::Maximize = query.objectives.0 {
+            if let Some(max_width) = query.available_space.0 {
+                width = width.max(max_width);
             }
         }
 
@@ -127,7 +133,7 @@ impl WidgetLogic for Text {
             metadata.size.0,
             metadata.size.1,
             self.text_color,
-            (metadata.transform * Translation3::new(0., 0., 0.001)).to_homogeneous(),
+            (metadata.transform * Translation3::new(0., 0., 0.01)).to_homogeneous(),
         );
 
         let mut list = DrawList::new();
