@@ -66,9 +66,7 @@ impl MainWindow {
     /// Returns the time elapsed since the last frame was created.
     pub fn get_delta_time(&self) -> u64 {
         let delta_t = Instant::now() - self.last_frame_time;
-        let delta_t = delta_t.as_nanos() as u64;
-
-        delta_t
+        delta_t.as_nanos() as u64
     }
 
     /// Updates the last frame time and returns the time elapsed since the beginning.
@@ -76,9 +74,7 @@ impl MainWindow {
         self.last_frame_time = Instant::now();
 
         let time = Instant::now() - self.start_time;
-        let time = time.as_secs_f32();
-
-        time
+        time.as_secs_f32()
     }
 
     /// Updates the control flow to redraw the frame in 16ms if necessary.
@@ -96,8 +92,8 @@ impl MainWindow {
     /// Handles events related to the window.
     /// React to the close button and the `Ctrl+W` key, which closes the window.
     pub fn handle_events(&mut self, event: &Event<()>, control_flow: &mut ControlFlow) {
-        match event {
-            Event::WindowEvent { event, .. } => match event {
+        if let Event::WindowEvent { event, .. } = event {
+            match event {
                 WindowEvent::Resized(size) => {
                     self.window_size = (size.width, size.height);
                 }
@@ -122,15 +118,13 @@ impl MainWindow {
                 }
                 WindowEvent::Touch(Touch {
                     phase, location, ..
-                }) => match phase {
-                    TouchPhase::Moved => {
+                }) => {
+                    if let TouchPhase::Moved = phase {
                         self.mouse_pos = (location.x as f32, location.y as f32);
                     }
-                    _ => (),
-                },
+                }
                 _ => (),
-            },
-            _ => (),
+            }
         }
     }
 }

@@ -30,8 +30,8 @@ pub struct Ui {
 }
 
 impl Ui {
-    pub fn new<'a>(backend: &'a mut GliumBackend) -> Self {
-        let font = backend.get_font(0).clone();
+    pub fn new(backend: &mut GliumBackend) -> Self {
+        let font = backend.get_font(0);
         let ensps_texture =
             Self::register_image(backend, &include_bytes!("../resources/pengui.png")[..]);
 

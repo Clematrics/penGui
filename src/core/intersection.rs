@@ -1,4 +1,5 @@
 use nalgebra::*;
+use std::f32::EPSILON;
 
 /// A direction and an origin for ray-traced events
 pub struct Ray(Vector3<f32>, Point3<f32>);
@@ -25,7 +26,6 @@ impl Ray {
 pub fn intersection(ray: &Ray, triangle: &[Point3<f32>; 3]) -> Option<f32> {
     #![allow(clippy::many_single_char_names)]
     let Ray(direction, origin) = ray;
-    const EPSILON: f32 = 0.000001;
 
     let edge_1 = triangle[1] - triangle[0];
     let edge_2 = triangle[2] - triangle[0];
@@ -33,7 +33,7 @@ pub fn intersection(ray: &Ray, triangle: &[Point3<f32>; 3]) -> Option<f32> {
     let a = edge_1.dot(&h);
 
     // The ray is parallel to the triangle
-    if -EPSILON < a && a < EPSILON {
+    if (-EPSILON..EPSILON).contains(&a) {
         return None;
     }
 
@@ -41,7 +41,7 @@ pub fn intersection(ray: &Ray, triangle: &[Point3<f32>; 3]) -> Option<f32> {
     let s = origin - triangle[0];
     let u = f * s.dot(&h);
 
-    if u < 0. || 1. < u {
+    if !(0. ..=1.).contains(&u) {
         return None;
     }
 

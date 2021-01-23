@@ -65,7 +65,7 @@ impl<'a> WidgetBuilder for WindowBuilder<'a> {
     fn build(mut self, loc: CodeLocation, parent: &NodeReference) -> Self::BuildFeedback {
         let id = ComponentId::new::<Self::AchievedType>(loc);
         let mut generator = self.generator.take().unwrap();
-        let transform = self.transform.clone();
+        let transform = self.transform;
         let (node_ref, _) = parent.query::<Self::AchievedType>(id).update(self);
         node_ref.set_transform(transform);
         (generator)(&node_ref);

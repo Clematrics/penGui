@@ -49,7 +49,7 @@ impl NodeReference {
     }
 
     pub fn get_transform(&self) -> Similarity3<f32> {
-        self.inner.borrow().metadata.transform.clone()
+        self.inner.borrow().metadata.transform
     }
 
     /// Wraps the `query` function of the contained node.
@@ -191,9 +191,9 @@ impl NodeMetadata {
     }
 
     pub fn request_focus(&self) {
-        self.ui_properties
-            .upgrade()
-            .map(|prop| prop.borrow_mut().request_focus(&self.myself));
+        if let Some(prop) = self.ui_properties.upgrade() {
+            prop.borrow_mut().request_focus(&self.myself);
+        }
     }
 }
 

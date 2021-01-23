@@ -33,8 +33,8 @@ impl Scene {
     pub fn handle_events(&mut self, event: &GlutinEvent<()>, main_window: &MainWindow) {
         self.camera.handle_events(&event, main_window.alt_pressed);
 
-        match &event {
-            GlutinEvent::WindowEvent { event, .. } => match event {
+        if let GlutinEvent::WindowEvent { event, .. } = &event {
+            match event {
                 WindowEvent::KeyboardInput { input, .. } => {
                     if let Some(glium::glutin::event::VirtualKeyCode::D) = input.virtual_keycode {
                         if let glium::glutin::event::ElementState::Released = input.state {
@@ -64,13 +64,12 @@ impl Scene {
                         self.ui.register_event(event, None);
                     }
                 }
-            },
-            _ => (),
+            }
         }
     }
 
     pub fn render(&mut self, _time: f32) {
-        if self.ui.radius != self.noise_floor.radius {
+        if self.ui.radius.to_bits() != self.noise_floor.radius.to_bits() {
             self.noise_floor.change_radius(self.ui.radius);
         }
 
